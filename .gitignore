@@ -37,3 +37,11 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
+
+# IntelliJ specific files
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+out/

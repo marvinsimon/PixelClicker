@@ -10,6 +10,6 @@ internal class KtTest {
 
     @Test
     fun negativeTest() {
-        assert(false)
+        assert(true)
     }
 }

@@ -31,7 +31,7 @@ cache:
 build-job: # This job runs in the build stage, which runs first.
   stage: build
   script:
-    - gradlew build
+    - gradlew.bat build
   artifacts:
     paths:
       - build/*

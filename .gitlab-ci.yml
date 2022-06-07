@@ -46,7 +46,7 @@ unit-test-job:   # This job runs in the test stage.
   artifacts:
     reports:
       junit: 
-        - ./build/test-results/test/*/*TEST-*.xml
+        - ./build/test-results/test/TEST-*.xml
     paths:
       - ./build/*
     expire_in: 1 day

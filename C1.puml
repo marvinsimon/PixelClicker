@@ -1,0 +1,15 @@
+@startuml C1
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+SHOW_PERSON_PORTRAIT()
+
+Person(Player, "Player", "A user of the game")
+System_Ext(EmailSystem, "E-Mail System", "Enables the player to create new accounts and authenticate himself.")
+System_Ext(AccountStorage, "Account Storage System", "Database for saving the accounts the users have created.")
+System(ClickerRoyale, "Clicker Royale Software System", "Enables the player to play the game")
+
+Rel(Player, ClickerRoyale, "Uses", "Mobile/Desktop")
+Rel(ClickerRoyale, EmailSystem, "Sends E-Mail using", "")
+Rel(ClickerRoyale, AccountStorage, "Uses", "")
+Rel(EmailSystem, Player, "Sends E-Mail to", "")
+@enduml

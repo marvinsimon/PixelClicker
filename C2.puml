@@ -1,0 +1,25 @@
+@startuml C2
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+SHOW_PERSON_PORTRAIT()
+
+Person(player, "Player", "A user of Clicker Royale")
+System_Boundary(c1, "Clicker Royale System") {
+    System(clickerRoyaleAppPhone, "Clicker Royale Mobile App", "Allows Users to play the game on phone and manage their profiles", "Spring, Kotlin")
+    System(clickerRoyaleAppPC, "Clicker Royale Desktop App", "Allows Users to play the game on PC and manage their profiles", "Spring, Kotlin")
+    SystemDb(accDatabase, "Database", "Stores registration information, credentials, owned skins and game progress", "Sqlite Database")
+    Container(api, "API", "", "Endpoint to get Userdata", $tags="apiTag")
+}
+System_Ext(accountStorageSystem, "Account Storage System", "Stores all Account information about specific users and their progress")
+System_Ext(emailSystem, "E-mail System", "E-mail System to create and authenticate users to specific accounts")
+AddElementTag("apiTag", $shape=EightSidedShape())
+
+Rel_D(player, clickerRoyaleAppPC, "Uses")
+Rel_D(player, clickerRoyaleAppPhone, "Uses")
+Rel(clickerRoyaleAppPC, api, "Uses", "async, JSON/HTTPS")
+Rel(clickerRoyaleAppPhone, api, "Uses", "async, JSON/HTTPS")
+Rel(api, emailSystem, "Sends e-mail using", "sync")
+Rel(api, accountStorageSystem, "Uses", "sync/async, JSON/HTTPS")
+Rel(api, accDatabase, "Reads from and writes to", "sync/async")
+Rel_U(emailSystem, player, "Sends-email to")
+@enduml

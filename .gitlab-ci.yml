@@ -15,7 +15,7 @@
 
 stages: # List of stages for jobs, and their order of execution
   - build
-#  - test
+  - test
 #  - deploy
 
 before_script: #  - echo `pwd` # debug
@@ -35,8 +35,21 @@ build-job: # This job runs in the build stage, which runs first.
   artifacts:
     paths:
       - build/*
-    expire_in: 1 week
+    expire_in: 1 day
     when: always
+
+unit-test-job:   # This job runs in the test stage.
+  stage: test
+  script:
+    - echo "testing the code"
+    - gradle test
+  artifacts:
+    reports:
+      junit: 
+        - ./build/test-results/test/TEST-*.xml
+    paths:
+      - ./build/*
+    expire_in: 1 day
 
 after_script:
   - echo "End CI"

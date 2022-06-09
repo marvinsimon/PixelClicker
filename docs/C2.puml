@@ -1,7 +1,7 @@
 @startuml C2
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-SHOW_PERSON_PORTRAIT()
+SHOW_PERSON_OUTLINE()
 
 Person(player, "Player", "A user of Clicker Royale")
 System_Boundary(c1, "Clicker Royale System") {

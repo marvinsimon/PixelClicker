@@ -6,15 +6,18 @@
 # This specific template is located at:
 # https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Rust.gitlab-ci.yml
 
-# Official language image. Look for the different tagged releases at:
-# https://hub.docker.com/r/library/rust/tags/
-image: "rust:latest"
+
 
 # Optional: Pick zero or more services to be used on all builds.
 # Only needed when using a docker container to run your tests in.
 # Check out: https://docs.gitlab.com/ee/ci/services/index.html
 services:
   - postgres:latest
+
+stages:
+  -  test:cargo
+  -  test:node
+  -  deploy
 
 # Optional: Install a C compiler, cmake and git into the container.
 # You will often need this when you (or any of your dependencies) depends on C code.
@@ -24,8 +27,12 @@ services:
 
 # Use cargo to test the project
 test:cargo:
+  # Official language image. Look for the different tagged releases at:
+  # https://hub.docker.com/r/library/rust/tags/
+  image: "rust:latest"
   script:
     - rustc --version && cargo --version  # Print version info for debugging
+    - cd "Clicker-Backend"
     - cargo test --workspace --verbose
 
 # Optional: Use a third party library to generate gitlab junit reports
@@ -38,6 +45,14 @@ test:cargo:
 #     when: always
 #     reports:
 #       junit: $CI_PROJECT_DIR/tests/*.xml
+
+test:node:
+    image: "node:latest"
+    script:
+        - node --version 
+        - cd Clicker-Frontend
+        - npm i
+        - npm run build
 
 deploy:
   stage: deploy

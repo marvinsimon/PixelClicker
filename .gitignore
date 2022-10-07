@@ -45,3 +45,6 @@ gradle-app.setting
 *.iws
 .DS_Store
 out/
+
+
+/bin

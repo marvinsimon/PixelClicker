@@ -13,6 +13,7 @@ use tower_http::cors::CorsLayer;
 mod game_events;
 mod game_state;
 
+#[tokio::main]
 async fn main() {
     #[cfg(debug_assertions)]
     {
@@ -49,13 +50,14 @@ async fn main() {
         .await
         .unwrap();
 }
-// basic handler that responds with a static string
+
+/// basic handler that responds with a static string
 async fn root() -> &'static str {
     "Hello, World!"
 }
 
 async fn connect_game(ws: WebSocketUpgrade) -> Response {
-    ws.on_upgrade(move |socket| handle_game(socket))
+    ws.on_upgrade(handle_game)
 }
 
 async fn handle_game(mut socket: WebSocket) {
@@ -63,7 +65,7 @@ async fn handle_game(mut socket: WebSocket) {
     'outer: loop {
         let instant = Instant::now();
         let mut event = game_state.tick(1);
-        if sender
+        if socket
             .send(Message::Text(serde_json::to_string(&event).unwrap()))
             .await
             .is_err()

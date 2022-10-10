@@ -9,5 +9,5 @@ pub enum ClientMessages {
 #[derive(Serialize, TypeDef)]
 pub enum ServerMessages {
     //Insert events from backend to frontend
-    MineOre(u64),
+    DigDown(u64);
 }

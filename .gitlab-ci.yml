@@ -33,13 +33,13 @@ cargo:
   image: "rust:latest"
   script:
     - rustc --version && cargo --version  # Print version info for debugging
-    - cd "Clicker-Backend"
+    - cd "clicker_backend"
     - cargo test --workspace --verbose
     - echo "Test" > test123
     - ls -la
   artifacts:
     paths:
-      - Clicker-Backend/test123
+      - clicker_backend/test123
     expire_in: 1 day
     when: always
 
@@ -62,7 +62,7 @@ node:
     - cd Clicker-Frontend
     - npm i
     - npm run build
-    - cd ../Clicker-Backend 
+    - cd ../clicker_backend 
     - cat test123 
 
 deploy:

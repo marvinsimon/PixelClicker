@@ -78,6 +78,11 @@ async fn handle_game(mut socket: WebSocket) {
                 // Message successfully received
                 Ok(Some(Ok(message))) => {
                     // Todo: Wait the rest of the tts -> update tts to the new value
+                    tts = tts.saturating_sub(instant.elapsed());
+                    match &message.into_text() {
+                        Ok(msg) => { game_state.handle(serde_json::from_str(&msg).unwrap())}
+                        Err(_) => { break; }
+                    }
                 }
                 // Message receiving failed -> Client disconnected
                 Ok(Some(Err(err))) => break 'outer,
@@ -90,3 +95,4 @@ async fn handle_game(mut socket: WebSocket) {
     }
     // Todo: Save the game state
 }
+

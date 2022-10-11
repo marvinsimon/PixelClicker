@@ -8,13 +8,15 @@ pub struct GameState {
 
 impl GameState {
     pub fn tick(&mut self, ticks: u64) -> ServerMessages {
-        self.depth = self.depth + 1;
-        ServerMessages::DigDown(self.depth)
+        ServerMessages::NewDepth(self.depth * ticks)
     }
 
     /// Use this Function for Frontend -> Backend event handling
     pub fn handle(&mut self, event: ClientMessages) {
-        match event {}
+        match event {
+            // The depth is currently only increased once per event
+            DigDown => self.depth = self.depth + 1,
+        }
     }
 
     pub fn new() -> Self {

@@ -1,24 +1,21 @@
-import type { Component } from 'solid-js';
+import { Component, createEffect, createMemo, createSignal, Show } from 'solid-js';
 
 import logo from './logo.svg';
 import styles from './App.module.css';
 
 const App: Component = () => {
+  const [money, setMoney] = createSignal(0);
+
+  const click = () => {
+    setMoney(money()+1)
+  }
+
   return (
     <div class={styles.App}>
       <header class={styles.header}>
-        <img src={logo} class={styles.logo} alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          class={styles.link}
-          href="https://github.com/solidjs/solid"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Solid
-        </a>
+        <button class={styles.buttons} onClick={click}>Upgrade</button>
+        <br/>
+        <label>{money()}</label>
       </header>
     </div>
   );

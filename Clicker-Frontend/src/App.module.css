@@ -19,6 +19,18 @@
   color: white;
 }
 
+.body {
+  background-color: white;
+}
+
+.buttons {
+  background: white;
+  padding: 1em;
+  border: none;
+  border-radius: 5px;
+  font-family: "Courier New", monospace;
+}
+
 .link {
   color: #b318f0;
 }

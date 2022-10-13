@@ -59,7 +59,7 @@ node:
   image: "node:latest"
   script:
     - node --version 
-    - cd Clicker-Frontend
+    - cd clicker_frontend
     - npm i
     - npm run build
     - cd ../clicker_backend 

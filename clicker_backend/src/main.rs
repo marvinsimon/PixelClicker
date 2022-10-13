@@ -56,6 +56,7 @@ async fn root() -> &'static str {
 }
 
 async fn connect_game(ws: WebSocketUpgrade) -> Response {
+    println!("Connected");
     ws.on_upgrade(handle_game)
 }
 
@@ -79,7 +80,7 @@ async fn handle_game(mut socket: WebSocket) {
                     // Todo: Wait the rest of the tts -> update tts to the new value
                     tts = tts.saturating_sub(instant.elapsed());
                     match &message.into_text() {
-                        Ok(msg) => { game_state.handle(serde_json::from_str(&msg).unwrap())}
+                        Ok(msg) => { game_state.handle(serde_json::from_str(msg).unwrap()) }
                         Err(_) => { break; }
                     }
                 }
@@ -93,5 +94,6 @@ async fn handle_game(mut socket: WebSocket) {
         }
     }
     // Todo: Save the game state
+    println!("Disconnected");
 }
 

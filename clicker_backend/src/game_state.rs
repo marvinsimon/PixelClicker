@@ -17,7 +17,7 @@ impl GameState {
     pub fn handle(&mut self, event: ClientMessages) {
         match event {
             // The depth is currently only increased once per event
-            ClientMessages::Mine() => {
+            ClientMessages::Mine => {
                 self.depth += 1;
                 self.ore += 1;
             }

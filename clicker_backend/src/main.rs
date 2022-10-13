@@ -4,10 +4,9 @@ use axum::extract::ws::{Message, WebSocket};
 use axum::extract::WebSocketUpgrade;
 use axum::response::Response;
 use axum::routing::get;
-use axum::{Error, Router};
+use axum::{Router};
 use std::net::SocketAddr;
 use std::time::{Duration, Instant};
-
 use tower_http::cors::CorsLayer;
 
 mod game_events;

@@ -26,7 +26,7 @@ async fn main() {
             String::from_utf8(buf).unwrap()
         };
 
-        std::fs::write("../Clicker-Frontend/src/game_messages.ts", ts_module).unwrap();
+        std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
     }
 
     // build our application with a route

@@ -12,7 +12,7 @@ impl GameState {
     pub fn tick(&mut self, ticks: u64) -> ServerMessages {
         self.ore += ticks * self.multiplier;
         self.depth += ticks * self.multiplier;
-        ServerMessages::NewState { ore: self.ore, depth: self.depth + ticks * self.multiplier }
+        ServerMessages::NewState { ore: self.ore, depth: self.depth }
     }
 
     /// Use this Function for Frontend -> Backend event handling
@@ -27,6 +27,6 @@ impl GameState {
     }
 
     pub fn new() -> Self {
-        GameState { ore: 0, depth: 0, multiplier: 1 }
+        GameState { ore: 0, depth: 0, multiplier: 0 }
     }
 }

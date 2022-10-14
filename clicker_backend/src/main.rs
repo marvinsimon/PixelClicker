@@ -4,10 +4,9 @@ use axum::extract::ws::{Message, WebSocket};
 use axum::extract::WebSocketUpgrade;
 use axum::response::Response;
 use axum::routing::get;
-use axum::{Error, Router};
+use axum::{Router};
 use std::net::SocketAddr;
 use std::time::{Duration, Instant};
-use tokio::time::error::Elapsed;
 use tower_http::cors::CorsLayer;
 
 mod game_events;
@@ -57,6 +56,7 @@ async fn root() -> &'static str {
 }
 
 async fn connect_game(ws: WebSocketUpgrade) -> Response {
+    println!("Connected");
     ws.on_upgrade(handle_game)
 }
 
@@ -78,6 +78,11 @@ async fn handle_game(mut socket: WebSocket) {
                 // Message successfully received
                 Ok(Some(Ok(message))) => {
                     // Todo: Wait the rest of the tts -> update tts to the new value
+                    tts = tts.saturating_sub(instant.elapsed());
+                    match &message.into_text() {
+                        Ok(msg) => { game_state.handle(serde_json::from_str(msg).unwrap()) }
+                        Err(_) => { break; }
+                    }
                 }
                 // Message receiving failed -> Client disconnected
                 Ok(Some(Err(err))) => break 'outer,
@@ -89,4 +94,6 @@ async fn handle_game(mut socket: WebSocket) {
         }
     }
     // Todo: Save the game state
+    println!("Disconnected");
 }
+

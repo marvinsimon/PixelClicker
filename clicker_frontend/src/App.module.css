@@ -21,15 +21,22 @@
 
 
 .popup {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
     z-index: 2;
     background: #ddd;
     padding: 1rem;
-    max-height: 200px;
-    max-width: 200px;
+    height: 400px;
+    width: 300px;
+    font-size: large;
+    color: #282c34;
+    border-radius: 10px;
 }
 
-.popup::after {
+/*.popup::after {
     content: " ";
     position: absolute;
     bottom: 100%;
@@ -38,10 +45,18 @@
     border-width: 5px;
     border-style: solid;
     border-color: transparent transparent #ddd transparent;
-}
+}*/
 
 .button {
     background: white;
+    padding: 1em;
+    border: none;
+    border-radius: 5px;
+    font-family: "Courier New", monospace;
+}
+
+.submitbutton {
+    background: forestgreen;
     padding: 1em;
     border: none;
     border-radius: 5px;

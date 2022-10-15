@@ -6,10 +6,16 @@ import {Portal} from "solid-js/web";
 import Dismiss from "solid-dismiss";
 
 const App: Component = () => {
+    let password_field: HTMLInputElement;
+    let email_field: HTMLInputElement;
 
     const [ore, setOre] = createSignal(0);
-    const [open, setOpen] = createSignal(false);
+    const [auth, setAuth] = createSignal(false);
+
+    //PopUp variables
     let btnEl;
+    const [open, setOpen] = createSignal(false);
+
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
     const connectBackend = async () => {
@@ -39,28 +45,10 @@ const App: Component = () => {
         }
     }
 
-    const dropdown = () => {
-        const [open, setOpen] = createSignal(false);
-        let btnEl;
+    const sign_up = async () => {
 
-        return (
-            <div style="position: relative;">
-                <button ref={btnEl}>Button</button>
-                <Dismiss
-                    menuButton={btnEl}
-                    open={open}
-                    setOpen={setOpen}
-                    cursorKeys
-                >
-                    <ul class="dropdown">
-                        <li><a href="#">cat</a></li>
-                        <li><a href="#">dog</a></li>
-                        <li><a href="#">fish</a></li>
-                    </ul>
-                </Dismiss>
-            </div>
-        );
     };
+
 
     return (
         <div class={styles.App}>
@@ -74,15 +62,25 @@ const App: Component = () => {
                 <br/>
                 <label>{ore()}</label>
                 <br/>
-                <button class={styles.button} ref={btnEl}>Popup</button>
-                <Dismiss
-                    menuButton={btnEl}
-                    open={open}
-                    setOpen={setOpen}
-                >
+                <button class={styles.button} ref={btnEl}>Sign Up</button>
+                <Dismiss menuButton={btnEl} open={open} setOpen={setOpen}>
                     <div class={styles.popup}>
-                        <p>Popup text!</p>
-                        <p>Lorem, <a href="#">ipsum</a> dolor.</p>
+                        <p>Sign Up</p>
+                        <br/>
+                        <label>Email</label> <input ref={email_field!} type="text"/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <label>Password</label> <input ref={password_field!} type="text"/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <br/>
+                        <button class={styles.submitbutton} onClick={sign_up}>Submit</button>
+                        <br/>
+                        <br/>
+                        <p>Already registered? <a href="http://localhost:3001/login">Log in</a></p>
                     </div>
                 </Dismiss>
             </header>

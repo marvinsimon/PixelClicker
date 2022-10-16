@@ -1,9 +1,7 @@
-import type {Component} from 'solid-js';
-import {createSignal} from "solid-js";
+import {Component, Show} from 'solid-js';
+import {createSignal, onCleanup} from "solid-js";
 import styles from './App.module.css';
 import {ServerMessages, ClientMessages} from "./game_messages";
-import {Portal} from "solid-js/web";
-import Dismiss from "solid-dismiss";
 
 const App: Component = () => {
     let password_field: HTMLInputElement;
@@ -12,9 +10,9 @@ const App: Component = () => {
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
 
-    //PopUp variables
-    let btnEl;
-    const [open, setOpen] = createSignal(false);
+
+    //PopUp Variable
+    const [show, setShow] = createSignal(false);
 
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
@@ -46,43 +44,49 @@ const App: Component = () => {
     }
 
     const sign_up = async () => {
-
+        let auth = btoa(`${email_field.value}:${password_field.value}`);
+        const response = await fetch("http://localhost:3001/sign_up", {
+            method: "GET",
+            credentials: "include",
+            headers: {"Authorization": `Basic ${auth}`}
+        });
+        console.log(`sign_up: ${response.statusText}`);
+        if (response.ok) {
+            setAuth(true);
+            await connect_to_game();
+        }
     };
+
+
+    let el:any;
+
+    function clickOutside(el: { contains: (arg0: any) => any; }, accessor: () => { (): any; new(): any; }) {
+        const onClick = (e) => !el.contains(e.target) && accessor()?.();
+        document.body.addEventListener("click", onClick);
+
+        onCleanup(() => document.body.removeEventListener("click", onClick));
+    }
 
 
     return (
         <div class={styles.App}>
             <header class={styles.header}>
-
-
                 <button class={styles.button} onClick={connectBackend}>Connect</button>
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
-                <br/>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
-                <br/>
                 <label>{ore()}</label>
-                <br/>
-                <button class={styles.button} ref={btnEl}>Sign Up</button>
-                <Dismiss menuButton={btnEl} open={open} setOpen={setOpen}>
-                    <div class={styles.popup}>
-                        <p>Sign Up</p>
-                        <br/>
-                        <label>Email</label> <input ref={email_field!} type="text"/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <label>Password</label> <input ref={password_field!} type="text"/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <button class={styles.submitbutton} onClick={sign_up}>Submit</button>
-                        <br/>
-                        <br/>
-                        <p>Already registered? <a href="http://localhost:3001/login">Log in</a></p>
+                <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
+                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                        <h3>Sign Up</h3>
+                        <form>
+                            <label>Email</label>
+                            <input type="text" ref={email_field!} placeholder="Your email.."/>
+                            <label>Password</label>
+                            <input type="text" ref={password_field!} placeholder="Your password.."/>
+                            <input type="submit" value="Submit"/>
+                        </form>
                     </div>
-                </Dismiss>
+                </Show>
             </header>
         </div>
     );

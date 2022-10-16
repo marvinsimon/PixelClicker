@@ -4,7 +4,7 @@ use typescript_type_def::TypeDef;
 #[derive(Deserialize, TypeDef)]
 pub enum ClientMessages {
     //Insert events from frontend to backend
-    Mine,
+    Mine,Sign_Up,
 }
 
 #[derive(Serialize, TypeDef)]

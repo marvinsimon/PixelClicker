@@ -17,35 +17,49 @@
     justify-content: center;
     font-size: calc(10px + 2vmin);
     color: white;
+    font-family: "Courier New", monospace;
 }
 
 
-.popup {
+.modal {
     position: absolute;
     top: 50%;
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-    z-index: 2;
-    background: #ddd;
-    padding: 1rem;
+
     height: 400px;
     width: 300px;
-    font-size: large;
+
     color: #282c34;
-    border-radius: 10px;
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
 }
 
-/*.popup::after {
-    content: " ";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #ddd transparent;
-}*/
+input[type=text] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 16px;
+    resize: vertical;
+}
+
+input[type=submit] {
+    background-color: #04AA6D;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
 
 .button {
     background: white;
@@ -60,7 +74,7 @@
     padding: 1em;
     border: none;
     border-radius: 5px;
-    font-family: "Courier New", monospace;
+
 }
 
 .link {

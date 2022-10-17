@@ -27,7 +27,7 @@ impl GameState {
                 self.ore += 1;
                 ServerMessages::NewState { ore: self.ore, depth: self.depth }
             }
-            ClientMessages:: UpgradeShovel => {
+            ClientMessages:: UpgradeShovelDepth => {
                 if self.shovel_depth_level < max_level &&
                     upgrade_costs[(self.shovel_depth_level-1) as usize] <= self.ore {
                     self.ore = self.ore - upgrade_costs[(self.shovel_depth_level-1) as usize];

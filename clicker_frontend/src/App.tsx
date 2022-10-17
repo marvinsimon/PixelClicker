@@ -6,6 +6,7 @@ import {ServerMessages, ClientMessages} from "./game_messages";
 const App: Component = () => {
 
     const [ore, setOre] = createSignal(0);
+    const [depth, setDepth] = createSignal(0);
 
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
@@ -31,6 +32,7 @@ const App: Component = () => {
                 if ("NewState" in event) {
                     console.log(event.NewState);
                     setOre(event.NewState.ore);
+                    setDepth(event.NewState.depth);
                 }
             }
         }
@@ -45,6 +47,7 @@ const App: Component = () => {
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
                 <label>{ore()}</label>
+                <label>Grabtiefe: {depth()}</label>
             </header>
         </div>
     );

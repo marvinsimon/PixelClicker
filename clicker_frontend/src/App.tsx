@@ -7,6 +7,7 @@ const App: Component = () => {
 
     const [ore, setOre] = createSignal(0);
     const [depth, setDepth] = createSignal(0);
+    const [level, setLevel] = createSignal(0);
 
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
@@ -46,6 +47,7 @@ const App: Component = () => {
                 <br/>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
+                <button class={styles.button} onClick={click}>Schaufelgeschwindigkeit: {ore()} <br/> Level: {ore()} <br/></button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
             </header>

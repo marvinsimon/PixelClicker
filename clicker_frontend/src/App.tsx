@@ -53,7 +53,6 @@ const App: Component = () => {
         console.log(`sign_up: ${response.statusText}`);
         if (response.ok) {
             setAuth(true);
-            await connect_to_game();
         }
     };
 
@@ -83,7 +82,7 @@ const App: Component = () => {
                             <input type="text" ref={email_field!} placeholder="Your email.."/>
                             <label>Password</label>
                             <input type="text" ref={password_field!} placeholder="Your password.."/>
-                            <input type="submit" value="Submit"/>
+                            <input type="submit" value="Submit" onClick={sign_up}/>
                         </form>
                     </div>
                 </Show>

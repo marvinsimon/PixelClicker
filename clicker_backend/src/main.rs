@@ -4,10 +4,9 @@ use axum::extract::ws::{Message, WebSocket};
 use axum::extract::WebSocketUpgrade;
 use axum::response::Response;
 use axum::routing::get;
-use axum::{Error, Router};
+use axum::{Router};
 use std::net::SocketAddr;
 use std::time::{Duration, Instant};
-use tokio::time::error::Elapsed;
 use tower_http::cors::CorsLayer;
 
 mod game_events;
@@ -27,7 +26,7 @@ async fn main() {
             String::from_utf8(buf).unwrap()
         };
 
-        std::fs::write("../Clicker-Frontend/src/game_messages.ts", ts_module).unwrap();
+        std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
     }
 
     // build our application with a route
@@ -57,6 +56,7 @@ async fn root() -> &'static str {
 }
 
 async fn connect_game(ws: WebSocketUpgrade) -> Response {
+    println!("Connected");
     ws.on_upgrade(handle_game)
 }
 
@@ -80,7 +80,16 @@ async fn handle_game(mut socket: WebSocket) {
                     // Todo: Wait the rest of the tts -> update tts to the new value
                     tts = tts.saturating_sub(instant.elapsed());
                     match &message.into_text() {
-                        Ok(msg) => { game_state.handle(serde_json::from_str(&msg).unwrap())}
+                        Ok(msg) => {
+                            let mut event = game_state.handle(serde_json::from_str(msg).unwrap());
+                            if socket
+                                .send(Message::Text(serde_json::to_string(&event).unwrap()))
+                                .await
+                                .is_err()
+                            {
+                                break;
+                            }
+                        }
                         Err(_) => { break; }
                     }
                 }
@@ -94,5 +103,6 @@ async fn handle_game(mut socket: WebSocket) {
         }
     }
     // Todo: Save the game state
+    println!("Disconnected");
 }
 

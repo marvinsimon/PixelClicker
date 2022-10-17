@@ -23,6 +23,7 @@ impl GameState {
                 self.depth += 1;
                 self.ore += 1;
             }
+            ClientMessages::UpgradeShovel => {println!("Level Up")}
         }
     }
 

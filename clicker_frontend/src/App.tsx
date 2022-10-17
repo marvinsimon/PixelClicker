@@ -7,7 +7,7 @@ const App: Component = () => {
 
     const [ore, setOre] = createSignal(0);
     const [depth, setDepth] = createSignal(0);
-    const [level, setLevel] = createSignal(0);
+    const [shovel, setShovel] = createSignal(0);
 
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
@@ -26,7 +26,7 @@ const App: Component = () => {
     const click = async () => {
         if (socket){
             const event: ClientMessages = "Mine";
-            await socket.send(JSON.stringify(event))
+            await socket.send(JSON.stringify(event));
 
             s.onmessage = msg => {
                 const event: ServerMessages = JSON.parse(msg.data as string);
@@ -35,8 +35,25 @@ const App: Component = () => {
                     setOre(event.NewState.ore);
                     setDepth(event.NewState.depth);
                 }
+                else if ("ShovelLevel"in event){
+                    console.log(event.ShovelLevel);
+                    setShovel(event.ShovelLevel.level);
+                }
             }
         }
+    }
+    const upgradeShovel = async () => {
+        if (socket){
+            const event: ClientMessages = "UpgradeShovel";
+            await socket.send(JSON.stringify(event));
+
+
+
+
+        }
+
+
+
     }
 
     return (
@@ -47,7 +64,7 @@ const App: Component = () => {
                 <br/>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
-                <button class={styles.button} onClick={click}>Schaufelgeschwindigkeit: {ore()} <br/> Level: {ore()} <br/></button>
+                <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
             </header>

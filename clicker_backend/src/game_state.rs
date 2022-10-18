@@ -23,6 +23,9 @@ impl GameState {
                 self.depth += 1;
                 self.ore += 1;
             }
+            ClientMessages::Sign_Up => {
+                println!("Signing In")
+            }
         }
     }
 

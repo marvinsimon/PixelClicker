@@ -39,13 +39,17 @@ const App: Component = () => {
                     console.log(event.NewState);
                     setOre(event.NewState.ore);
                 }
+                else if ("SignUp" in event){
+                    console.log(event.SignUp);
+                    //sign_up();
+                }
             }
         }
     }
 
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
-        const response = await fetch("http://localhost:3001/sign_up", {
+        const response = await fetch("http://localhost:3000/sign_up", {
             method: "GET",
             credentials: "include",
             headers: {"Authorization": `Basic ${auth}`}
@@ -55,9 +59,6 @@ const App: Component = () => {
             setAuth(true);
         }
     };
-
-
-    let el:any;
 
     function clickOutside(el: { contains: (arg0: any) => any; }, accessor: () => { (): any; new(): any; }) {
         const onClick = (e) => !el.contains(e.target) && accessor()?.();

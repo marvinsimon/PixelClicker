@@ -37,7 +37,6 @@ impl GameState {
                     ServerMessages::ShovelDepthUpgraded{success: false, new_level: self.shovel_depth_level}
                 }
             }
-            ClientMessages::UpgradeShovel => {println!("Level Up")}
         }
     }
 

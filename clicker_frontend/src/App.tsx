@@ -12,12 +12,11 @@ const App: Component = () => {
     const [depth, setDepth] = createSignal(0);
     //PopUp Variable
     const [show, setShow] = createSignal(false);
+    const [shovel, setShovel] = createSignal(0);
 
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
     const connectBackend = async () => {
-
-
         socket = s;
     }
 
@@ -30,7 +29,7 @@ const App: Component = () => {
     const click = async () => {
         if (socket){
             const event: ClientMessages = "Mine";
-            await socket.send(JSON.stringify(event))
+            await socket.send(JSON.stringify(event));
 
             s.onmessage = msg => {
                 const event: ServerMessages = JSON.parse(msg.data as string);
@@ -43,7 +42,18 @@ const App: Component = () => {
                     console.log(event.SignUp);
                     //sign_up();
                 }
+                else if ("ShovelDepthUpgraded"in event){
+                    console.log(event.ShovelDepthUpgraded);
+                    setShovel(event.ShovelDepthUpgraded.new_level);
+                }
             }
+        }
+    }
+    
+    const upgradeShovel = async () => {
+        if (socket){
+            const event: ClientMessages = "UpgradeShovelDepth";
+            await socket.send(JSON.stringify(event));
         }
     }
 
@@ -74,6 +84,8 @@ const App: Component = () => {
                 <button class={styles.button} onClick={connectBackend}>Connect</button>
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
+                <br/>
+                <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>

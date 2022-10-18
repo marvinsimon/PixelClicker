@@ -9,8 +9,7 @@ const App: Component = () => {
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
-
-
+    const [depth, setDepth] = createSignal(0);
     //PopUp Variable
     const [show, setShow] = createSignal(false);
 
@@ -38,6 +37,7 @@ const App: Component = () => {
                 if ("NewState" in event) {
                     console.log(event.NewState);
                     setOre(event.NewState.ore);
+                    setDepth(event.NewState.depth);
                 }
                 else if ("SignUp" in event){
                     console.log(event.SignUp);
@@ -75,6 +75,7 @@ const App: Component = () => {
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <label>{ore()}</label>
+                <label>Grabtiefe: {depth()}</label>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                         <h3>Sign Up</h3>

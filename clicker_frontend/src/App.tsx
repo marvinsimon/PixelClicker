@@ -48,6 +48,8 @@ const App: Component = () => {
                 <br/>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
+                <input type="text" placeholder="Your email"/>
+                <input type="text" placeholder="Your password"/>
             </header>
         </div>
     );

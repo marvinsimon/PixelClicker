@@ -1,12 +1,17 @@
-import type {Component} from 'solid-js';
-import {createSignal} from "solid-js";
+import {Component, Show} from 'solid-js';
+import {createSignal, onCleanup} from "solid-js";
 import styles from './App.module.css';
 import {ServerMessages, ClientMessages} from "./game_messages";
 
 const App: Component = () => {
+    let password_field: HTMLInputElement;
+    let email_field: HTMLInputElement;
 
     const [ore, setOre] = createSignal(0);
+    const [auth, setAuth] = createSignal(false);
     const [depth, setDepth] = createSignal(0);
+    //PopUp Variable
+    const [show, setShow] = createSignal(false);
     const [shovel, setShovel] = createSignal(0);
 
     let socket: WebSocket | undefined;
@@ -33,6 +38,10 @@ const App: Component = () => {
                     setOre(event.NewState.ore);
                     setDepth(event.NewState.depth);
                 }
+                else if ("SignUp" in event){
+                    console.log(event.SignUp);
+                    //sign_up();
+                }
                 else if ("ShovelDepthUpgraded"in event){
                     console.log(event.ShovelDepthUpgraded);
                     setShovel(event.ShovelDepthUpgraded.new_level);
@@ -48,17 +57,49 @@ const App: Component = () => {
         }
     }
 
+    const sign_up = async () => {
+        let auth = btoa(`${email_field.value}:${password_field.value}`);
+        const response = await fetch("http://localhost:3000/sign_up", {
+            method: "GET",
+            credentials: "include",
+            headers: {"Authorization": `Basic ${auth}`}
+        });
+        console.log(`sign_up: ${response.statusText}`);
+        if (response.ok) {
+            setAuth(true);
+        }
+    };
+
+    function clickOutside(el: { contains: (arg0: any) => any; }, accessor: () => { (): any; new(): any; }) {
+        const onClick = (e) => !el.contains(e.target) && accessor()?.();
+        document.body.addEventListener("click", onClick);
+
+        onCleanup(() => document.body.removeEventListener("click", onClick));
+    }
+
+
     return (
         <div class={styles.App}>
             <header class={styles.header}>
                 <button class={styles.button} onClick={connectBackend}>Connect</button>
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
-                <br/>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
+                <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
+                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                        <h3>Sign Up</h3>
+                        <form>
+                            <label>Email</label>
+                            <input type="text" ref={email_field!} placeholder="Your email.."/>
+                            <label>Password</label>
+                            <input type="text" ref={password_field!} placeholder="Your password.."/>
+                            <input type="submit" value="Submit" onClick={sign_up}/>
+                        </form>
+                    </div>
+                </Show>
             </header>
         </div>
     );

@@ -12,8 +12,6 @@ const App: Component = () => {
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
     const connectBackend = async () => {
-
-
         socket = s;
     }
 
@@ -35,25 +33,19 @@ const App: Component = () => {
                     setOre(event.NewState.ore);
                     setDepth(event.NewState.depth);
                 }
-                else if ("ShovelLevel"in event){
-                    console.log(event.ShovelLevel);
-                    setShovel(event.ShovelLevel.level);
+                else if ("ShovelDepthUpgraded"in event){
+                    console.log(event.ShovelDepthUpgraded);
+                    setShovel(event.ShovelDepthUpgraded.new_level);
                 }
             }
         }
     }
+    
     const upgradeShovel = async () => {
         if (socket){
-            const event: ClientMessages = "UpgradeShovel";
+            const event: ClientMessages = "UpgradeShovelDepth";
             await socket.send(JSON.stringify(event));
-
-
-
-
         }
-
-
-
     }
 
     return (

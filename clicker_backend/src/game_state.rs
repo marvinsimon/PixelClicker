@@ -1,4 +1,3 @@
-use std::thread::sleep;
 use crate::{ClientMessages, ServerMessages};
 use serde::{Deserialize, Serialize};
 
@@ -30,15 +29,15 @@ impl GameState {
             ClientMessages:: UpgradeShovelDepth => {
                 if self.shovel_depth_level < max_level &&
                     upgrade_costs[(self.shovel_depth_level-1) as usize] <= self.ore {
-                    self.ore = self.ore - upgrade_costs[(self.shovel_depth_level-1) as usize];
+                    self.ore -= upgrade_costs[(self.shovel_depth_level-1) as usize];
                     self.shovel_depth_level += 1;
                     ServerMessages::ShovelDepthUpgraded{success: true, new_level: self.shovel_depth_level}
                 } else {
                     ServerMessages::ShovelDepthUpgraded{success: false, new_level: self.shovel_depth_level}
                 }
             }
-            ClientMessages::Sign_Up => {
-                println!("Signing In")
+            ClientMessages::SignUp => {
+                ServerMessages::SignUp { signed_in: false }
             }
         }
     }

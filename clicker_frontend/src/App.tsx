@@ -47,13 +47,20 @@ const App: Component = () => {
             const event: ClientMessages = "UpgradeShovel";
             await socket.send(JSON.stringify(event));
 
-
-
-
         }
 
-
-
+    }
+    const login = async () => {
+        let auth = btoa(`${username_field.value}:${password_field.value}`);
+        const response = await fetch("http://localhost:3001/login", {
+            method: "GET",
+            credentials: "include",
+            headers: {"Authorization": `Basic ${auth}`}
+        });
+        console.log(`login: ${response.statusText}`);
+        if (response.ok) {
+            //Pop Up schließen?
+        }
     }
 
     return (
@@ -62,6 +69,7 @@ const App: Component = () => {
                 <button class={styles.button} onClick={connectBackend}>Connect</button>
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
                 <br/>
+                <button class={styles.button} onClick={click}>Login</button>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>

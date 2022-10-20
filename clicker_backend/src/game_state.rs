@@ -24,6 +24,7 @@ impl GameState {
                 self.ore += 1;
             }
             ClientMessages::UpgradeShovel => {println!("Level Up")}
+            ClientMessages::SignIn => {println!("Sign In")}
         }
     }
 

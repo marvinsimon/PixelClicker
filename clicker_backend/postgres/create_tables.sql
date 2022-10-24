@@ -4,5 +4,6 @@ CREATE DOMAIN email AS citext
 CREATE TABLE  Player (
     id BIGSERIAL PRIMARY KEY,
     password text NOT NULL,
-    email email
+    email email,
+    game_state JSON NOT NULL
 );

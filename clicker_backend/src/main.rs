@@ -1,16 +1,31 @@
 use crate::game_events::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
-use axum::extract::ws::{Message, WebSocket};
-use axum::extract::WebSocketUpgrade;
-use axum::response::Response;
-use axum::routing::get;
-use axum::{Router};
+use axum::{
+    extract::ws::{Message, WebSocket, WebSocketUpgrade},
+    http::StatusCode,
+    response::Response,
+    routing::get,
+    Extension, Router,
+};
+use axum_auth::AuthBasic;
+use axum_database_sessions::{
+    AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionStore, Key,
+};
+use dashmap::DashMap;
+use sqlx::{PgPool, Pool};
+use std::sync::Arc;
 use std::net::SocketAddr;
 use std::time::{Duration, Instant};
 use tower_http::cors::CorsLayer;
 
 mod game_events;
 mod game_state;
+
+type State = DashMap<i64, GameState>;
+
+type GlobalState = Arc<State>;
+
+const PLAYER_AUTH: &str = "player-auth";
 
 #[tokio::main]
 async fn main() {
@@ -31,7 +46,7 @@ async fn main() {
 
     // build our application with a route
     #[allow(unused_mut)]
-    let mut app = Router::new()
+        let mut app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
         .route("/game", get(connect_game));
@@ -48,6 +63,56 @@ async fn main() {
         .serve(app.into_make_service())
         .await
         .unwrap();
+}
+
+async fn sign_up(
+    AuthBasic((email, password)): AuthBasic,
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+    Extension(state): Extension<GlobalState>,
+) -> StatusCode {
+    match sqlx::query!(
+        "SELECT id FROM Player WHERE email = $1 AND password = $2;",
+        email,
+        password
+    )
+        .fetch_optional(&pool)
+        .await
+    {
+        Ok(Some(_)) => StatusCode::BAD_REQUEST,
+        Ok(None) => {
+            let game_state = GameState {
+                ore: 0,
+                depth: 0,
+                multiplier: 0,
+                shovel_depth_level: 0
+            };
+            let game_state_value = serde_json::to_value(game_state.clone()).unwrap();
+            match sqlx::query!(
+                "INSERT INTO Player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
+                email,
+                password,
+                game_state_value
+            )
+                .fetch_one(&pool)
+                .await
+            {
+                Ok(r) => {
+                    session.set(PLAYER_AUTH, r.id).await;
+                    state.insert(r.id, game_state);
+                    StatusCode::OK
+                }
+                Err(err) => {
+                    println!("{err:#?}");
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Err(err) => {
+            println!("{err:#?}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
 }
 
 /// basic handler that responds with a static string

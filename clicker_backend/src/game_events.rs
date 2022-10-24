@@ -7,6 +7,7 @@ pub enum ClientMessages {
     Mine,
     SignUp,
     UpgradeShovelDepth,
+    UpgradeAutomate,
 }
 
 #[derive(Serialize, TypeDef)]
@@ -15,4 +16,6 @@ pub enum ServerMessages {
     NewState {ore: u64, depth: u64},
     SignUp {signed_in: bool},
     ShovelDepthUpgraded {success: bool, new_level: i32},
+    AutmateUpgraded{success: bool,new_level: i32},
+
 }

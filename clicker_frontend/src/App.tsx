@@ -38,10 +38,6 @@ const App: Component = () => {
                     setOre(event.NewState.ore);
                     setDepth(event.NewState.depth);
                 }
-                else if ("SignUp" in event){
-                    console.log(event.SignUp);
-                    //sign_up();
-                }
                 else if ("ShovelDepthUpgraded"in event){
                     console.log(event.ShovelDepthUpgraded);
                     setShovel(event.ShovelDepthUpgraded.new_level);

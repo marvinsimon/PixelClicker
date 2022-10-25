@@ -35,9 +35,6 @@ impl GameState {
                     ServerMessages::ShovelDepthUpgraded{success: false, new_level: self.shovel_depth_level, new_upgrade_cost: upgrade_cost as u64}
                 }
             }
-            ClientMessages::SignUp => {
-                ServerMessages::SignUp { signed_in: false }
-            }
             ClientMessages::StartAutomation => {
                 if self.ore as u64 >= auto_digger_price {
                     self.ore = self.ore - auto_digger_price as f64;

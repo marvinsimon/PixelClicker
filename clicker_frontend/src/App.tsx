@@ -59,7 +59,7 @@ const App: Component = () => {
 
     const automate = async () => {
         if (socket){
-            const event: ClientMessages = "UpgradeAutomate";
+            const event: ClientMessages = "StartAutomation";
             await socket.send(JSON.stringify(event));
         }
     }

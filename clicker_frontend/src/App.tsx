@@ -57,6 +57,13 @@ const App: Component = () => {
         }
     }
 
+    const automate = async () => {
+        if (socket){
+            const event: ClientMessages = "StartAutomation";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         const response = await fetch("http://localhost:3000/sign_up", {
@@ -77,7 +84,6 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
-
     return (
         <div class={styles.App}>
             <header class={styles.header}>
@@ -86,6 +92,7 @@ const App: Component = () => {
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
+                <button class={styles.button} onClick={automate}>Automatisierung</button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>

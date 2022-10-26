@@ -9,7 +9,6 @@
 # Optional: Pick zero or more services to be used on all builds.
 # Only needed when using a docker container to run your tests in.
 # Check out: https://docs.gitlab.com/ee/ci/services/index.html
-password-auth:
   services:
     - postgres
 
@@ -20,18 +19,6 @@ password-auth:
   image: postgres
   script:
     - export PGPASSWORD=$POSTGRES_PASSWORD
-    - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
-
-host-auth:
-  services:
-    - postgres
-
-  variables:
-    POSTGRES_DB: royal-db
-    POSTGRES_USER: admin
-    POSTGRES_PASSWORD: clickerroyale
-  image: postgres
-  script:
     - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
 
 stages:

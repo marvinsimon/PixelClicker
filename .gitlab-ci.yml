@@ -9,6 +9,8 @@
 # Optional: Pick zero or more services to be used on all builds.
 # Only needed when using a docker container to run your tests in.
 # Check out: https://docs.gitlab.com/ee/ci/services/index.html
+db:
+  stage: db
   services:
     - postgres
 
@@ -22,6 +24,7 @@
     - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT 'OK' AS status;"
 
 stages:
+  - db
   - cargo
   - node
   - deploy

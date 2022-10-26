@@ -100,7 +100,7 @@ async fn main() {
 }
 
 async fn connect_to_database() -> anyhow::Result<sqlx::Pool<sqlx::Postgres>> {
-    Ok(Pool::connect("postgres://admin:clickerroyale@localhost:5432/admin").await?)
+    Ok(Pool::connect("postgresql://admin:clickerroyale@localhost:5432/admin").await?)
 }
 
 /// basic handler that responds with a static string

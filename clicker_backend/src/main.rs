@@ -115,7 +115,7 @@ async fn sign_up(
     Extension(state): Extension<GlobalState>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id FROM Player WHERE email::text = $1 AND password = $2;",
+        "SELECT id FROM Player WHERE email = $1 AND password = $2;",
         email,
         password
     )
@@ -132,7 +132,7 @@ async fn sign_up(
             };
             let game_state_value = serde_json::to_value(game_state.clone()).unwrap();
             match sqlx::query!(
-                "INSERT INTO Player (email, password, game_state) VALUES ($1::TEXT::CITEXT, $2, $3) RETURNING id;",
+                "INSERT INTO Player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
                 password,
                 game_state_value

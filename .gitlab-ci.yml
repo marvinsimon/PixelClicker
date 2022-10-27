@@ -33,6 +33,7 @@ clippy:
   image: "mrlooser98/rust_psql:latest"
   stage: clippy
   script:
+    - rustup component add clippy
     - psql -h "postgres" -p "5432" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "$(cat clicker_backend/postgres/create_tables.sql)"
     - cargo clippy -- -D warnings
 

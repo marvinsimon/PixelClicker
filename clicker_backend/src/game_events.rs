@@ -7,6 +7,7 @@ pub enum ClientMessages {
     Mine,
     UpgradeShovelDepth,
     StartAutomation,
+    UpgradeShovelAmountDepth,
 }
 
 #[derive(Serialize, TypeDef)]
@@ -15,5 +16,6 @@ pub enum ServerMessages {
     NewState {ore: u64, depth: u64},
     ShovelDepthUpgraded {success: bool, new_level: i32, new_upgrade_cost: u64},
     AutomationStarted{success: bool},
+    ShovelDepthUpgradedAmount {success: bool, new_level: i32, new_upgrade_cost: u64},
 
 }

@@ -7,6 +7,7 @@ pub struct GameState {
     pub depth: f64,
     pub multiplier: f64,
     pub shovel_depth_level: i32,
+    pub shovel_depth_level_amount: i32,
 }
 
 impl GameState {
@@ -44,10 +45,20 @@ impl GameState {
                     ServerMessages::AutomationStarted {success: false}
                 }
             }
+
+            ClientMessages:: UpgradeShovelAmountDepth => {
+                if upgrade_cost as f64 <= self.ore {
+                    self.ore -= upgrade_cost as f64;
+                    self.shovel_depth_level_amount += 1;
+                    ServerMessages::ShovelDepthUpgradedlvl{success: true, new_level: self.shovel_depth_level_amount, new_upgrade_cost: upgrade_cost as u64}
+                } else {
+                    ServerMessages::ShovelDepthUpgradedlvl{success: false, new_level: self.shovel_depth_level_amount, new_upgrade_cost: upgrade_cost as u64}
+                }
+            }
         }
     }
 
     pub fn new() -> Self {
-        GameState { ore: 0.0, depth: 0.0, multiplier: 0.0, shovel_depth_level: 1 }
+        GameState { ore: 0.0, depth: 0.0, multiplier: 0.0, shovel_depth_level: 1, shovel_depth_level_amount: 1}
     }
 }

@@ -11,30 +11,44 @@
 # Optional: Pick zero or more services to be used on all builds.
 # Only needed when using a docker container to run your tests in.
 # Check out: https://docs.gitlab.com/ee/ci/services/index.html
-#services:
-#  - postgres:latest
+
+variables:
+  POSTGRES_DB: royal-db
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: clickerroyale
+  POSTGRES_HOST_AUTH_METHOD: trust
+services: 
+  - postgres
+
 
 stages:
+  -  clippy
   -  cargo
   -  node
   -  deploy
 
-# Optional: Install a C compiler, cmake and git into the container.
-# You will often need this when you (or any of your dependencies) depends on C code.
-# before_script:
-#   - apt-get update -yqq
-#   - apt-get install -yqq --no-install-recommends build-essential
+clippy:
+  variables:
+    DATABASE_URL: postgresql://admin:clickerroyale@postgres:5432/royal-db
+  image: "mrlooser98/rust_psql:latest"
+  stage: clippy
+  script:
+    - rustup component add clippy
+    - psql -h "postgres" -p "5432" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "$(cat clicker_backend/postgres/create_tables.sql)"
+    - cd "clicker_backend"
+    - cargo clippy -- -D warnings
 
 # Use cargo to test the project
 cargo:
+  variables:
+    DATABASE_URL: postgresql://admin:clickerroyale@postgres:5432/royal-db
+  image: "mrlooser98/rust_psql:latest"
   stage: cargo
-  # Official language image. Look for the different tagged releases at:
-  # https://hub.docker.com/r/library/rust/tags/
-  image: "rust:latest"
   script:
+    - psql -h "postgres" -p "5432" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "$(cat clicker_backend/postgres/create_tables.sql)"
     - rustc --version && cargo --version  # Print version info for debugging
     - cd "clicker_backend"
-    - cargo test --workspace --verbose
+    - cargo test --workspace
     - echo "Test" > test123
     - ls -la
   artifacts:
@@ -42,17 +56,10 @@ cargo:
       - clicker_backend/test123
     expire_in: 1 day
     when: always
-
-# Optional: Use a third party library to generate gitlab junit reports
-# test:junit-report:
-#   script:
-#     Should be specified in Cargo.toml
-#     - cargo install junitify
-#     - cargo test -- --format=json -Z unstable-options --report-time | junitify --out $CI_PROJECT_DIR/tests/
-#   artifacts:
-#     when: always
-#     reports:
-#       junit: $CI_PROJECT_DIR/tests/*.xml
+  cache: 
+    key: binaries 
+    paths:
+      - clicker_backend/target
 
 node:
   stage: node
@@ -69,4 +76,5 @@ deploy:
   stage: deploy
   script: echo "Define your deployment script!"
   environment: production
+
 

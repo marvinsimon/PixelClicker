@@ -85,7 +85,8 @@ async fn main() {
         let mut app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        .route("/game", get(connect_game));
+        .route("/game", get(connect_game))
+        .route("/sign_up", get(sign_up));
 
     #[cfg(debug_assertions)]
     {

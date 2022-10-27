@@ -45,7 +45,7 @@ async fn main() {
         std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
     }
 
-    let state = Arc::new(DashMap::<i64, GameState>::new());
+    //let state = Arc::new(DashMap::<i64, GameState>::new());
 
     let key = std::fs::File::open("master-key")
         .ok()
@@ -99,7 +99,7 @@ async fn main() {
         .unwrap();
 }
 
-async fn connect_to_database() -> anyhow::Result<sqlx::Pool<sqlx::Postgres>> {
+async fn connect_to_database() -> anyhow::Result<Pool<sqlx::Postgres>> {
     Ok(Pool::connect("postgresql://admin:clickerroyale@localhost:5432/admin").await?)
 }
 
@@ -124,12 +124,7 @@ async fn sign_up(
     {
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
-            let game_state = GameState {
-                ore: 0,
-                depth: 0,
-                multiplier: 0,
-                shovel_depth_level: 0
-            };
+            let game_state = GameState::new();
             let game_state_value = serde_json::to_value(game_state.clone()).unwrap();
             match sqlx::query!(
                 "INSERT INTO Player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
@@ -167,7 +162,7 @@ async fn handle_game(mut socket: WebSocket) {
     let mut game_state = GameState::new();
     'outer: loop {
         let instant = Instant::now();
-        let mut event = game_state.tick(1);
+        let event = game_state.tick(1);
         if socket
             .send(Message::Text(serde_json::to_string(&event).unwrap()))
             .await
@@ -184,7 +179,7 @@ async fn handle_game(mut socket: WebSocket) {
                     tts = tts.saturating_sub(instant.elapsed());
                     match &message.into_text() {
                         Ok(msg) => {
-                            let mut event = game_state.handle(serde_json::from_str(msg).unwrap());
+                            let event = game_state.handle(serde_json::from_str(msg).unwrap());
                             if socket
                                 .send(Message::Text(serde_json::to_string(&event).unwrap()))
                                 .await
@@ -197,7 +192,7 @@ async fn handle_game(mut socket: WebSocket) {
                     }
                 }
                 // Message receiving failed -> Client disconnected
-                Ok(Some(Err(err))) => break 'outer,
+                Ok(Some(Err(_err))) => break 'outer,
                 // Stream is closed -> Client disconnected
                 Ok(None) => break 'outer,
                 // Timeout occurred, handle next tick

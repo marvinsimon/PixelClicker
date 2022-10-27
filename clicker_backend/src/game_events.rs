@@ -17,5 +17,4 @@ pub enum ServerMessages {
     SignUp {signed_in: bool},
     ShovelDepthUpgraded {success: bool, new_level: i32, new_upgrade_cost: u64},
     AutomationStarted{success: bool},
-
 }

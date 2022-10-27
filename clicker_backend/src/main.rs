@@ -1,5 +1,4 @@
 use std::{net::SocketAddr, time::Duration};
-use std::default::default;
 use std::io::{BufReader, Read, Write};
 use std::sync::Arc;
 

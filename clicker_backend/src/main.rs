@@ -1,16 +1,32 @@
-use crate::game_events::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
-use axum::extract::ws::{Message, WebSocket};
-use axum::extract::WebSocketUpgrade;
-use axum::response::Response;
-use axum::routing::get;
-use axum::{Router};
-use std::net::SocketAddr;
-use std::time::{Duration, Instant};
+use axum::{
+    extract::ws::{Message, WebSocket, WebSocketUpgrade},
+    http::StatusCode,
+    response::Response,
+    routing::get,
+    Extension, Router,
+};
+use axum_auth::AuthBasic;
+use axum_database_sessions::{
+    AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionStore, Key,
+};
+use dashmap::DashMap;
+use game_events::*;
+use sqlx::{PgPool, Pool};
+use std::io::{BufReader, Read, Write};
+use std::sync::Arc;
+use std::{net::SocketAddr, time::Duration};
+use tokio::time::{Instant};
 use tower_http::cors::CorsLayer;
 
 mod game_events;
 mod game_state;
+
+type State = DashMap<i64, GameState>;
+
+type GlobalState = Arc<State>;
+
+const PLAYER_AUTH: &str = "player-auth";
 
 #[tokio::main]
 async fn main() {
@@ -29,12 +45,47 @@ async fn main() {
         std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
     }
 
+    let state = Arc::new(DashMap::<i64, GameState>::new());
+
+    let key = std::fs::File::open("master-key")
+            .ok()
+            .and_then(|file| {
+                let mut reader = BufReader::new(file);
+                let mut buffer = Vec::new();
+                reader.read_to_end(&mut buffer).expect("could not read key");
+                Key::try_from(buffer.as_slice()).ok()
+            })
+            .unwrap_or_else(|| {
+                let key = Key::generate();
+                let file = std::fs::File::options()
+                    .create(true)
+                    .write(true)
+                    .append(false)
+                    .open("master-key");
+                if let Ok(mut file) = file {
+                    file.write_all(key.master())
+                        .expect("could not write key to file");
+                }
+                key
+            });
+
+    let pool = connect_to_database().await.unwrap();
+    let session_config = AxumSessionConfig::default()
+        .with_table_name("test_table")
+        .with_key(key);
+
+    let session_store =
+        AxumSessionStore::<AxumPgPool>::new(Some(pool.clone().into()), session_config);
+
+    //Create the Database table for storing our Session Data.
+    session_store.initiate().await.unwrap();
     // build our application with a route
     #[allow(unused_mut)]
     let mut app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        .route("/game", get(connect_game));
+        .route("/game", get(connect_game))
+        .route("/login", get(login));
 
     #[cfg(debug_assertions)]
     {
@@ -50,9 +101,42 @@ async fn main() {
         .unwrap();
 }
 
+async fn connect_to_database() -> anyhow::Result<sqlx::Pool<sqlx::Postgres>> {
+    Ok(Pool::connect("postgresql://admin:clickerroyale@localhost:5432/admin").await?)
+}
+
 /// basic handler that responds with a static string
 async fn root() -> &'static str {
     "Hello, World!"
+}
+
+async fn login(
+    AuthBasic((email, password)): AuthBasic,
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+    Extension(state): Extension<GlobalState>,
+) -> StatusCode {
+    match sqlx::query!(
+        "SELECT id, game_state FROM Player WHERE email = $1 AND password = $2;",
+        email,
+        password
+    )
+    .fetch_optional(&pool)
+    .await
+    {
+        Ok(Some(record)) => {
+            session.set(PLAYER_AUTH, record.id).await;
+            let game_state: GameState = serde_json::from_value(record.game_state)
+                .expect("stored json does not match GameState");
+            state.insert(record.id, game_state);
+            StatusCode::OK
+        }
+        Ok(None) => StatusCode::UNAUTHORIZED,
+        Err(err) => {
+            //println!("{err:#?}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
 }
 
 async fn connect_game(ws: WebSocketUpgrade) -> Response {

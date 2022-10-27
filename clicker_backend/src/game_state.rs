@@ -36,7 +36,7 @@ impl GameState {
                 }
             }
             ClientMessages::SignUp => {
-                ServerMessages::SignUp { signed_in: false }
+                ServerMessages::SignUp { success: false }
             }
             ClientMessages::StartAutomation => {
                 if self.ore as u64 >= auto_digger_price {

@@ -39,7 +39,7 @@ async fn main() {
         type Api = (ServerMessages, ClientMessages);
         let ts_module = {
             let mut buf = Vec::new();
-            let options = DefinitionFileOptions{
+            let options = DefinitionFileOptions {
                 root_namespace: None,
                 ..Default::default()
             };

@@ -1,4 +1,5 @@
 use std::{net::SocketAddr, time::Duration};
+use std::default::default;
 use std::io::{BufReader, Read, Write};
 use std::sync::Arc;
 
@@ -38,8 +39,10 @@ async fn main() {
         type Api = (ServerMessages, ClientMessages);
         let ts_module = {
             let mut buf = Vec::new();
-            let mut options = DefinitionFileOptions::default();
-            options.root_namespace = None;
+            let options = DefinitionFileOptions{
+                root_namespace: None,
+                ..Default::default()
+            };
             write_definition_file::<_, Api>(&mut buf, options).unwrap();
             String::from_utf8(buf).unwrap()
         };

@@ -40,7 +40,7 @@ impl GameState {
             }
             ClientMessages::StartAutomation => {
                 if self.ore as u64 >= auto_digger_price {
-                    self.ore = self.ore - auto_digger_price as f64;
+                    self.ore -= auto_digger_price as f64;
                     self.multiplier = 0.05;
                     ServerMessages::AutomationStarted {success: true}
                 } else {

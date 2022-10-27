@@ -18,7 +18,7 @@ impl GameState {
 
     /// Use this Function for Frontend -> Backend event handling
     pub fn handle(&mut self, event: ClientMessages) -> ServerMessages{
-        let mut upgrade_cost = self.shovel_depth_level * 50;
+        let upgrade_cost = self.shovel_depth_level * 50;
         let auto_digger_price = 200;
         match event {
             ClientMessages::Mine => {

@@ -1,11 +1,13 @@
-use crate::game_events::{ClientMessages, ServerMessages};
-use crate::game_state::GameState;
+use std::{net::SocketAddr, time::Duration};
+use std::io::{BufReader, Read, Write};
+use std::sync::Arc;
+
 use axum::{
+    Extension,
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     http::StatusCode,
     response::Response,
-    routing::get,
-    Extension, Router,
+    Router, routing::get,
 };
 use axum_auth::AuthBasic;
 use axum_database_sessions::{
@@ -13,11 +15,11 @@ use axum_database_sessions::{
 };
 use dashmap::DashMap;
 use sqlx::{PgPool, Pool};
-use std::io::{BufReader, Read, Write};
-use std::sync::Arc;
-use std::{net::SocketAddr, time::Duration};
-use tokio::time::{Instant};
+use tokio::time::Instant;
 use tower_http::cors::CorsLayer;
+
+use crate::game_events::{ClientMessages, ServerMessages};
+use crate::game_state::GameState;
 
 mod game_events;
 mod game_state;

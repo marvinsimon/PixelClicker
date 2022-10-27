@@ -1,2 +1,4 @@
 FROM rust:latest
-RUN apt-get install postgresql-client
+
+RUN apt-get update
+RUN apt-get install postgresql-client -y

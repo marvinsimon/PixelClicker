@@ -51,7 +51,7 @@ const App: Component = () => {
 
     }
     const login = async () => {
-        let auth = btoa(`${username_field.value}:${password_field.value}`);
+        let auth = btoa(`${email_field.value}:${password_field.value}`);
         const response = await fetch("http://localhost:3001/login", {
             method: "GET",
             credentials: "include",
@@ -59,7 +59,7 @@ const App: Component = () => {
         });
         console.log(`login: ${response.statusText}`);
         if (response.ok) {
-            //Pop Up schließen?
+
         }
     }
 

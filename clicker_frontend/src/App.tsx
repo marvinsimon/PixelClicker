@@ -17,6 +17,8 @@ const App: Component = () => {
     let socket: WebSocket | undefined;
     const s = new WebSocket("ws://localhost:3001/game");
     const connectBackend = async () => {
+
+
         socket = s;
     }
 
@@ -29,7 +31,7 @@ const App: Component = () => {
     const click = async () => {
         if (socket){
             const event: ClientMessages = "Mine";
-            await socket.send(JSON.stringify(event));
+            await socket.send(JSON.stringify(event))
 
             s.onmessage = msg => {
                 const event: ServerMessages = JSON.parse(msg.data as string);
@@ -49,7 +51,7 @@ const App: Component = () => {
             }
         }
     }
-    
+
     const upgradeShovel = async () => {
         if (socket){
             const event: ClientMessages = "UpgradeShovelDepth";
@@ -89,12 +91,15 @@ const App: Component = () => {
             <header class={styles.header}>
                 <button class={styles.button} onClick={connectBackend}>Connect</button>
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
+                <br/>
                 <button class={styles.button} onClick={click}>Mine Ore</button>
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <button class={styles.button} onClick={automate}>Automatisierung</button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
+                <input type="text" placeholder="Your email"/>
+                <input type="text" placeholder="Your password"/>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                         <h3>Sign Up</h3>

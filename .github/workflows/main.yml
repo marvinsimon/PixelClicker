@@ -38,7 +38,7 @@ jobs:
       
       - name: Connect to PostgreSQL
         # Runs a script that creates a PostgreSQL table
-        run: psql -c "$(cat clicker_backend/postgres/create_tables.sql)"
+        run: psql -h "postgres" -p "5432" -U "admin" -d "royal-db" -c "$(cat clicker_backend/postgres/create_tables.sql)"
         # Environment variables used by the script to create a new PostgreSQL table.
         env:
           # The hostname used to communicate with the PostgreSQL service container

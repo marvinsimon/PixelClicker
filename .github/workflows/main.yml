@@ -14,7 +14,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres
+        image: postgres:14.5-alpine
         # Provide the environment variables for postgres
         env:
           POSTGRES_DB: royal-db

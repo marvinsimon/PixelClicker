@@ -45,9 +45,6 @@ jobs:
           POSTGRES_HOST: postgres
           # The default PostgreSQL port
           POSTGRES_PORT: 5432
-
-      - name: Switch directory
-        run: cd clicker_backend
         
       - name: Rust toolchain
         uses: actions-rs/toolchain@v1
@@ -62,9 +59,9 @@ jobs:
           args: --all-features
           
       - name: Cargo Check
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
+        run: |
+          cd clicker_backend
+          cargo test --workspace
           
   node:
     name: Node Build

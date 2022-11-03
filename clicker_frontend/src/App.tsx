@@ -125,7 +125,7 @@ const App: Component = () => {
                     <label>{ore()}</label>
                     <label>Grabtiefe: {depth()}</label>
                     <input type="text" placeholder="Your email"/>
-                    <input type="text" placeholder="Your password"/>
+                    <input type="password" placeholder="Your password"/>
                     <Show when={show()}
                           fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
                         <div class={styles.modal} use:clickOutside={() => setShow(false)}>
@@ -134,7 +134,7 @@ const App: Component = () => {
                                 <label>Email</label>
                                 <input type="text" ref={email_field!} placeholder="Your email.."/>
                                 <label>Password</label>
-                                <input type="text" ref={password_field!} placeholder="Your password.."/>
+                                <input type="password" ref={password_field!} placeholder="Your password.."/>
                                 <input type="submit" value="Submit" onClick={sign_up}/>
                             </form>
                         </div>

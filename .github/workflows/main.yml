@@ -60,7 +60,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: -D warnings
-          name: Clippy Output
           
       - name: Cargo Check
         uses: actions-rs/cargo@v1

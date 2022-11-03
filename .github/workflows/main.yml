@@ -8,7 +8,7 @@ jobs:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
-    container: rust-latest
+    container: rust
     # Service containers to run with `container-job`
     services:
       # Label used to access the service container

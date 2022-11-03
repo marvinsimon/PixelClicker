@@ -58,6 +58,7 @@ jobs:
       - name: Clippy
         uses: actions-rs/clippy-check@v1
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           args: -D warnings
           name: Clippy Output
           

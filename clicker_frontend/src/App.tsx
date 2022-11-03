@@ -77,6 +77,15 @@ const App: Component = () => {
         }
     };
 
+    const sign_out = async () => {
+        if(auth() && socket) {
+            const event: ClientMessages = "SignOut";
+            await socket.send(JSON.stringify(event));
+        } else {
+            console.log(`sign_out: failed`);
+        }
+    }
+
     function clickOutside(el: { contains: (arg0: any) => any; }, accessor: () => { (): any; new(): any; }) {
         const onClick = (e) => !el.contains(e.target) && accessor()?.();
         document.body.addEventListener("click", onClick);
@@ -107,6 +116,7 @@ const App: Component = () => {
                         </form>
                     </div>
                 </Show>
+                <button class={styles.button} onClick={sign_out}>Abmelden</button>
             </header>
         </div>
     );

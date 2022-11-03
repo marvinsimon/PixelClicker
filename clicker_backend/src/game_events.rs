@@ -8,6 +8,7 @@ pub enum ClientMessages {
     SignUp,
     UpgradeShovelDepth,
     StartAutomation,
+    SignOut,
 }
 
 #[derive(Serialize, TypeDef)]

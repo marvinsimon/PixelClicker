@@ -6,7 +6,7 @@ jobs:
   # Label of the container job
   container-job:
     # Containers must run in Linux based operating systems
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
     container: rust-latest
     # Service containers to run with `container-job`
@@ -64,7 +64,7 @@ jobs:
           
   node:
     name: Node Build
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
     
     steps:
       - name: Check out repository code

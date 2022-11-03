@@ -28,6 +28,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5  
     steps:
+      - run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends postgresql-client
+          
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
         uses: actions/checkout@v3

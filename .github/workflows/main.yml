@@ -7,40 +7,34 @@ jobs:
   container-job:
     # Containers must run in Linux based operating systems
     runs-on: alpine-latest
-
     # Docker Hub image that `container-job` executes in
     container: rust-latest
-
     # Service containers to run with `container-job`
     services:
       # Label used to access the service container
       postgres:
         # Docker Hub image
         image: postgres
-
         # Provide the environment variables for postgres
         env:
           POSTGRES_DB: royal-db
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: clickerroyale
           POSTGRES_HOST_AUTH_METHOD: trust
-
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
-          
+          --health-retries 5  
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
       
       - name: Connect to PostgreSQL
         # Runs a script that creates a PostgreSQL table
         run: psql -c "$(cat clicker_backend/postgres/create_tables.sql)"
-        
         # Environment variables used by the script to create a new PostgreSQL table.
         env:
           # The hostname used to communicate with the PostgreSQL service container
@@ -48,21 +42,23 @@ jobs:
           # The default PostgreSQL port
           POSTGRES_PORT: 5432
 
-      - run: cd clicker_backend
+      - name: Switch directory
+        run: cd clicker_backend
+        
       - name: Rust toolchain
-      - uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           components: clippy
           
       - name: Clippy
-      - uses: actions-rs/clippy-check@v1
+        uses: actions-rs/clippy-check@v1
         with:
-          args: -- -D warnings
+          args: -D warnings
           name: Clippy Output
           
       - name: Cargo Check
-      - uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@v1
         with:
           command: check
           
@@ -72,10 +68,10 @@ jobs:
     
     steps:
       - name: Check out repository code
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
       
       - name: Node
-      - uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v3.5.1
       
       - name: Node Dependancies
         run: |

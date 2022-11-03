@@ -59,7 +59,7 @@ jobs:
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          args: -D warnings
+          args: --all-features
           
       - name: Cargo Check
         uses: actions-rs/cargo@v1

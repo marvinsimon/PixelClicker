@@ -68,10 +68,10 @@ jobs:
         continue-on-error: false
         with:
           path: |
-            ~/clicker_backend/.cargo/bin
-            ~/clicker_backend/.cargo/registry
-            ~/clicker_backend/.cargo/git
-            ~/clicker_backend/target            
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            target            
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           #restore-keys: ${{ runner.os }}-cargo-
           

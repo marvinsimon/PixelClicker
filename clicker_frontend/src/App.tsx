@@ -77,6 +77,21 @@ const App: Component = () => {
         }
     };
 
+    const sign_out = async () => {
+        if(auth()) {
+            const response = await fetch("http://localhost:3000/log_out", {
+                method: "GET",
+                credentials: "include",
+                });
+            console.log(`sign_out: ${response.statusText}`);
+            if (response.ok) {
+               setAuth(false);
+            }
+        } else {
+            console.log(`sign_out: failed`);
+        }
+    }
+
     function clickOutside(el: { contains: (arg0: any) => any; }, accessor: () => { (): any; new(): any; }) {
         const onClick = (e) => !el.contains(e.target) && accessor()?.();
         document.body.addEventListener("click", onClick);
@@ -107,6 +122,7 @@ const App: Component = () => {
                         </form>
                     </div>
                 </Show>
+                <button class={styles.button} onClick={sign_out}>Abmelden</button>
             </header>
         </div>
     );

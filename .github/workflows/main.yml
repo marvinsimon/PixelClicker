@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./clicker_backend
+        working-directory: clicker_backend
     # Docker Hub image that `container-job` executes in
     container: rust
     # Service containers to run with `container-job`

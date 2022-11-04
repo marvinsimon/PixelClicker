@@ -78,9 +78,15 @@ const App: Component = () => {
     };
 
     const sign_out = async () => {
-        if(auth() && socket) {
-            const event: ClientMessages = "SignOut";
-            await socket.send(JSON.stringify(event));
+        if(auth()) {
+            const response = await fetch("http://localhost:3000/log_out", {
+                method: "GET",
+                credentials: "include",
+                });
+            console.log(`sign_out: ${response.statusText}`);
+            if (response.ok) {
+               setAuth(false);
+            }
         } else {
             console.log(`sign_out: failed`);
         }

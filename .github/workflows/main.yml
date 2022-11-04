@@ -57,6 +57,7 @@ jobs:
           
       - name: Clippy
         run: | 
+          rustup component add clippy
           cd clicker_backend
           cargo clippy -- -D warnings
           

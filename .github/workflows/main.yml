@@ -61,18 +61,18 @@ jobs:
           echo ${{ github.workspace }}
           echo ${{ github.workspace }}/clicker_backend
           cd clicker_backend
-          echo "hello" > ${{ github.workspace }}/clicker_backend/hello.txt
+          pwd
           
       - name: Set up cargo cache
         uses: actions/cache@v3
         continue-on-error: false
         with:
           path: |
-            ${{ github.workspace }}/clicker_backend/.cargo/bin
-            ${{ github.workspace }}/clicker_backend/.cargo/registry
-            ${{ github.workspace }}/clicker_backend/.cargo/git
-            ${{ github.workspace }}/clicker_backend/target            
-          key: ${{ runner.os }}-cargo-${{ hashFiles('${{ github.workspace }}/clicker_backend/Cargo.lock') }}
+            ~/clicker_backend/.cargo/bin
+            ~/clicker_backend/.cargo/registry
+            ~/clicker_backend/.cargo/git
+            ~/clicker_backend/target            
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           #restore-keys: ${{ runner.os }}-cargo-
           
       - name: Clippy

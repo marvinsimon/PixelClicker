@@ -60,6 +60,13 @@ const App: Component = () => {
         }
     }
 
+    const autospeed = async () => {
+        if (socket){
+            const event: ClientMessages = "UpgradeAutomationSpeed";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         const response = await fetch("http://localhost:3000/sign_up", {
@@ -89,6 +96,7 @@ const App: Component = () => {
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <button class={styles.button} onClick={automate}>Automatisierung</button>
+                <button class={styles.button} onClick={autospeed}>Automat Geschwindigkeit</button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>

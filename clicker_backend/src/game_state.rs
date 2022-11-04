@@ -8,6 +8,7 @@ pub struct GameState {
     pub multiplier: f64,
     pub shovel_depth_level: i32,
     pub auto_depth_level: i32,
+    pub auto_speed_level: i32,
 }
 
 impl GameState {
@@ -21,6 +22,7 @@ impl GameState {
     pub fn handle(&mut self, event: ClientMessages) -> ServerMessages{
         let mut upgrade_cost = self.shovel_depth_level * 50;
         let mut upgrade_auto_depth_cost = self.auto_depth_level * 50;
+        let mut upgrade_auto_speed_cost = self.auto_speed_level * 50;
         let auto_digger_price = 200;
         match event {
             ClientMessages::Mine => {
@@ -56,10 +58,19 @@ impl GameState {
                     ServerMessages::AutomationDepthUpgraded {success: false, new_level: self.auto_depth_level, new_upgrade_cost: upgrade_auto_depth_cost as u64}
                 }
             }
+            ClientMessages::UpgradeAutomationSpeed => {
+                if self.ore as u64 >= upgrade_auto_speed_cost as u64 {
+                    self.auto_speed_level += 1;
+                    upgrade_auto_speed_cost = self.auto_speed_level * 2;
+                    ServerMessages::AutomationSpeedUpgraded {success: true, new_level: self.auto_speed_level, new_upgrade_cost: upgrade_auto_speed_cost as u64}
+                } else {
+                    ServerMessages::AutomationSpeedUpgraded {success: false, new_level: self.auto_speed_level, new_upgrade_cost: upgrade_auto_speed_cost as u64}
+                }
+            }
         }
     }
 
     pub fn new() -> Self {
-        GameState { ore: 0.0, depth: 0.0, multiplier: 0.0, shovel_depth_level: 1, auto_depth_level: 1}
+        GameState { ore: 0.0, depth: 0.0, multiplier: 0.0, shovel_depth_level: 1, auto_depth_level: 1, auto_speed_level: 1,}
     }
 }

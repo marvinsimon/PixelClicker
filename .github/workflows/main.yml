@@ -27,8 +27,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5  
-        #ports: 
-          #- 5432:5432
+          
     steps:
       - run: |
           apt-get update
@@ -56,11 +55,10 @@ jobs:
           toolchain: stable
           components: clippy
           
-      #- name: Clippy
-        #uses: actions-rs/clippy-check@v1
-        #with:
-          #token: ${{ secrets.GITHUB_TOKEN }}
-          #args: --all-features
+      - name: Clippy
+        run: | 
+          cd clicker_backend
+          cargo clippy -- -D warnings
           
       - name: Cargo Check
         run: |
@@ -82,6 +80,7 @@ jobs:
         run: |
           cd clicker_frontend
           npm install
+          
       - name: Node Build
         run: |
           cd clicker_frontend

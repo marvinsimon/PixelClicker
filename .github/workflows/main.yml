@@ -7,9 +7,6 @@ jobs:
   container-job:
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: clicker_backend
     # Docker Hub image that `container-job` executes in
     container: rust
     # Service containers to run with `container-job`
@@ -39,13 +36,6 @@ jobs:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
         uses: actions/checkout@v3
-        
-      - name: Rust
-        run: |
-          cd clicker_backend
-          rustup toolchain install stable --profile minimal
-      
-      - uses: Swatinem/rust-cache@v2
       
       - name: Connect to PostgreSQL
         # Runs a script that creates a PostgreSQL table
@@ -59,11 +49,24 @@ jobs:
           # The Database URL Rust needs
           #DATABASE_URL: "postgresql://admin:clickerroyale@postgres:5432/royal-db"
         
-      #- name: Rust toolchain
-        #uses: actions-rs/toolchain@v1
-        #with:
-          #toolchain: stable
-          #components: clippy
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: clippy
+          
+      - name: Set up cargo cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/
+            ~/.cargo/git/
+            target/            
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          #restore-keys: ${{ runner.os }}-cargo-
           
       - name: Clippy
         run: | 

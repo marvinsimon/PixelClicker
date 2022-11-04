@@ -64,10 +64,10 @@ jobs:
         continue-on-error: false
         with:
           path: |
-            ${{ github.workspace }}/clicker_backend/.cargo/bin/
-            ${{ github.workspace }}/clicker_backend/.cargo/registry/
-            ${{ github.workspace }}/clicker_backend/.cargo/git/
-            ${{ github.workspace }}/clicker_backend/target/            
+            ${{ github.workspace }}/clicker_backend/.cargo/bin
+            ${{ github.workspace }}/clicker_backend/.cargo/registry
+            ${{ github.workspace }}/clicker_backend/.cargo/git
+            ${{ github.workspace }}/clicker_backend/target            
           key: ${{ runner.os }}-cargo-${{ hashFiles('${{ github.workspace }}/clicker_backend/Cargo.lock') }}
           #restore-keys: ${{ runner.os }}-cargo-
           

@@ -57,7 +57,11 @@ jobs:
           components: clippy
           
       - name: Directory
-        run: echo ${{ github.workspace }}
+        run: |
+          echo ${{ github.workspace }}
+          echo ${{ github.workspace }}/clicker_backend
+          cd clicker_backend
+          echo "hello" > ${{ github.workspace }}/clicker_backend/hello.txt
           
       - name: Set up cargo cache
         uses: actions/cache@v3

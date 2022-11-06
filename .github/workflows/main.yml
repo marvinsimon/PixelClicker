@@ -3,19 +3,11 @@ name: CI/CD
 on: [push, pull_request]
 
 jobs:
-  # Label of the container job
-  container-job:
-    # Containers must run in Linux based operating systems
+  backend:
     runs-on: ubuntu-latest
-    # Docker Hub image that `container-job` executes in
-    container: rust
-    # Service containers to run with `container-job`
     services:
-      # Label used to access the service container
       postgres:
-        # Docker Hub image
         image: postgres:14.5-alpine
-        # Provide the environment variables for postgres
         env:
           POSTGRES_DB: royal-db
           POSTGRES_USER: admin
@@ -26,44 +18,19 @@ jobs:
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5  
-          
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
-      - run: |
-          apt-get update
-          apt-get install --yes --no-install-recommends postgresql-client
-          
+      - name: Get Postgres Client
+        run: sudo apt-get install --yes --no-install-recommends postgresql-client
+
       # Downloads a copy of the code in your repository before running CI tests
-      - name: Check out repository code
+      - name: Checkout
         uses: actions/checkout@v3
-      
-      - name: Connect to PostgreSQL
-        # Runs a script that creates a PostgreSQL table
-        run: psql -h "postgres" -p "5432" -U "admin" -d "royal-db" -c "$(cat clicker_backend/postgres/create_tables.sql)"
-        # Environment variables used by the script to create a new PostgreSQL table.
-        env:
-          # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: postgres
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5432
-          # The Database URL Rust needs
-          #DATABASE_URL: "postgresql://admin:clickerroyale@postgres:5432/royal-db"
-        
-      - name: Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          components: clippy
-          
-      - name: Directory
-        run: |
-          echo ${{ github.workspace }}
-          echo ${{ github.workspace }}/clicker_backend
-          cd clicker_backend
-          pwd
-          
-      - name: Set up cargo cache
+
+      - name: Cache
         uses: actions/cache@v3
         continue-on-error: false
         with:
@@ -71,37 +38,46 @@ jobs:
             ~/.cargo/bin
             ~/.cargo/registry
             ~/.cargo/git
-            target            
+            clicker_backend/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          #restore-keys: ${{ runner.os }}-cargo-
-          
+
+      # Runs a script that creates a PostgreSQL table
+      - name: Connect to PostgreSQL
+        run: psql -h "postgres" -p "5432" -U "admin" -d "royal-db" -c "$(cat clicker_backend/postgres/create_tables.sql)"
+
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+
       - name: Clippy
-        run: | 
-          rustup component add clippy
+        run: |
           cd clicker_backend
           cargo clippy -- -D warnings
-          
+
       - name: Cargo Check
         run: |
           cd clicker_backend
           cargo test --workspace
-          
-  node:
-    name: Node Build
+
+  frontend:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Check out repository code
+      - name: Checkout
         uses: actions/checkout@v3
-      
-      - name: Node
+
+      - name: Node Setup
         uses: actions/setup-node@v3.5.1
-      
+
       - name: Node Dependancies
         run: |
           cd clicker_frontend
           npm install
-          
+
       - name: Node Build
         run: |
           cd clicker_frontend

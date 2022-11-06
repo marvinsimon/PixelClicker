@@ -88,7 +88,8 @@ async fn main() {
         // `GET /` goes to `root`
         .route("/", get(root))
         .route("/game", get(connect_game))
-        .route("/sign_up", get(sign_up));
+        .route("/sign_up", get(sign_up))
+        .route("/logout", get(logout));
 
     #[cfg(debug_assertions)]
     {
@@ -156,6 +157,16 @@ async fn sign_up(
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
+}
+
+async fn logout(
+    session: AxumSession<AxumPgPool>,
+    Extension(state): Extension<GlobalState>,
+) {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+      state.remove(&id);
+    }
+    session.remove(PLAYER_AUTH).await;
 }
 
 async fn connect_game(ws: WebSocketUpgrade) -> Response {

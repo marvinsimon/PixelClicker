@@ -43,7 +43,7 @@ jobs:
 
       # Runs a script that creates a PostgreSQL table
       - name: Connect to PostgreSQL
-        run: psql -h "postgres" -p "5432" -U "admin" -d "royal-db" -c "$(cat clicker_backend/postgres/create_tables.sql)"
+        run: psql -h "localhost" -p "5432" -U "admin" -d "royal-db" -c "$(cat clicker_backend/postgres/create_tables.sql)"
 
       - name: Rust toolchain
         uses: actions-rs/toolchain@v1

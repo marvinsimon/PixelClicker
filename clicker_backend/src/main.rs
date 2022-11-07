@@ -9,10 +9,9 @@ use axum::{
     response::Response,
     Router, routing::get,
 };
+
 use axum_auth::AuthBasic;
-use axum_database_sessions::{
-    AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionStore, Key,
-};
+use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
 use dashmap::DashMap;
 use sqlx::{PgPool, Pool};
 use tokio::time::Instant;
@@ -49,7 +48,7 @@ async fn main() {
         std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
     }
 
-    //let state = Arc::new(DashMap::<i64, GameState>::new());
+    let state = Arc::new(DashMap::<i64, GameState>::new());
 
     let key = std::fs::File::open("master-key")
         .ok()
@@ -89,7 +88,10 @@ async fn main() {
         .route("/", get(root))
         .route("/game", get(connect_game))
         .route("/sign_up", get(sign_up))
-        .route("/logout", get(logout));
+        .route("/logout", get(logout))
+        .layer(Extension(state))
+        .layer(Extension(pool.clone()))
+        .layer(Extension(AxumSessionLayer::new(session_store)));
 
     #[cfg(debug_assertions)]
     {
@@ -164,7 +166,7 @@ async fn logout(
     Extension(state): Extension<GlobalState>,
 ) {
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-      state.remove(&id);
+        state.remove(&id);
     }
     session.remove(PLAYER_AUTH).await;
 }
@@ -195,6 +197,7 @@ async fn handle_game(mut socket: WebSocket) {
                     tts = tts.saturating_sub(instant.elapsed());
                     match &message.into_text() {
                         Ok(msg) => {
+                            println!("Maybe error");
                             let event = game_state.handle(serde_json::from_str(msg).unwrap());
                             if socket
                                 .send(Message::Text(serde_json::to_string(&event).unwrap()))

@@ -60,7 +60,7 @@ const App: Component = () => {
         }
     }
 
-    const autospeed = async () => {
+    const upgradeautodepth = async () => {
         if (socket){
             const event: ClientMessages = "UpgradeAutomationSpeed";
             await socket.send(JSON.stringify(event));
@@ -96,7 +96,7 @@ const App: Component = () => {
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <button class={styles.button} onClick={automate}>Automatisierung</button>
-                <button class={styles.button} onClick={autospeed}>Automat Geschwindigkeit</button>
+                <button class={styles.button} onClick={upgradeautodepth}>Automat Geschwindigkeit</button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>

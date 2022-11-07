@@ -58,15 +58,6 @@ impl GameState {
                     ServerMessages::AutomationDepthUpgraded {success: false, new_level: self.auto_depth_level, new_upgrade_cost: upgrade_auto_depth_cost as u64}
                 }
             }
-            ClientMessages::UpgradeAutomationSpeed => {
-                if self.ore as u64 >= upgrade_auto_speed_cost as u64 {
-                    self.auto_speed_level += 1;
-                    upgrade_auto_speed_cost = self.auto_speed_level * 2;
-                    ServerMessages::AutomationSpeedUpgraded {success: true, new_level: self.auto_speed_level, new_upgrade_cost: upgrade_auto_speed_cost as u64}
-                } else {
-                    ServerMessages::AutomationSpeedUpgraded {success: false, new_level: self.auto_speed_level, new_upgrade_cost: upgrade_auto_speed_cost as u64}
-                }
-            }
         }
     }
 

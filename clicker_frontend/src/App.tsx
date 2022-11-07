@@ -96,7 +96,7 @@ const App: Component = () => {
                 <br/>
                 <button class={styles.button} onClick={upgradeShovel}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <button class={styles.button} onClick={automate}>Automatisierung</button>
-                <button class={styles.button} onClick={upgradeautodepth}>Automat Geschwindigkeit</button>
+                <button class={styles.button} onClick={upgradeautodepth}>Automat Tiefe</button>
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
                 <Show when={show()} fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>

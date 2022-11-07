@@ -62,7 +62,7 @@ const App: Component = () => {
 
     const upgradeautodepth = async () => {
         if (socket){
-            const event: ClientMessages = "UpgradeAutomationSpeed";
+            const event: ClientMessages = "UpgradeAutomationDepth";
             await socket.send(JSON.stringify(event));
         }
     }

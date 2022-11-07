@@ -1,0 +1,84 @@
+name: CI/CD
+#This workflow runs tests and build for each push and pull-request
+on: [push, pull_request]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14.5-alpine
+        env:
+          POSTGRES_DB: royal-db
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: clickerroyale
+          POSTGRES_HOST_AUTH_METHOD: trust
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Get Postgres Client
+        run: sudo apt-get install --yes --no-install-recommends postgresql-client
+
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache
+        uses: actions/cache@v3
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            clicker_backend/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      # Runs a script that creates a PostgreSQL table
+      - name: Connect to PostgreSQL
+        run: psql -h "localhost" -p "5432" -U "admin" -d "royal-db" -c "$(cat clicker_backend/postgres/create_tables.sql)"
+
+      - name: Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          components: clippy
+
+      - name: Clippy
+        run: |
+          cd clicker_backend
+          cargo clippy -- -D warnings
+
+      - name: Cargo Check
+        run: |
+          cd clicker_backend
+          cargo test --workspace
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Node Setup
+        uses: actions/setup-node@v3.5.1
+
+      - name: Node Dependancies
+        run: |
+          cd clicker_frontend
+          npm install
+
+      - name: Node Build
+        run: |
+          cd clicker_frontend
+          npm run build

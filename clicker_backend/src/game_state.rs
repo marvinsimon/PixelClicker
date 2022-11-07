@@ -25,7 +25,7 @@ impl GameState {
     pub fn handle(&mut self, event: ClientMessages) -> ServerMessages{
         let depth_upgrade_cost = self.shovel_depth_level * 50;
         let amount_upgrade_cost = self.shovel_amount_level * 50;
-        let upgrade_auto_depth_cost = self.auto_depth_level * 50;
+        let mut upgrade_auto_depth_cost = self.auto_depth_level * 50;
         let auto_digger_price = 200;
         match event {
             ClientMessages::Mine => {

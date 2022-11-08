@@ -8,6 +8,7 @@ pub enum ClientMessages {
     UpgradeShovelAmount,
     UpgradeShovelDepth,
     StartAutomation,
+    UpgradeAutomationDepth,
 }
 
 #[derive(Serialize, TypeDef)]
@@ -17,4 +18,5 @@ pub enum ServerMessages {
     ShovelAmountUpgraded {success: bool, new_level: i32, new_upgrade_cost: u64},
     ShovelDepthUpgraded {success: bool, new_level: i32, new_upgrade_cost: u64},
     AutomationStarted{success: bool},
+    AutomationDepthUpgraded{success: bool, new_level: i32, new_upgrade_cost: u64},
 }

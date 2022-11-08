@@ -71,6 +71,13 @@ const App: Component = () => {
         }
     }
 
+    const upgradeautodepth = async () => {
+        if (socket){
+            const event: ClientMessages = "UpgradeAutomationDepth";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         const response = await fetch("http://localhost:3000/sign_up", {
@@ -132,6 +139,7 @@ const App: Component = () => {
                         onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
                 <br/>
                 <button class={styles.button} onClick={automate}>Automatisierung</button>
+                <button class={styles.button} onClick={upgradeautodepth}>Automat Tiefe</button>
                 <br/>
                 <button class={styles.button}
                         onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>

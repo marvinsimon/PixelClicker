@@ -138,7 +138,7 @@ async fn login(
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
         Err(err) => {
-            //println!("{err:#?}");
+            println!("{err:#?}");
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }

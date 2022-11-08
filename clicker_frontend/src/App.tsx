@@ -16,10 +16,9 @@ const App: Component = () => {
     const [shovelAmount, setShovelAmount] = createSignal(0);
 
     let socket: WebSocket | undefined;
-    const s = new WebSocket("ws://localhost:3001/game");
 
     const connectBackend = async () => {
-        socket = s;
+        socket = new WebSocket("ws://localhost:3001/game");
     }
 
     const disconnectBackend = () => {
@@ -33,7 +32,7 @@ const App: Component = () => {
             const event: ClientMessages = "Mine";
             await socket.send(JSON.stringify(event))
 
-            s.onmessage = msg => {
+            socket.onmessage = msg => {
                 const event: ServerMessages = JSON.parse(msg.data as string);
                 if ("NewState" in event) {
                     console.log(event.NewState);
@@ -73,14 +72,16 @@ const App: Component = () => {
 
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
-        const response = await fetch("http://localhost:3000/sign_up", {
+        const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
-            headers: {"Authorization": `Basic ${auth}`}
+            headers: {"Authorization": `Basic ${auth}`,
+            mode: "cors"}
         });
         console.log(`sign_up: ${response.statusText}`);
         if (response.ok) {
             setAuth(true);
+            await connectBackend();
         }
     };
 
@@ -98,7 +99,7 @@ const App: Component = () => {
 
     const sign_out = async () => {
         if(auth()) {
-            const response = await fetch("http://localhost:3000/log_out", {
+            const response = await fetch("http://localhost:3001/logout", {
                 method: "GET",
                 credentials: "include",
             });
@@ -143,13 +144,11 @@ const App: Component = () => {
                       fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                         <h3>Sign Up</h3>
-                        <form>
                             <label>Email</label>
                             <input type="text" ref={email_field!} placeholder="Your email.."/>
                             <label>Password</label>
                             <input type="password" ref={password_field!} placeholder="Your password.."/>
-                            <input type="submit" value="Submit" onClick={sign_up}/>
-                        </form>
+                            <button onClick={sign_up}>Test</button>
                     </div>
                 </Show>
                 <button class={styles.button} onClick={sign_out}>Abmelden</button>

@@ -72,7 +72,6 @@ const App: Component = () => {
             }
         };
 
-
         const login = async () => {
             let auth = btoa(`${email_field.value}:${password_field.value}`);
             const response = await fetch("http://localhost:3001/login", {
@@ -100,7 +99,7 @@ const App: Component = () => {
                     <button class={styles.button} onClick={connectBackend}>Connect</button>
                     <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
                     <br/>
-                    <button class={styles.button} onClick={click}>Login</button>
+                    <button class={styles.button} onClick={login}>Login</button>
                     <button class={styles.button} onClick={click}>Mine Ore</button>
                     <br/>
                     <button class={styles.button}

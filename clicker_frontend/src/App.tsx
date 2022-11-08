@@ -83,33 +83,8 @@ const App: Component = () => {
             await socket.send(JSON.stringify(event));
         }
     }
-
+    
     const sign_up = async () => {
-        let auth = btoa(`${email_field.value}:${password_field.value}`);
-        const response = await fetch("http://localhost:3000/sign_up", {
-            method: "GET",
-            credentials: "include",
-            headers: {"Authorization": `Basic ${auth}`}
-        });
-        console.log(`sign_up: ${response.statusText}`);
-        if (response.ok) {
-            setAuth(true);
-        }
-    };
-
-    const login = async () => {
-        let auth = btoa(`${email_field.value}:${password_field.value}`);
-        const response = await fetch("http://localhost:3001/login", {
-            method: "GET",
-            credentials: "include",
-            headers: {"Authorization": `Basic ${auth}`}
-        });
-        console.log(`login: ${response.statusText}`);
-        if (response.ok) {}
-    }
-  
-
-  const sign_up = async () => {
     setBad_request_bool(false);
     let auth = btoa(`${email_field.value}:${password_field.value}`);
     const response = await fetch("http://localhost:3001/sign_up", {

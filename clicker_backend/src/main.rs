@@ -89,6 +89,7 @@ async fn main() {
         .route("/", get(root))
         .route("/game", get(connect_game))
         .route("/sign_up", get(sign_up))
+        .route("/login", get(login))
         .route("/logout", get(logout));
 
     #[cfg(debug_assertions)]
@@ -114,6 +115,35 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
+async fn login(
+    AuthBasic((email, password)): AuthBasic,
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+    Extension(state): Extension<GlobalState>,
+) -> StatusCode {
+    match sqlx::query!(
+        "SELECT id, game_state FROM Player WHERE email = $1 AND password = $2;",
+        email,
+        password
+    )
+    .fetch_optional(&pool)
+    .await
+    {
+        Ok(Some(record)) => {
+            session.set(PLAYER_AUTH, record.id).await;
+            let game_state: GameState = serde_json::from_value(record.game_state)
+                .expect("stored json does not match GameState");
+            state.insert(record.id, game_state);
+            StatusCode::OK
+        }
+        Ok(None) => StatusCode::UNAUTHORIZED,
+        Err(err) => {
+            println!("{err:#?}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
+}
+
 async fn sign_up(
     AuthBasic((email, password)): AuthBasic,
     session: AxumSession<AxumPgPool>,
@@ -121,9 +151,8 @@ async fn sign_up(
     Extension(state): Extension<GlobalState>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id FROM Player WHERE email = $1 AND password = $2;",
-        email,
-        password
+        "SELECT id FROM Player WHERE email = $1;",
+        email
     )
         .fetch_optional(&pool)
         .await

@@ -151,9 +151,8 @@ async fn sign_up(
     Extension(state): Extension<GlobalState>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id FROM Player WHERE email = $1 AND password = $2;",
-        email,
-        password
+        "SELECT id FROM Player WHERE email = $1;",
+        email
     )
         .fetch_optional(&pool)
         .await

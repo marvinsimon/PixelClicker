@@ -22,7 +22,7 @@ impl GameState {
     }
 
     /// Use this Function for Frontend -> Backend event handling
-    pub fn handle(&mut self, event: ClientMessages) -> ServerMessages{
+    pub fn handle(&mut self, event: ClientMessages) -> ServerMessages {
         let depth_upgrade_cost = self.shovel_depth_level * 50;
         let amount_upgrade_cost = self.shovel_amount_level * 50;
         let mut upgrade_auto_depth_cost = self.auto_depth_level * 50;
@@ -84,14 +84,16 @@ impl GameState {
                     self.auto_depth_level += 1;
                     upgrade_auto_depth_cost = self.auto_depth_level * 50;
                     ServerMessages::AutomationDepthUpgraded {
-                    success: true, 
-                    new_level: self.auto_depth_level, 
-                    new_upgrade_cost: upgrade_auto_depth_cost as u64}
+                        success: true,
+                        new_level: self.auto_depth_level,
+                        new_upgrade_cost: upgrade_auto_depth_cost as u64,
+                    }
                 } else {
                     ServerMessages::AutomationDepthUpgraded {
-                    success: false, 
-                    new_level: self.auto_depth_level, 
-                    new_upgrade_cost: upgrade_auto_depth_cost as u64}
+                        success: false,
+                        new_level: self.auto_depth_level,
+                        new_upgrade_cost: upgrade_auto_depth_cost as u64,
+                    }
                 }
             }
         }
@@ -104,7 +106,7 @@ impl GameState {
             multiplier: 0.0,
             shovel_amount_level: 1,
             shovel_depth_level: 1,
-            auto_depth_level: 1
+            auto_depth_level: 1,
         }
     }
 }

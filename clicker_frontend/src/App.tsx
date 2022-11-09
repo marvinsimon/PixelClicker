@@ -15,8 +15,10 @@ const App: Component = () => {
   const [depth, setDepth] = createSignal(0);
   //PopUp Variable
   const [show, setShow] = createSignal(false);
-  const [shovel, setShovel] = createSignal(0);
-  const [shovelAmount, setShovelAmount] = createSignal(0);
+  const [shovelDepth, setShovelDepth] = createSignal(1);
+  const [shovelAmount, setShovelAmount] = createSignal(1);
+  const [autoDepth, setAutoDepth] = createSignal(1);
+  const [autoAmount, setAutoAmount] = createSignal(1);
   const [bad_request_bool, setBad_request_bool] = createSignal(false);
   const [unauthorized, setUnauthorized] = createSignal(false);
 
@@ -46,10 +48,16 @@ const App: Component = () => {
           setDepth(event.NewState.depth);
         } else if ("ShovelDepthUpgraded" in event) {
           console.log(event.ShovelDepthUpgraded);
-          setShovel(event.ShovelDepthUpgraded.new_level);
+          setShovelDepth(event.ShovelDepthUpgraded.new_level);
         } else if ("ShovelAmountUpgraded" in event) {
           console.log(event.ShovelAmountUpgraded);
           setShovelAmount(event.ShovelAmountUpgraded.new_level);
+        } else if ("AutomationDepthUpgraded" in event) {
+          console.log(event.AutomationDepthUpgraded);
+          setAutoDepth(event.AutomationDepthUpgraded.new_level);
+        } else if ("AutomationAmountUpgraded" in event) {
+          console.log(event.AutomationAmountUpgraded);
+          setAutoAmount(event.AutomationAmountUpgraded.new_level);
         }
       }
     }
@@ -77,14 +85,21 @@ const App: Component = () => {
       }
     }
 
-    const upgradeAutoDepth = async () => {
-        if (socket){
-            const event: ClientMessages = "UpgradeAutomationDepth";
-            await socket.send(JSON.stringify(event));
-        }
+  const upgradeAutoDepth = async () => {
+    if (socket) {
+      const event: ClientMessages = "UpgradeAutomationDepth";
+      await socket.send(JSON.stringify(event));
     }
+  }
+
+  const upgradeAutoAmount = async () => {
+    if (socket){
+      const event: ClientMessages = "UpgradeAutomationAmount";
+      await socket.send(JSON.stringify(event));
+    }
+  }
     
-    const sign_up = async () => {
+  const sign_up = async () => {
     setBad_request_bool(false);
     let auth = btoa(`${email_field.value}:${password_field.value}`);
     const response = await fetch("http://localhost:3001/sign_up", {
@@ -96,9 +111,9 @@ const App: Component = () => {
     if (response.ok) {
       setAuth(true);
     } else if (response.status == 400) {
-    setBad_request_bool(true);
-    console.log('Bad Request');
-  }
+      setBad_request_bool(true);
+      console.log('Bad Request');
+    }
   }
 
   const login = async () => {
@@ -131,7 +146,7 @@ const App: Component = () => {
     } else {
       console.log(`sign_out: failed`);
     }
-}
+  }
 
   function clickOutside(el: { contains: (arg0: any) => any }, accessor: () => { (): any; new (): any }) {
     const onClick = (e) => !el.contains(e.target) && accessor()?.();
@@ -149,14 +164,16 @@ const App: Component = () => {
         <button class={styles.button} onClick={click}>Mine Ore</button>
         <br />
         <button class={styles.button}
-                onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
+                onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
         <br />
         <button class={styles.button}
                 onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
         <br />
         <button class={styles.button} onClick={automate}>Automatisierung</button>
         <br />
-        <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe</button>
+        <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
+        <br/>
+        <button class={styles.button} onClick={upgradeAutoAmount}>Automat Menge: {autoAmount()}</button>
         <br/>
         <label>{ore()}</label>
         <label>Grabtiefe: {depth()}</label>

@@ -17,8 +17,10 @@ const App: Component = () => {
   const [show, setShow] = createSignal(false);
   const [shovelDepth, setShovelDepth] = createSignal(1);
   const [shovelAmount, setShovelAmount] = createSignal(1);
+  const [automation, setAutomation] = createSignal(false);
   const [autoDepth, setAutoDepth] = createSignal(1);
   const [autoAmount, setAutoAmount] = createSignal(1);
+  const [loggedIn, setLoggedIn] = createSignal(false);
   const [bad_request_bool, setBad_request_bool] = createSignal(false);
   const [unauthorized, setUnauthorized] = createSignal(false);
 
@@ -80,6 +82,7 @@ const App: Component = () => {
 
   const automate = async () => {
     if (socket) {
+      setAutomation(true);
       const event: ClientMessages = "StartAutomation";
       await socket.send(JSON.stringify(event));
       }
@@ -126,6 +129,7 @@ const App: Component = () => {
     });
     console.log(`login: ${response.statusText}`);
     if (response.ok) {
+      setLoggedIn(true);
       setAuth(true);
     } else if (response.status == 401) {
       setUnauthorized(true);
@@ -141,6 +145,7 @@ const App: Component = () => {
       });
       console.log(`sign_out: ${response.statusText}`);
       if (response.ok) {
+        setLoggedIn(false);
         setAuth(false);
       }
     } else {
@@ -161,7 +166,7 @@ const App: Component = () => {
         <button class={styles.button} onClick={connectBackend}>Connect</button>
         <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
         <br />
-        <button class={styles.button} onClick={click}>Mine Ore</button>
+        <button class={styles.button} onClick={click}>Erze schürfen</button>
         <br />
         <button class={styles.button}
                 onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
@@ -169,42 +174,46 @@ const App: Component = () => {
         <button class={styles.button}
                 onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
         <br />
-        <button class={styles.button} onClick={automate}>Automatisierung</button>
-        <br />
+        <Show when={automation()} fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
         <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
         <br/>
         <button class={styles.button} onClick={upgradeAutoAmount}>Automat Menge: {autoAmount()}</button>
-        <br/>
-        <label>{ore()}</label>
+        </Show>
+        <br />
+        <label>Erz: {ore()}</label>
         <label>Grabtiefe: {depth()}</label>
         <br />
-        <input type="text" ref={login_email_field!} placeholder="Your email" />
-        <input type="password" ref={login_password_field!} placeholder="Your password" />
-        <button class={styles.button} onClick={login}>Login</button>
+        <input type="text" ref={login_email_field!} style="width: 300px;" placeholder="Ihre E-mail.." />
+        <input type="password" ref={login_password_field!} style="width: 300px;" placeholder="Ihr Passwort.." />
+        <Show when={loggedIn()} fallback={<button class={styles.button} onClick={login}>Anmelden</button>}>
+          <button class={styles.button} onClick={sign_out}>Abmelden</button>
+        </Show>
         <Show when={unauthorized()}>
           <div class={styles.fadeout}>
-            <label>Wrong Email or Password</label>
+            <label>Invalide E-Mail oder Passwort</label>
           </div>
         </Show>
+        <br />
         <Show
           when={show()}
-          fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
+          fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Registrieren</button>}>
           <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-            <h3>Sign Up</h3>
-              <label>Email</label>
-              <input type="text" ref={email_field!} placeholder="Your email.."/>
-              <label>Password</label>
-              <input type="password" ref={password_field!} placeholder="Your password.."/>
-              <input type="submit" value="Submit" onClick={sign_up} />
+            <h3>Anmelden</h3>
+              <label>E-mail</label>
+              <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+              <label>Passwort</label>
+              <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+            <br />
+            <br />
+              <input type="submit" value="Anmelden" onClick={sign_up} />
             <br />
             <Show when={bad_request_bool()}>
               <div class={styles.fadeout}>
-                <label>Email already in use</label>
+                <label>Diese E-Mail existiert schon</label>
               </div>
             </Show>
           </div>
         </Show>
-        <button class={styles.button} onClick={sign_out}>Abmelden</button>
       </header>
     </div>
   );

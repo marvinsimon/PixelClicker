@@ -77,7 +77,7 @@ const App: Component = () => {
       }
     }
 
-    const upgradeautodepth = async () => {
+    const upgradeAutoDepth = async () => {
         if (socket){
             const event: ClientMessages = "UpgradeAutomationDepth";
             await socket.send(JSON.stringify(event));
@@ -151,12 +151,16 @@ const App: Component = () => {
         <button class={styles.button}
                 onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovel()} </button>
         <br />
-        <button class={styles.button} onClick={automate}>Automatisierung</button>
-        <br />
         <button class={styles.button}
                 onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
+        <br />
+        <button class={styles.button} onClick={automate}>Automatisierung</button>
+        <br />
+        <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe</button>
+        <br/>
         <label>{ore()}</label>
         <label>Grabtiefe: {depth()}</label>
+        <br />
         <input type="text" ref={login_email_field!} placeholder="Your email" />
         <input type="password" ref={login_password_field!} placeholder="Your password" />
         <button class={styles.button} onClick={login}>Login</button>

@@ -8,12 +8,13 @@ pub struct GameState {
     pub multiplier: f64,
     pub shovel_amount_level: i32,
     pub shovel_depth_level: i32,
+    pub auto_depth_level: i32,
 }
 
 impl GameState {
     pub fn tick(&mut self, ticks: u64) -> ServerMessages {
         self.ore += ticks as f64 * self.multiplier;
-        self.depth += ticks as f64 * self.multiplier;
+        self.depth += ticks as f64 * (self.multiplier * self.auto_depth_level as f64);
         ServerMessages::NewState {
             ore: self.ore as u64,
             depth: self.depth as u64,
@@ -21,9 +22,10 @@ impl GameState {
     }
 
     /// Use this Function for Frontend -> Backend event handling
-    pub fn handle(&mut self, event: ClientMessages) -> ServerMessages {
+    pub fn handle(&mut self, event: ClientMessages) -> ServerMessages{
         let depth_upgrade_cost = self.shovel_depth_level * 50;
         let amount_upgrade_cost = self.shovel_amount_level * 50;
+        let mut upgrade_auto_depth_cost = self.auto_depth_level * 50;
         let auto_digger_price = 200;
         match event {
             ClientMessages::Mine => {
@@ -77,6 +79,21 @@ impl GameState {
                     ServerMessages::AutomationStarted { success: false }
                 }
             }
+            ClientMessages::UpgradeAutomationDepth => {
+                if self.ore as u64 >= upgrade_auto_depth_cost as u64 {
+                    self.auto_depth_level += 1;
+                    upgrade_auto_depth_cost = self.auto_depth_level * 50;
+                    ServerMessages::AutomationDepthUpgraded {
+                    success: true, 
+                    new_level: self.auto_depth_level, 
+                    new_upgrade_cost: upgrade_auto_depth_cost as u64}
+                } else {
+                    ServerMessages::AutomationDepthUpgraded {
+                    success: false, 
+                    new_level: self.auto_depth_level, 
+                    new_upgrade_cost: upgrade_auto_depth_cost as u64}
+                }
+            }
         }
     }
 
@@ -87,6 +104,7 @@ impl GameState {
             multiplier: 0.0,
             shovel_amount_level: 1,
             shovel_depth_level: 1,
+            auto_depth_level: 1
         }
     }
 }

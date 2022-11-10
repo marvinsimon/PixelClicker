@@ -22,10 +22,23 @@ const App: Component = () => {
     const [unauthorized, setUnauthorized] = createSignal(false);
 
     let socket: WebSocket | undefined;
-    const s = new WebSocket("ws://localhost:3001/game");
 
     const connectBackend = async () => {
-        socket = s;
+        socket = new WebSocket("ws://localhost:3001/game");
+        socket.onmessage = (msg) => {
+            const event: ServerMessages = JSON.parse(msg.data as string);
+            if ("NewState" in event) {
+                console.log(event.NewState);
+                setOre(event.NewState.ore);
+                setDepth(event.NewState.depth);
+            } else if ("ShovelDepthUpgraded" in event) {
+                console.log(event.ShovelDepthUpgraded);
+                setShovel(event.ShovelDepthUpgraded.new_level);
+            } else if ("ShovelAmountUpgraded" in event) {
+                console.log(event.ShovelAmountUpgraded);
+                setShovelAmount(event.ShovelAmountUpgraded.new_level);
+            }
+        }
     }
 
     const disconnectBackend = () => {
@@ -38,21 +51,6 @@ const App: Component = () => {
         if (socket) {
             const event: ClientMessages = "Mine";
             await socket.send(JSON.stringify(event));
-
-            s.onmessage = (msg) => {
-                const event: ServerMessages = JSON.parse(msg.data as string);
-                if ("NewState" in event) {
-                    console.log(event.NewState);
-                    setOre(event.NewState.ore);
-                    setDepth(event.NewState.depth);
-                } else if ("ShovelDepthUpgraded" in event) {
-                    console.log(event.ShovelDepthUpgraded);
-                    setShovel(event.ShovelDepthUpgraded.new_level);
-                } else if ("ShovelAmountUpgraded" in event) {
-                    console.log(event.ShovelAmountUpgraded);
-                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
-                }
-            }
         }
     }
 
@@ -113,6 +111,7 @@ const App: Component = () => {
         });
         console.log(`login: ${response.statusText}`);
         if (response.ok) {
+            await connectBackend();
             setAuth(true);
         } else if (response.status == 401) {
             setUnauthorized(true);
@@ -122,13 +121,16 @@ const App: Component = () => {
 
     const sign_out = async () => {
         if (auth()) {
-            const response = await fetch("http://localhost:3001/log_out", {
+            const response = await fetch("http://localhost:3001/logout", {
                 method: "GET",
                 credentials: "include",
             });
+            HTMLElement("");
             console.log(`sign_out: ${response.statusText}`);
             if (response.ok) {
+                disconnectBackend();
                 setAuth(false);
+                window.location.reload();
             }
         } else {
             console.log(`sign_out: failed`);

@@ -16,6 +16,7 @@ use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSes
 use dashmap::DashMap;
 
 use sqlx::{PgPool, Pool};
+use sqlx::types::chrono::Utc;
 use tokio::time::Instant;
 use tower_http::cors::CorsLayer;
 
@@ -153,7 +154,6 @@ async fn sign_up(
     AuthBasic((email, password)): AuthBasic,
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
-    Extension(state): Extension<GlobalState>,
 ) -> StatusCode {
     match sqlx::query!(
         "SELECT id FROM Player WHERE email = $1;",
@@ -177,7 +177,6 @@ async fn sign_up(
             {
                 Ok(r) => {
                     session.set(PLAYER_AUTH, r.id).await;
-                    state.insert(r.id, game_state);
                     StatusCode::OK
                 }
                 Err(err) => {
@@ -195,14 +194,13 @@ async fn sign_up(
 
 async fn logout(
     session: AxumSession<AxumPgPool>,
-    Extension(pool): Extension<PgPool>
+    Extension(pool): Extension<PgPool>,
 ) {
     println!("Logout");
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-
+        save_timestamp_to_database(id, &pool).await;
         println!("Logout inside");
     }
-    session.remove(PLAYER_AUTH).await;
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
@@ -263,19 +261,35 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         }
     }
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-        save_game_state_to_database(id, game_state, pool).await;
+        save_game_state_to_database(id, game_state, &pool).await;
+        save_timestamp_to_database(id, &pool).await;
     }
+    session.remove(PLAYER_AUTH).await;
     println!("Disconnected");
 }
 
-async fn save_game_state_to_database(id: i64, game_state: GameState, pool: PgPool) {
+async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
+    println!("Save timestamp");
+    match sqlx::query!(
+        "UPDATE Player SET timestamp = $1 WHERE id = $2;",
+        Utc::now().timestamp(),
+        id,
+    ).execute(pool)
+        .await
+    {
+        Ok(_) => println!("Success save"),
+        Err(_) => println!("Err"),
+    }
+}
+
+async fn save_game_state_to_database(id: i64, game_state: GameState, pool: &PgPool) {
     println!("Save data");
     let game_state_value = serde_json::to_value(game_state).unwrap();
     match sqlx::query!(
         "UPDATE Player SET game_state = $1 WHERE id = $2;",
         game_state_value,
         id,
-    ).execute(&pool)
+    ).execute(pool)
         .await
     {
         Ok(_) => println!("Success save"),
@@ -284,7 +298,6 @@ async fn save_game_state_to_database(id: i64, game_state: GameState, pool: PgPoo
 }
 
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
-
     println!("Load Data");
     match sqlx::query!(
         "SELECT game_state FROM player WHERE id = $1",

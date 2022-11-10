@@ -17,7 +17,7 @@ const App: Component = () => {
   const [show, setShow] = createSignal(false);
   const [shovelDepth, setShovelDepth] = createSignal(1);
   const [shovelAmount, setShovelAmount] = createSignal(1);
-  const [automation, setAutomation] = createSignal(false);
+  const [automation_on, setAutomation] = createSignal(false);
   const [autoDepth, setAutoDepth] = createSignal(1);
   const [autoAmount, setAutoAmount] = createSignal(1);
   const [loggedIn, setLoggedIn] = createSignal(false);
@@ -112,6 +112,7 @@ const App: Component = () => {
     });
     console.log(`sign_up: ${response.statusText}`);
     if (response.ok) {
+      setLoggedIn(true);
       setAuth(true);
     } else if (response.status == 400) {
       setBad_request_bool(true);
@@ -139,7 +140,7 @@ const App: Component = () => {
 
   const sign_out = async () => {
     if (auth()) {
-      const response = await fetch("http://localhost:3001/log_out", {
+      const response = await fetch("http://localhost:3001/logout", {
         method: "GET",
         credentials: "include",
       });
@@ -174,45 +175,44 @@ const App: Component = () => {
         <button class={styles.button}
                 onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
         <br />
-        <Show when={automation()} fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
+        <Show when={automation_on()} fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
         <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
         <br/>
-        <button class={styles.button} onClick={upgradeAutoAmount}>Automat Menge: {autoAmount()}</button>
+        <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
         </Show>
         <br />
-        <label>Erz: {ore()}</label>
+        <label>Erze: {ore()}</label>
         <label>Grabtiefe: {depth()}</label>
         <br />
-        <input type="text" ref={login_email_field!} style="width: 300px;" placeholder="Ihre E-mail.." />
-        <input type="password" ref={login_password_field!} style="width: 300px;" placeholder="Ihr Passwort.." />
-        <Show when={loggedIn()} fallback={<button class={styles.button} onClick={login}>Anmelden</button>}>
-          <button class={styles.button} onClick={sign_out}>Abmelden</button>
-        </Show>
-        <Show when={unauthorized()}>
-          <div class={styles.fadeout}>
-            <label>Invalide E-Mail oder Passwort</label>
-          </div>
-        </Show>
-        <br />
-        <Show
-          when={show()}
-          fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Registrieren</button>}>
-          <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-            <h3>Anmelden</h3>
+        <Show when={!loggedIn()} fallback={<button class={styles.button} onClick={sign_out}>Ausloggen</button>}>
+          <input type="text" ref={login_email_field!} style="width: 300px;" placeholder="Ihre E-mail.." />
+          <input type="password" ref={login_password_field!} style="width: 300px;" placeholder="Ihr Passwort.." />
+          <button class={styles.button} onClick={login}>Einloggen</button>
+          <Show when={unauthorized()}>
+            <div class={styles.fadeout}>
+              <label>Invalide E-Mail oder Passwort</label>
+            </div>
+          </Show>
+          <br />
+          <Show
+              when={show()}
+              fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Anmelden</button>}>
+            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+              <h3>Anmelden</h3>
               <label>E-mail</label>
               <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
               <label>Passwort</label>
               <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
-            <br />
-            <br />
+              <br />
               <input type="submit" value="Anmelden" onClick={sign_up} />
-            <br />
-            <Show when={bad_request_bool()}>
-              <div class={styles.fadeout}>
-                <label>Diese E-Mail existiert schon</label>
-              </div>
-            </Show>
-          </div>
+              <br />
+              <Show when={bad_request_bool()}>
+                <div class={styles.fadeout}>
+                  <label>Diese E-Mail existiert schon</label>
+                </div>
+              </Show>
+            </div>
+          </Show>
         </Show>
       </header>
     </div>

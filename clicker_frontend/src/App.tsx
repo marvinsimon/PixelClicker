@@ -7,6 +7,8 @@ const App: Component = () => {
 
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
+    let login_email_field: HTMLInputElement;
+    let login_password_field: HTMLInputElement;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
@@ -181,8 +183,8 @@ const App: Component = () => {
                 <label>{ore()}</label>
                 <label>Grabtiefe: {depth()}</label>
                 <br/>
-                <input type="text" ref={email_field!} placeholder="Your email"/>
-                <input type="password" ref={password_field!} placeholder="Your password"/>
+                <input type="text" ref={login_email_field!} placeholder="Your email"/>
+                <input type="password" ref={login_password_field!} placeholder="Your password"/>
                 <button class={styles.button} onClick={login}>Login</button>
                 <Show when={unauthorized()}>
                     <div class={styles.fadeout}>

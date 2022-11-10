@@ -119,7 +119,7 @@ const App: Component = () => {
         if (!auth()) {
             disconnectBackend();
             setUnauthorized(false);
-            let auth = btoa(`${email_field.value}:${password_field.value}`);
+            let auth = btoa(`${login_email_field.value}:${login_password_field.value}`);
             const response = await fetch("http://localhost:3001/login", {
                 method: "GET",
                 credentials: "include",

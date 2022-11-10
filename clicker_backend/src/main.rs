@@ -1,7 +1,5 @@
 use std::{net::SocketAddr, time::Duration};
-use std::borrow::Borrow;
 use std::io::{BufReader, Read, Write};
-use std::sync::Arc;
 
 use axum::{
     Extension,
@@ -13,7 +11,6 @@ use axum::{
 
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
-use dashmap::DashMap;
 
 use sqlx::{PgPool, Pool};
 use sqlx::types::chrono::Utc;
@@ -26,9 +23,7 @@ use crate::game_state::GameState;
 mod game_events;
 mod game_state;
 
-type State = DashMap<i64, GameState>;
-
-type GlobalState = Arc<State>;
+const SECONDS_DAY: i64 = 84600;
 
 const PLAYER_AUTH: &str = "player-auth";
 
@@ -50,8 +45,6 @@ async fn main() {
 
         std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
     }
-
-    let state = Arc::new(DashMap::<i64, GameState>::new());
 
     let key = std::fs::File::open("master-key")
         .ok()
@@ -93,7 +86,6 @@ async fn main() {
         .route("/sign_up", get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
-        .layer(Extension(state))
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
@@ -125,10 +117,9 @@ async fn login(
     AuthBasic((email, password)): AuthBasic,
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
-    Extension(state): Extension<GlobalState>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state FROM Player WHERE email = $1 AND password = $2;",
+        "SELECT id, game_state, timestamp FROM Player WHERE email = $1 AND password = $2;",
         email,
         password
     )
@@ -137,9 +128,14 @@ async fn login(
     {
         Ok(Some(record)) => {
             session.set(PLAYER_AUTH, record.id).await;
-            let game_state: GameState = serde_json::from_value(record.game_state)
-                .expect("stored json does not match GameState");
-            state.insert(record.id, game_state);
+            let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
+            let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
+            if elapsed_time > SECONDS_DAY {
+                game_state.tick(SECONDS_DAY);
+            } else {
+                game_state.tick(elapsed_time * 100);
+            }
+            save_game_state_to_database(record.id, &game_state, &pool).await;
             StatusCode::OK
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
@@ -196,11 +192,10 @@ async fn logout(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) {
-    println!("Logout");
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
         save_timestamp_to_database(id, &pool).await;
-        println!("Logout inside");
     }
+    session.remove(PLAYER_AUTH).await;
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
@@ -211,11 +206,15 @@ async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
     let mut game_state = GameState::new();
     let mut logged_in = false;
+    let mut interval = Instant::now();
     'outer: loop {
-        if !logged_in {
-            if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-                game_state = load_game_state_from_database(id, pool.borrow()).await;
+        if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+            if !logged_in {
+                game_state = load_game_state_from_database(id, &pool).await;
                 logged_in = true;
+            } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
+                save_game_state_to_database(id, &game_state, &pool).await;
+                interval = Instant::now();
             }
         }
         let instant = Instant::now();
@@ -261,40 +260,30 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         }
     }
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-        save_game_state_to_database(id, game_state, &pool).await;
+        println!("Reaching with id {}", id);
         save_timestamp_to_database(id, &pool).await;
     }
-    session.remove(PLAYER_AUTH).await;
     println!("Disconnected");
 }
 
 async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
     println!("Save timestamp");
-    match sqlx::query!(
+    if (sqlx::query!(
         "UPDATE Player SET timestamp = $1 WHERE id = $2;",
         Utc::now().timestamp(),
         id,
     ).execute(pool)
-        .await
-    {
-        Ok(_) => println!("Success save"),
-        Err(_) => println!("Err"),
-    }
+        .await).is_ok() { }
 }
 
-async fn save_game_state_to_database(id: i64, game_state: GameState, pool: &PgPool) {
-    println!("Save data");
+async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
     let game_state_value = serde_json::to_value(game_state).unwrap();
-    match sqlx::query!(
+    if (sqlx::query!(
         "UPDATE Player SET game_state = $1 WHERE id = $2;",
         game_state_value,
         id,
     ).execute(pool)
-        .await
-    {
-        Ok(_) => println!("Success save"),
-        Err(_) => println!("Err"),
-    }
+        .await).is_ok() {}
 }
 
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {

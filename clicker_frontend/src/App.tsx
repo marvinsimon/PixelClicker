@@ -42,9 +42,7 @@ const App: Component = () => {
     }
 
     const disconnectBackend = () => {
-        if (socket != null) {
-            socket.close();
-        }
+        socket?.close();
     }
 
     const click = async () => {
@@ -102,20 +100,23 @@ const App: Component = () => {
     }
 
     const login = async () => {
-        setUnauthorized(false);
-        let auth = btoa(`${login_email_field.value}:${login_password_field.value}`);
-        const response = await fetch("http://localhost:3001/login", {
-            method: "GET",
-            credentials: "include",
-            headers: {Authorization: `Basic ${auth}`},
-        });
-        console.log(`login: ${response.statusText}`);
-        if (response.ok) {
-            await connectBackend();
-            setAuth(true);
-        } else if (response.status == 401) {
-            setUnauthorized(true);
-            console.log('Unauthorized');
+        if(!auth()) {
+            disconnectBackend();
+            setUnauthorized(false);
+            let auth = btoa(`${login_email_field.value}:${login_password_field.value}`);
+            const response = await fetch("http://localhost:3001/login", {
+                method: "GET",
+                credentials: "include",
+                headers: {Authorization: `Basic ${auth}`},
+            });
+            console.log(`login: ${response.statusText}`);
+            if (response.ok) {
+                await connectBackend();
+                setAuth(true);
+            } else if (response.status == 401) {
+                setUnauthorized(true);
+                console.log('Unauthorized');
+            }
         }
     }
 
@@ -125,12 +126,11 @@ const App: Component = () => {
                 method: "GET",
                 credentials: "include",
             });
-            HTMLElement("");
             console.log(`sign_out: ${response.statusText}`);
             if (response.ok) {
                 disconnectBackend();
                 setAuth(false);
-                window.location.reload();
+                await connectBackend();
             }
         } else {
             console.log(`sign_out: failed`);
@@ -138,12 +138,12 @@ const App: Component = () => {
 
     }
 
-    function clickOutside(el: { contains: (arg0: any) => any }, accessor: () => { (): any; new(): any }) {
-        const onClick = (e) => !el.contains(e.target) && accessor()?.();
+    const clickOutside = async (el: { contains: (arg0: any) => any }, accessor: () => { (): any; new(): any }) => {
+        const onClick = (e: MouseEvent) => !el.contains(e.target) && accessor()?.();
         document.body.addEventListener("click", onClick);
+        onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
-    onCleanup(() => document.body.removeEventListener("click", onClick));
 
     return (
         <div class={styles.App}>
@@ -168,7 +168,7 @@ const App: Component = () => {
                 <br/>
                 <input type="text" ref={login_email_field!} placeholder="Your email"/>
                 <input type="password" ref={login_password_field!} placeholder="Your password"/>
-                <button class={styles.button} onClick={login}>Login</button>
+                <button id="in_out" class={styles.button} onClick={login}>Login</button>
                 <Show when={unauthorized()}>
                     <div class={styles.fadeout}>
                         <label>Wrong Email or Password</label>

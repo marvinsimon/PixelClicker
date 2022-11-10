@@ -12,7 +12,7 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn tick(&mut self, ticks: u64) -> ServerMessages {
+    pub fn tick(&mut self, ticks: i64) -> ServerMessages {
         self.ore += ticks as f64 * self.multiplier;
         self.depth += ticks as f64 * (self.multiplier * self.auto_depth_level as f64);
         ServerMessages::NewState {
@@ -73,7 +73,7 @@ impl GameState {
             ClientMessages::StartAutomation => {
                 if self.ore as u64 >= auto_digger_price {
                     self.ore -= auto_digger_price as f64;
-                    self.multiplier = 0.05;
+                    self.multiplier += 0.05;
                     ServerMessages::AutomationStarted { success: true }
                 } else {
                     ServerMessages::AutomationStarted { success: false }

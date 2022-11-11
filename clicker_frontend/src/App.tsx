@@ -19,6 +19,8 @@ const App: Component = () => {
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [autoDepth, setAutoDepth] = createSignal(1);
     const [autoAmount, setAutoAmount] = createSignal(1);
+    const [attackLevel, setAttackLevel] = createSignal(1);
+    const [defenseLevel, setDefenseLevel] = createSignal(1);
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
     const [unauthorized, setUnauthorized] = createSignal(false);
 
@@ -97,6 +99,20 @@ const App: Component = () => {
         }
     }
 
+    const upgradeAttackLevel = async () => {
+        if (socket) {
+            const event: ClientMessages = "UpgradeAttackLevel";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const upgradeDefenseLevel = async () => {
+        if (socket) {
+            const event: ClientMessages = "UpgradeDefenseLevel";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     const sign_up = async () => {
         setBad_request_bool(false);
         let auth = btoa(`${email_field.value}:${password_field.value}`);
@@ -113,7 +129,6 @@ const App: Component = () => {
             console.log('Bad Request');
         }
     }
-
 
     const login = async () => {
         if (!auth()) {

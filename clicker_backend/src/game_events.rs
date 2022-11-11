@@ -10,6 +10,8 @@ pub enum ClientMessages {
     StartAutomation,
     UpgradeAutomationDepth,
     UpgradeAutomationAmount,
+    UpgradeAttackLevel,
+    UpgradeDefenseLevel,
 }
 
 #[derive(Serialize, TypeDef)]
@@ -21,4 +23,6 @@ pub enum ServerMessages {
     AutomationStarted{success: bool},
     AutomationDepthUpgraded{success: bool, new_level: i32, new_upgrade_cost: u64},
     AutomationAmountUpgraded{success: bool, new_level: i32, new_upgrade_cost: u64},
+    AttackLevelUpgraded{success: bool, new_level: i32, new_upgrade_cost: u64},
+    DefenseLevelUpgraded{success: bool, new_level: i32, new_upgrade_cost: u64},
 }

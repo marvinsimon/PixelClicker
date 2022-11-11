@@ -136,6 +136,7 @@ async fn login(
                 game_state.tick(elapsed_time * 100);
             }
             save_game_state_to_database(record.id, &game_state, &pool).await;
+            save_score_to_database(record.id, &game_state, &pool).await;
             StatusCode::OK
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
@@ -214,6 +215,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
                 save_game_state_to_database(id, &game_state, &pool).await;
+                save_score_to_database(id, &game_state, &pool).await;
                 interval = Instant::now();
             }
         }
@@ -273,7 +275,7 @@ async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
         Utc::now().timestamp(),
         id,
     ).execute(pool)
-        .await).is_ok() { }
+        .await).is_ok() {}
 }
 
 async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
@@ -281,6 +283,17 @@ async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgP
     if (sqlx::query!(
         "UPDATE Player SET game_state = $1 WHERE id = $2;",
         game_state_value,
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
+}
+
+async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
+    let score_value  = serde_json::to_value((game_state.depth / 100.0) as i32
+        + game_state.attack_level + game_state.defense_level).unwrap().as_i64();
+    if (sqlx::query!(
+        "UPDATE Player SET score = $1 WHERE id = $2;",
+        score_value,
         id,
     ).execute(pool)
         .await).is_ok() {}

@@ -19,6 +19,7 @@ const App: Component = () => {
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [autoDepth, setAutoDepth] = createSignal(1);
     const [autoAmount, setAutoAmount] = createSignal(1);
+    const [pvp, setPvp] = createSignal(false);
     const [attackLevel, setAttackLevel] = createSignal(1);
     const [defenseLevel, setDefenseLevel] = createSignal(1);
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
@@ -96,6 +97,14 @@ const App: Component = () => {
         if (socket) {
             const event: ClientMessages = "UpgradeAutomationAmount";
             await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const usePvp = async () => {
+        if (pvp()) {
+            setPvp(false);
+        } else {
+            setPvp(true);
         }
     }
 
@@ -208,7 +217,7 @@ const App: Component = () => {
                 </Show>
                 <Show
                     when={show()}
-                    fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Sign Up</button>}>
+                    fallback={<button onClick={() => setShow(true)} class={styles.button}>Sign Up</button>}>
                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                         <h3>Sign Up</h3>
                         <label>Email</label>
@@ -225,6 +234,16 @@ const App: Component = () => {
                     </div>
                 </Show>
                 <button class={styles.button} onClick={sign_out}>Abmelden</button>
+                <br />
+                <Show when={pvp()}
+                      fallback={<button onClick={usePvp} class={styles.button}>PvP</button>}>
+                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                        <button class={styles.button} onClick={upgradeAttackLevel}>Upgrade Attack: {attackLevel()}</button>
+                        <button class={styles.button} onClick={upgradeDefenseLevel}>Upgrade Defense: {defenseLevel()}</button>
+                        <br />
+                        <button class={styles.button} onClick={usePvp}>Close</button>
+                    </div>
+                </Show>
             </header>
         </div>
     );

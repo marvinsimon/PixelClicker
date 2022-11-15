@@ -5,6 +5,6 @@ CREATE TABLE  Player (
     email text NOT NULL ,
     password text NOT NULL,
     game_state JSON NOT NULL,
-    timestamp BIGINT
-    pvp_score int,
+    timestamp BIGINT,
+    pvp_score int
 );

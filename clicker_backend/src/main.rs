@@ -302,10 +302,10 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     }
 }
 
-async fn search_for_enemy(pool: &PgPool) -> id {
+async fn search_for_enemy(pool: &PgPool) -> i64 {
     println!("Searching for Enemy");
     match sqlx::query!(
-        "SELECT id FROM player WHERE score <= $1",
+        "SELECT id FROM player WHERE pvp_score <= $1",
         pvp_score
     ).fetch_one(pool)
         .await
@@ -314,6 +314,6 @@ async fn search_for_enemy(pool: &PgPool) -> id {
             println!("Match Found: {:?}", r.id);
             serde_json::from_value(r.id).unwrap()
         }
-        Err(_) => println!("No Enemy can be found!"),
+        Err(_) => -1,
     }
 }

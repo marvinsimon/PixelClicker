@@ -6,4 +6,5 @@ CREATE TABLE  Player (
     password text NOT NULL,
     game_state JSON NOT NULL,
     timestamp BIGINT
+    pvp_score int,
 );

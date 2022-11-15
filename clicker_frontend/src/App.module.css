@@ -1,25 +1,89 @@
-.App {
-    text-align: center;
-}
 
-.logo {
-    animation: logo-spin infinite 20s linear;
-    height: 40vmin;
-    pointer-events: none;
+
+
+.App {
+    background-image: url("assets/background_wood_cherry.png"),
+        url("assets/background_wood_spruce.png");
+    background-position: center, top;
+    background-size: cover;
+    min-height: 100vh;
 }
 
 .header {
-    background-color: #282c34;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-    font-family: "Courier New", monospace;
 }
 
+.nav {
+    background-color: #45040f;
+    height: 12vh;
+}
+
+.nav .flex {
+    justify-content: space-between;
+}
+
+.nav button {
+    margin-top: 25px;
+}
+
+.container {
+    margin: 0 auto;
+    overflow: auto;
+    padding: 0 20px;
+}
+
+.flex {
+    display: flex;
+    justify-content: center;
+}
+
+.logocont {
+    width: 14vh;
+    height: 13.6vw;
+}
+
+.logocont img {
+    padding-top: 3px;
+    width: 100%;
+    height: auto;
+}
+
+.gamecontainer {
+    display: flex;
+    justify-content: space-around;
+    height: 88vh;
+    margin: 0 10px;
+}
+
+.board {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+.board img {
+    transform: scale(0.65);
+    margin-left: -13vw;
+    margin-top: -22.5vh;
+}
+
+.board label {
+    color: white;
+}
+
+.game {
+    display: flex;
+    border: #282c34 5px solid;
+    border-radius: 5px;
+    margin-left: -14vw;
+}
+
+.game img {
+
+}
+
+.controls {
+    display: flex;
+}
 
 .modal {
     position: absolute;
@@ -73,11 +137,22 @@ input[type=submit]:hover {
 }
 
 .button {
-    background: white;
-    padding: 1em;
+
+}
+
+.signupbutton {
+    background: url("assets/SignUp_Button.png");
+    background-size: 8vw 4vh;
+    background-repeat: no-repeat;
+    width: 8vw;
+    height: 4vh;
     border: none;
-    border-radius: 5px;
-    font-family: "Courier New", monospace;
+    transition-duration: .4s;
+}
+
+.signupbutton:hover {
+    transform: scale(.95);
+    cursor: pointer;
 }
 
 .submitbutton {

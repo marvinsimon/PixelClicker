@@ -2,6 +2,9 @@ import type {Component} from "solid-js";
 import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
+import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
+import board from "./assets/Brettmiticon.png";
+import game from "./assets/Playground.png";
 
 const App: Component = () => {
 
@@ -165,6 +168,54 @@ const App: Component = () => {
     return (
         <div class={styles.App}>
             <header class={styles.header}>
+                <div class={styles.nav}>
+                    <div class={styles.container}>
+                        <div class={styles.flex}>
+                            <div class={styles.logocont}>
+                                <img src={clicker_logo} alt={"ClickerRoyale Logo"}/>
+                            </div>
+                            <nav>
+                                <Show
+                                    when={show()}
+                                    fallback={<button onClick={(e) => setShow(true)} class={styles.signupbutton}></button>}>
+                                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                        <h3>Anmelden</h3>
+                                        <label>E-mail</label>
+                                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                                        <label>Passwort</label>
+                                        <input type="password" ref={password_field!} style="width: 300px;"
+                                               placeholder="Ihr Passwort.."/>
+                                        <br/>
+                                        <input type="submit" value="Anmelden" onClick={sign_up}/>
+                                        <br/>
+                                        <Show when={bad_request_bool()}>
+                                            <div class={styles.fadeout}>
+                                                <label>Diese E-Mail existiert schon</label>
+                                            </div>
+                                        </Show>
+                                    </div>
+                                </Show>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div class={styles.gamecontainer}>
+                    <div class={styles.board}>
+                        <img src={board} alt={"Information board"}/>
+                        <label>{ore()}</label>
+                        <label>{depth()}</label>
+                        <label>{ore()}</label>
+                    </div>
+                    <div class={styles.game}>
+                        <img src={game} alt={"Game"}/>
+                    </div>
+                    <div class={styles.controls}>
+                        <p>Test</p>
+                    </div>
+                </div>
+
+                <br/>
                 <button class={styles.button} onClick={connectBackend}>Connect</button>
                 <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
                 <br/>
@@ -183,8 +234,6 @@ const App: Component = () => {
                     <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
                 </Show>
                 <br/>
-                <label>Erze: {ore()}</label>
-                <label>Grabtiefe: {depth()}</label>
                 <br/>
                 <Show when={!loggedIn()} fallback={<button class={styles.button} onClick={sign_out}>Ausloggen</button>}>
                     <input type="text" ref={login_email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
@@ -197,27 +246,12 @@ const App: Component = () => {
                         </div>
                     </Show>
                     <br/>
-                    <Show
-                        when={show()}
-                        fallback={<button onClick={(e) => setShow(true)} class={styles.button}>Anmelden</button>}>
-                        <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                            <h3>Anmelden</h3>
-                            <label>E-mail</label>
-                            <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                            <label>Passwort</label>
-                            <input type="password" ref={password_field!} style="width: 300px;"
-                                   placeholder="Ihr Passwort.."/>
-                            <br/>
-                            <input type="submit" value="Anmelden" onClick={sign_up}/>
-                            <br/>
-                            <Show when={bad_request_bool()}>
-                                <div class={styles.fadeout}>
-                                    <label>Diese E-Mail existiert schon</label>
-                                </div>
-                            </Show>
-                        </div>
-                    </Show>
+
                 </Show>
+
+
+
+
             </header>
         </div>
     );

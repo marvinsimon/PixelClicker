@@ -301,3 +301,19 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
         Err(_) => GameState::new(),
     }
 }
+
+async fn search_for_enemy(pool: &PgPool) -> id {
+    println!("Searching for Enemy");
+    match sqlx::query!(
+        "SELECT id FROM player WHERE score <= $1",
+        pvp_score
+    ).fetch_one(pool)
+        .await
+    {
+        Ok(r) => {
+            println!("Match Found: {:?}", r.id);
+            serde_json::from_value(r.id).unwrap()
+        }
+        Err(_) => println!("No Enemy can be found!"),
+    }
+}

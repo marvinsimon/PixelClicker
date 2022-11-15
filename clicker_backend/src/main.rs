@@ -302,7 +302,7 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     }
 }
 
-async fn search_for_enemy(pool: &PgPool) -> i64 {
+async fn search_for_enemy(pvp_score: i64, pool: &PgPool) -> i64 {
     println!("Searching for Enemy");
     match sqlx::query!(
         "SELECT id FROM player WHERE pvp_score <= $1",

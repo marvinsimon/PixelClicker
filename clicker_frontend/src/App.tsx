@@ -27,6 +27,7 @@ const App: Component = () => {
     const [loggedIn, setLoggedIn] = createSignal(false);
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
     const [unauthorized, setUnauthorized] = createSignal(false);
+    const [showMining, setShowMining] = createSignal(false);
 
 
     let socket: WebSocket | undefined;
@@ -196,13 +197,26 @@ const App: Component = () => {
                 </div>
                 <div class={styles.board}>
                     <img src={board} class={styles.board_img} alt={"Value board"}/>
+                    <label class={styles.label_info}>{ore()}</label>
+                    <label class={styles.label_info}>{depth()}</label>
+                    <label class={styles.label_info}>{ore()}</label>
                 </div>
                 <div class={styles.main}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
                     <button class={styles.button_pvp}></button>
-                    <button class={styles.button_mine} onClick={mine}></button>
+                    <button class={styles.button_mine}></button>
+                    <button class={styles.button_shovel_depth}
+                            onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
+                    <button class={styles.button_shovel_amount}
+                            onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
+                    <Show when={automation_on()}
+                          fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
+                        <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
+                        <br/>
+                        <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
+                    </Show>
                 </div>
             </div>
         </div>

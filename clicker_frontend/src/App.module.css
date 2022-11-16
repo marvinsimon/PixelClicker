@@ -5,20 +5,16 @@
 }
 
 .container {
+    background: url("assets/background_wood_cherry.png");
+    background-size: cover;
     height: 100vh;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 }
 
-.header, .main,
-.controls, .board {
-    background: steelblue;
-    color: white;
-    border: skyblue 1px solid;
-}
-
 .header {
     grid-column: 1 / 5;
+    background: #45040f;
     display: flex;
     padding: 10px;
     justify-content: space-between;
@@ -26,18 +22,19 @@
 
 .main {
     grid-column: 2 / 4;
-    height: 100vh;
+    max-height: 88vh;
 }
 
 .controls {
     grid-column: 4 / 5;
     display: grid;
-    height: 100vh;
+    max-height: 88vh;
     row-gap: 5px;
 }
 
 .board {
     grid-column: 1 / 2;
+    max-height: 88vh;
 }
 
 .board_img {
@@ -92,9 +89,20 @@
     cursor: pointer;
 }
 
+.button_pvp_attack {
+    background: url("assets/Attack_Button.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 444px;
+    border: none;
+    padding-right: 100px;
+}
+
 .game {
     width: 100%;
     height: 100%;
+    border: #282c34 2px solid;
+    border-radius: 3px;
 }
 
 .label_info {
@@ -109,6 +117,12 @@
 
 .label_info:nth-of-type(1) {
     margin-top: -365px;
+}
+
+.label_info:nth-of-type(3) {
+    font-size: 30px;
+    margin-top: 3px;
+    margin-left: 10px;
 }
 
 .modal {
@@ -160,4 +174,19 @@ input[type=submit] {
 
 input[type=submit]:hover {
     background-color: #45a049;
+}
+
+.button {
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.button:hover {
+    background: skyblue;
+    cursor: pointer;
+    border: lightskyblue 1px solid;
 }

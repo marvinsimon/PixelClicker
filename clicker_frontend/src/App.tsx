@@ -28,6 +28,7 @@ const App: Component = () => {
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
     const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
+    const [showPVP, setShowPVP] = createSignal(false);
 
 
     let socket: WebSocket | undefined;
@@ -199,24 +200,48 @@ const App: Component = () => {
                     <img src={board} class={styles.board_img} alt={"Value board"}/>
                     <label class={styles.label_info}>{ore()}</label>
                     <label class={styles.label_info}>{depth()}</label>
-                    <label class={styles.label_info}>{ore()}</label>
+                    <label class={styles.label_info}>coming soon</label>
                 </div>
                 <div class={styles.main}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
-                    <button class={styles.button_pvp}></button>
-                    <button class={styles.button_mine}></button>
-                    <button class={styles.button_shovel_depth}
-                            onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                    <button class={styles.button_shovel_amount}
-                            onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
-                    <Show when={automation_on()}
-                          fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
-                        <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
-                        <br/>
-                        <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
+
+                    <button class={styles.button} onClick={mine}>Erz abbauen</button>
+
+                    <Show when={showPVP()}
+                          fallback={<button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
+                        <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
+                            <h3>PvP Verbesserungen</h3>
+                            <br/>
+                            <button class={styles.button}>Angriff verbessern</button>
+                            <button class={styles.button}>Verteidigung verbessern</button>
+                        </div>
                     </Show>
+
+
+
+                    <Show when={showMining()}
+                          fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
+                        <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
+                            <h3>Mining Verbesserungen</h3>
+                            <br/>
+                            <button class={styles.button}
+                                    onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
+                            <button class={styles.button}
+                                    onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
+                            <br/>
+                            <Show when={automation_on()}
+                                  fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
+                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
+                                <br/>
+                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
+                            </Show>
+                        </div>
+                    </Show>
+
+                    <button class={styles.button_pvp_attack}></button>
+
                 </div>
             </div>
         </div>

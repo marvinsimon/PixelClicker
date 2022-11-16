@@ -289,7 +289,7 @@ async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgP
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     println!("Load Data");
     match sqlx::query!(
-        "SELECT game_state FROM player WHERE id = $1",
+        "SELECT game_state FROM Player WHERE id = $1",
         id
     ).fetch_one(pool)
         .await
@@ -305,13 +305,14 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
 async fn search_for_enemy(pvp_score: i32, pool: &PgPool) -> i64 {
     println!("Searching for Enemy");
     match sqlx::query!(
-        "SELECT id FROM player WHERE pvp_score <= $1",
+        "SELECT id, game_state FROM Player WHERE pvp_score <= $1 ORDER BY pvp_score ASC",
         pvp_score
     ).fetch_one(pool)
         .await
     {
         Ok(r) => {
             println!("Match Found: {:?}", r.id);
+            //Beute verrechnen
             r.id
         }
         Err(_) => -1,

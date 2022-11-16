@@ -83,6 +83,7 @@ impl GameState {
             }
             ClientMessages::UpgradeAutomationDepth => {
                 if self.ore as u64 >= upgrade_auto_depth_cost as u64 {
+                    self.ore -= upgrade_auto_depth_cost as f64;
                     self.auto_depth_level += 1;
                     upgrade_auto_depth_cost = self.auto_depth_level * 50;
                     ServerMessages::AutomationDepthUpgraded {
@@ -100,6 +101,7 @@ impl GameState {
             }
             ClientMessages::UpgradeAutomationAmount => {
                 if self.ore as u64 >= upgrade_auto_amount_cost as u64 {
+                    self.ore -= upgrade_auto_amount_cost;
                     self.auto_amount_level += 1;
                     upgrade_auto_amount_cost = self.auto_amount_level * 50;
                     ServerMessages::AutomationAmountUpgraded {

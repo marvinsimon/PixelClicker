@@ -166,93 +166,45 @@ const App: Component = () => {
     }
 
     return (
+
         <div class={styles.App}>
-            <header class={styles.header}>
-                <div class={styles.nav}>
-                    <div class={styles.container}>
-                        <div class={styles.flex}>
-                            <div class={styles.logocont}>
-                                <img src={clicker_logo} alt={"ClickerRoyale Logo"}/>
-                            </div>
-                            <nav>
-                                <Show
-                                    when={show()}
-                                    fallback={<button onClick={(e) => setShow(true)} class={styles.signupbutton}></button>}>
-                                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                        <h3>Anmelden</h3>
-                                        <label>E-mail</label>
-                                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                        <label>Passwort</label>
-                                        <input type="password" ref={password_field!} style="width: 300px;"
-                                               placeholder="Ihr Passwort.."/>
-                                        <br/>
-                                        <input type="submit" value="Anmelden" onClick={sign_up}/>
-                                        <br/>
-                                        <Show when={bad_request_bool()}>
-                                            <div class={styles.fadeout}>
-                                                <label>Diese E-Mail existiert schon</label>
-                                            </div>
-                                        </Show>
+            <div class={styles.container}>
+                <div class={styles.header}>
+                    <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <nav>
+                        <Show
+                            when={show()}
+                            fallback={<button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>}>
+                            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                <h3>Anmelden</h3>
+                                <label>E-mail</label>
+                                <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                                <label>Passwort</label>
+                                <input type="password" ref={password_field!} style="width: 300px;"
+                                       placeholder="Ihr Passwort.."/>
+                                <br/>
+                                <input type="submit" value="Anmelden" onClick={sign_up}/>
+                                <br/>
+                                <Show when={bad_request_bool()}>
+                                    <div class={styles.fadeout}>
+                                        <label>Diese E-Mail existiert schon</label>
                                     </div>
                                 </Show>
-                            </nav>
-                        </div>
-                    </div>
+                            </div>
+                        </Show>
+                    </nav>
                 </div>
-
-                <div class={styles.gamecontainer}>
-                    <div class={styles.board}>
-                        <img src={board} alt={"Information board"}/>
-                        <label>{ore()}</label>
-                        <label>{depth()}</label>
-                        <label>{ore()}</label>
-                    </div>
-                    <div class={styles.game}>
-                        <img src={game} alt={"Game"}/>
-                    </div>
-                    <div class={styles.controls}>
-                        <p>Test</p>
-                    </div>
+                <div class={styles.board}>
+                    <img src={board} class={styles.board_img} alt={"Value board"}/>
                 </div>
-
-                <br/>
-                <button class={styles.button} onClick={connectBackend}>Connect</button>
-                <button class={styles.button} onClick={disconnectBackend}>Disconnect</button>
-                <br/>
-                <button class={styles.button} onClick={mine}>Erze schürfen</button>
-                <br/>
-                <button class={styles.button}
-                        onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                <br/>
-                <button class={styles.button}
-                        onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
-                <br/>
-                <Show when={automation_on()}
-                      fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
-                    <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
-                    <br/>
-                    <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
-                </Show>
-                <br/>
-                <br/>
-                <Show when={!loggedIn()} fallback={<button class={styles.button} onClick={sign_out}>Ausloggen</button>}>
-                    <input type="text" ref={login_email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                    <input type="password" ref={login_password_field!} style="width: 300px;"
-                           placeholder="Ihr Passwort.."/>
-                    <button class={styles.button} onClick={login}>Einloggen</button>
-                    <Show when={unauthorized()}>
-                        <div class={styles.fadeout}>
-                            <label>Invalide E-Mail oder Passwort</label>
-                        </div>
-                    </Show>
-                    <br/>
-
-                </Show>
-
-
-
-
-            </header>
+                <div class={styles.main}>
+                    <img src={game} class={styles.game} alt={"Game ground"}/>
+                </div>
+                <div class={styles.controls}>
+                    <button class={styles.button_pvp}></button>
+                    <button class={styles.button_mine} onClick={mine}></button>
+                </div>
+            </div>
         </div>
     );
 };

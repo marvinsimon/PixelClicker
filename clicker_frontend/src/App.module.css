@@ -1,194 +1,96 @@
-
-
-
-.App {
-    background-image: url("assets/background_wood_cherry.png"),
-        url("assets/background_wood_spruce.png");
-    background-position: center, top;
-    background-size: cover;
-    min-height: 100vh;
-}
-
-.header {
-}
-
-.nav {
-    background-color: #45040f;
-    height: 12vh;
-}
-
-.nav .flex {
-    justify-content: space-between;
-}
-
-.nav button {
-    margin-top: 25px;
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 
 .container {
-    margin: 0 auto;
-    overflow: auto;
-    padding: 0 20px;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
 }
 
-.flex {
-    display: flex;
-    justify-content: center;
-}
-
-.logocont {
-    width: 14vh;
-    height: 13.6vw;
-}
-
-.logocont img {
-    padding-top: 3px;
-    width: 100%;
-    height: auto;
-}
-
-.gamecontainer {
-    display: flex;
-    justify-content: space-around;
-    height: 88vh;
-    margin: 0 10px;
-}
-
-.board {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-}
-
-.board img {
-    transform: scale(0.65);
-    margin-left: -13vw;
-    margin-top: -22.5vh;
-}
-
-.board label {
+.header, .main,
+.controls, .board {
+    background: steelblue;
     color: white;
+    border: skyblue 1px solid;
 }
 
-.game {
+.header {
+    grid-column: 1 / 5;
     display: flex;
-    border: #282c34 5px solid;
-    border-radius: 5px;
-    margin-left: -14vw;
+    padding: 10px;
+    justify-content: space-between;
 }
 
-.game img {
-
+.main {
+    grid-column: 2 / 4;
+    height: 100vh;
 }
 
 .controls {
+    grid-column: 4 / 5;
+    height: 100vh;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
-
-    height: 400px;
-    width: 300px;
-
-    color: #282c34;
-    border-radius: 5px;
-    background-color: #f2f2f2;
-    padding: 20px;
+.board {
+    grid-column: 1 / 2;
 }
 
-input[type=text] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    resize: vertical;
+.board_img {
 }
 
-input[type=password] {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    resize: vertical;
+.header_logo {
 }
 
-input[type=submit] {
-    background-color: #04AA6D;
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-input[type=submit]:hover {
-    background-color: #45a049;
-}
-
-.button {
-
-}
-
-.signupbutton {
-    background: url("assets/SignUp_Button.png");
-    background-size: 8vw 4vh;
+.button_sign_up {
+    background: url("assets/SignUp_Button_Test.png");
     background-repeat: no-repeat;
-    width: 8vw;
-    height: 4vh;
+    height: 30px;
+    width: 90px;
     border: none;
     transition-duration: .4s;
+    margin-top: 20px;
 }
 
-.signupbutton:hover {
+.button_sign_up:hover {
     transform: scale(.95);
     cursor: pointer;
 }
 
-.submitbutton {
-    background: forestgreen;
-    padding: 1em;
+.button_pvp {
+    background: url("assets/PVP_Button.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 408px;
     border: none;
-    border-radius: 5px;
-
+    transition-duration: .4s;
 }
 
-.link {
-    color: #b318f0;
+.button_pvp:hover {
+    transform: scale(.23);
+    cursor: pointer;
 }
 
-.fadeout {
-    animation-name: fadeOut;
-    animation-delay: 5s;
-    animation-duration: 3s;
-    animation-fill-mode: forwards;
+.button_mine {
+    background: url("assets/Mine_Button.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    transition-duration: .4s;
 }
 
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
+.button_mine:hover {
+    transform: scale(.23);
+    cursor: pointer;
 }
 
-@keyframes logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.game {
+    width: 100%;
+    height: 100%;
 }

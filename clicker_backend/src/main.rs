@@ -86,6 +86,7 @@ async fn main() {
         .route("/sign_up", get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
+        .route("/combat", get(attack))
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
@@ -201,6 +202,13 @@ async fn logout(
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
     println!("Connected");
     ws.on_upgrade(move |socket| handle_game(socket, session, pool))
+}
+
+async fn attack(
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+) {
+    let defender_id = search_for_enemy(1, &pool);
 }
 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {

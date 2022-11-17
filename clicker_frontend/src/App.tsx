@@ -239,8 +239,10 @@ const App: Component = () => {
                             </Show>
                         </div>
                     </Show>
-
                     <button class={styles.button_pvp_attack}></button>
+                    <button class={styles.button_rank}></button>
+                    <button class={styles.button_shop}></button>
+
 
                 </div>
             </div>

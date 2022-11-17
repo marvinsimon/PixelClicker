@@ -45,8 +45,7 @@
 }
 
 .button_sign_up {
-    background: url("assets/SignUp_Button_Test.png");
-    background-repeat: no-repeat;
+    background: url("assets/Button_SignUp_Test.png") no-repeat;
     height: 30px;
     width: 90px;
     border: none;
@@ -60,10 +59,10 @@
 }
 
 .button_pvp {
-    background: url("assets/PVP_Button.png");
+    background: url("assets/Button_PVP.png");
     transform: scale(.3);
     height: 108px;
-    width: 408px;
+    width: 407px;
     border: none;
     transition-duration: .4s;
 }
@@ -74,7 +73,7 @@
 }
 
 .button_mine {
-    background: url("assets/Mine_Button.png");
+    background: url("assets/Button_Mine.png");
     transform: scale(.3);
     height: 108px;
     width: 407px;
@@ -88,12 +87,48 @@
 }
 
 .button_pvp_attack {
-    background: url("assets/Attack_Button.png");
+    background: url("assets/Button_Attack.png");
     transform: scale(.3);
     height: 108px;
-    width: 444px;
+    width: 407px;
     border: none;
     padding-right: 100px;
+    transition-duration: .4s;
+}
+
+.button_pvp_attack:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_rank {
+    background: url("assets/Button_Rank.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    padding-right: 100px;
+    transition-duration: .4s;
+}
+
+.button_rank:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_shop {
+    background: url("assets/Button_Shop.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    padding-right: 100px;
+    transition-duration: .4s;
+}
+
+.button_shop:hover {
+    transform: scale(.28);
+    cursor: pointer;
 }
 
 .game {
@@ -216,6 +251,5 @@ input[type=submit]:hover {
     .controls {
         display: none;
     }
-
 
 }

@@ -5,6 +5,7 @@ import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import game from "./assets/Playground.png";
+import {Portal} from "solid-js/web";
 
 const App: Component = () => {
 
@@ -144,6 +145,108 @@ const App: Component = () => {
         }
     }
 
+
+    const showLoginPopUp = async () => {
+        setShow(true);
+        return (
+            <Portal>
+                <Show when={show()}
+                >
+                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                        Login Modal
+                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                        <div class={styles.switch}>
+                            <p>Noch nicht registriert? </p>
+                            <button class={styles.buttonswitch} onClick={showSignUpPopUp}>Registrieren</button>
+                        </div>
+                    </div>
+
+                </Show>
+
+            </Portal>
+
+            /* <Portal>
+                 <Show
+                     when={show()}
+                     fallback={<p>test</p>}>
+                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                         <h3>Anmelden</h3>
+                         <label>E-mail</label>
+                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                         <label>Passwort</label>
+                         <input type="password" ref={password_field!} style="width: 300px;"
+                                placeholder="Ihr Passwort.."/>
+                         <br/>
+                         <input type="submit" value="Anmelden" onClick={login}/>
+                         <br/>
+                         <div class={styles.switch}>
+                             <p>Sie sind noch nicht angemeldet? </p>
+                             <button class={styles.buttonswitch} onClick={showSignUpPopUp}>Registrieren</button>
+                         </div>
+
+                         <Show when={bad_request_bool()}>
+                             <div class={styles.fadeout}>
+                                 <label>Diese E-Mail existiert schon</label>
+                             </div>
+                         </Show>
+                     </div>
+                 </Show>
+             </Portal>*/
+
+        )
+    }
+
+    const showSignUpPopUp = async () => {
+        setShow(true);
+        return (
+            <Portal mount={document.getElementById("popup")}>
+                <Show when={show()}
+                >
+                    <div id={"innerpopup"} class={styles.modal} use:clickOutside={() => {
+                        const element = document.getElementById("innerpopup");
+                        element?.remove();
+                    }}>
+                        Sign UP Modal
+                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                        <div class={styles.switch}>
+                            <p>Sie sind schon registriert? </p>
+                            <button class={styles.buttonswitch} onClick={showLoginPopUp}>Anmelden</button>
+                        </div>
+                    </div>
+                </Show>
+            </Portal>
+            /* <Portal>
+                 <Show
+                     when={show()}
+                     fallback={<button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>}>
+                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                         <h3>Sign Up</h3>
+                         <label>E-mail</label>
+                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                         <label>Passwort</label>
+                         <input type="password" ref={password_field!} style="width: 300px;"
+                                placeholder="Ihr Passwort.."/>
+                         <br/>
+                         <input type="submit" value="Sign Up" onClick={sign_up}/>
+                         <br/>
+                         <div class={styles.switch}>
+                             <p>Sie sind schon registriert? </p>
+                             <button class={styles.buttonswitch} onClick={showLoginPopUp}>Anmelden</button>
+                         </div>
+
+                         <Show when={bad_request_bool()}>
+                             <div class={styles.fadeout}>
+                                 <label>Diese E-Mail existiert schon</label>
+                             </div>
+                         </Show>
+                     </div>
+                 </Show>
+             </Portal>*/
+
+        )
+    }
+
+
     const sign_out = async () => {
         if (auth()) {
             const response = await fetch("http://localhost:3001/logout", {
@@ -174,26 +277,9 @@ const App: Component = () => {
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
-                        <Show
-                            when={show()}
-                            fallback={<button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>}>
-                            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                <h3>Anmelden</h3>
-                                <label>E-mail</label>
-                                <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                <label>Passwort</label>
-                                <input type="password" ref={password_field!} style="width: 300px;"
-                                       placeholder="Ihr Passwort.."/>
-                                <br/>
-                                <input type="submit" value="Anmelden" onClick={sign_up}/>
-                                <br/>
-                                <Show when={bad_request_bool()}>
-                                    <div class={styles.fadeout}>
-                                        <label>Diese E-Mail existiert schon</label>
-                                    </div>
-                                </Show>
-                            </div>
-                        </Show>
+                        <button onClick={showSignUpPopUp}>Modal Button</button>
+
+
                     </nav>
                 </div>
                 <div class={styles.board}>
@@ -220,7 +306,6 @@ const App: Component = () => {
                     </Show>
 
 
-
                     <Show when={showMining()}
                           fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
@@ -233,9 +318,11 @@ const App: Component = () => {
                             <br/>
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
-                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
+                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat
+                                    Tiefe: {autoDepth()}</button>
                                 <br/>
-                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
+                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
+                                    Menge: {autoAmount()}</button>
                             </Show>
                         </div>
                     </Show>
@@ -245,6 +332,12 @@ const App: Component = () => {
 
 
                 </div>
+
+                <div id={"popup"}>
+
+                </div>
+
+
             </div>
         </div>
     );

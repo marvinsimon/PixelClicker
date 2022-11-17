@@ -159,6 +159,12 @@
 }
 
 .modal {
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
     position: absolute;
     top: 50%;
     left: 50%;
@@ -171,29 +177,25 @@
     color: #282c34;
     border-radius: 5px;
     background-color: #f2f2f2;
-    padding: 20px;
+    padding: 10px;
 }
 
+
 input[type=text] {
-    width: 100%;
+    max-width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    resize: vertical;
 }
 
 input[type=password] {
-    width: 100%;
+    max-width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    resize: vertical;
+
 }
 
 input[type=submit] {
@@ -207,6 +209,21 @@ input[type=submit] {
 
 input[type=submit]:hover {
     background-color: #45a049;
+}
+
+.buttonswitch{
+    background: none;
+    border: none;
+}
+
+.buttonswitch:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}
+
+.switch {
+    display: flex;
+    font-size: small;
 }
 
 .button {

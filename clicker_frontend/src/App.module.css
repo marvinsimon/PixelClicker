@@ -9,7 +9,9 @@
     background-size: cover;
     height: 100vh;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    /*grid-template-columns: repeat(4, 1fr);*/
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+    grid-template-rows: 100px 88vh;
 }
 
 .header {
@@ -22,19 +24,15 @@
 
 .main {
     grid-column: 2 / 4;
-    max-height: 88vh;
+    /*max-height: 88vh;*/
 }
 
 .controls {
     grid-column: 4 / 5;
-    display: grid;
-    max-height: 88vh;
-    row-gap: 5px;
 }
 
 .board {
     grid-column: 1 / 2;
-    max-height: 88vh;
 }
 
 .board_img {
@@ -189,4 +187,35 @@ input[type=submit]:hover {
     background: skyblue;
     cursor: pointer;
     border: lightskyblue 1px solid;
+}
+
+@media (max-width: 800px) {
+    .container {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 100px 1fr;
+    }
+
+    .main {
+        grid-column: 1;
+        grid-row: 2;
+        z-index: 0;
+    }
+
+    .board {
+        grid-column: 1;
+        grid-row: 2;
+        z-index: 10;
+    }
+
+    .board_img {
+        max-height: 30%;
+        max-width: 20%;
+    }
+
+    .controls {
+        display: none;
+    }
+
+
 }

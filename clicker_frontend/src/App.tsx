@@ -146,11 +146,9 @@ const App: Component = () => {
     }
 
 
-
-
     const showLoginPopUp = async () => {
         setShow(true);
-        return(
+        return (
             <Portal>
                 <Show when={show()}
                 >
@@ -167,48 +165,46 @@ const App: Component = () => {
 
             </Portal>
 
-           /* <Portal>
-                <Show
-                    when={show()}
-                    fallback={<p>test</p>}>
-                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                        <h3>Anmelden</h3>
-                        <label>E-mail</label>
-                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                        <label>Passwort</label>
-                        <input type="password" ref={password_field!} style="width: 300px;"
-                               placeholder="Ihr Passwort.."/>
-                        <br/>
-                        <input type="submit" value="Anmelden" onClick={login}/>
-                        <br/>
-                        <div class={styles.switch}>
-                            <p>Sie sind noch nicht angemeldet? </p>
-                            <button class={styles.buttonswitch} onClick={showSignUpPopUp}>Registrieren</button>
-                        </div>
+            /* <Portal>
+                 <Show
+                     when={show()}
+                     fallback={<p>test</p>}>
+                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                         <h3>Anmelden</h3>
+                         <label>E-mail</label>
+                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                         <label>Passwort</label>
+                         <input type="password" ref={password_field!} style="width: 300px;"
+                                placeholder="Ihr Passwort.."/>
+                         <br/>
+                         <input type="submit" value="Anmelden" onClick={login}/>
+                         <br/>
+                         <div class={styles.switch}>
+                             <p>Sie sind noch nicht angemeldet? </p>
+                             <button class={styles.buttonswitch} onClick={showSignUpPopUp}>Registrieren</button>
+                         </div>
 
-                        <Show when={bad_request_bool()}>
-                            <div class={styles.fadeout}>
-                                <label>Diese E-Mail existiert schon</label>
-                            </div>
-                        </Show>
-                    </div>
-                </Show>
-            </Portal>*/
+                         <Show when={bad_request_bool()}>
+                             <div class={styles.fadeout}>
+                                 <label>Diese E-Mail existiert schon</label>
+                             </div>
+                         </Show>
+                     </div>
+                 </Show>
+             </Portal>*/
 
         )
     }
 
     const showSignUpPopUp = async () => {
         setShow(true);
-        return(
+        return (
             <Portal mount={document.getElementById("popup")}>
                 <Show when={show()}
                 >
                     <div id={"innerpopup"} class={styles.modal} use:clickOutside={() => {
                         const element = document.getElementById("innerpopup");
                         element?.remove();
-
-
                     }}>
                         Sign UP Modal
                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
@@ -219,33 +215,33 @@ const App: Component = () => {
                     </div>
                 </Show>
             </Portal>
-           /* <Portal>
-                <Show
-                    when={show()}
-                    fallback={<button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>}>
-                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                        <h3>Sign Up</h3>
-                        <label>E-mail</label>
-                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                        <label>Passwort</label>
-                        <input type="password" ref={password_field!} style="width: 300px;"
-                               placeholder="Ihr Passwort.."/>
-                        <br/>
-                        <input type="submit" value="Sign Up" onClick={sign_up}/>
-                        <br/>
-                        <div class={styles.switch}>
-                            <p>Sie sind schon registriert? </p>
-                            <button class={styles.buttonswitch} onClick={showLoginPopUp}>Anmelden</button>
-                        </div>
+            /* <Portal>
+                 <Show
+                     when={show()}
+                     fallback={<button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>}>
+                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                         <h3>Sign Up</h3>
+                         <label>E-mail</label>
+                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                         <label>Passwort</label>
+                         <input type="password" ref={password_field!} style="width: 300px;"
+                                placeholder="Ihr Passwort.."/>
+                         <br/>
+                         <input type="submit" value="Sign Up" onClick={sign_up}/>
+                         <br/>
+                         <div class={styles.switch}>
+                             <p>Sie sind schon registriert? </p>
+                             <button class={styles.buttonswitch} onClick={showLoginPopUp}>Anmelden</button>
+                         </div>
 
-                        <Show when={bad_request_bool()}>
-                            <div class={styles.fadeout}>
-                                <label>Diese E-Mail existiert schon</label>
-                            </div>
-                        </Show>
-                    </div>
-                </Show>
-            </Portal>*/
+                         <Show when={bad_request_bool()}>
+                             <div class={styles.fadeout}>
+                                 <label>Diese E-Mail existiert schon</label>
+                             </div>
+                         </Show>
+                     </div>
+                 </Show>
+             </Portal>*/
 
         )
     }
@@ -310,7 +306,6 @@ const App: Component = () => {
                     </Show>
 
 
-
                     <Show when={showMining()}
                           fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
@@ -323,9 +318,11 @@ const App: Component = () => {
                             <br/>
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
-                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat Tiefe: {autoDepth()}</button>
+                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat
+                                    Tiefe: {autoDepth()}</button>
                                 <br/>
-                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz Menge: {autoAmount()}</button>
+                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
+                                    Menge: {autoAmount()}</button>
                             </Show>
                         </div>
                     </Show>

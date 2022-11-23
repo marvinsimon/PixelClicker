@@ -21,7 +21,7 @@ const App: Component = () => {
     const [autoAmount, setAutoAmount] = createSignal(1);
     const [pvp, setPvp] = createSignal(false);
     const [attackLevel, setAttackLevel] = createSignal(1);
-    const [defenseLevel, setDefenseLevel] = createSignal(1);
+    const [defenceLevel, setDefenceLevel] = createSignal(1);
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
     const [unauthorized, setUnauthorized] = createSignal(false);
 
@@ -48,6 +48,12 @@ const App: Component = () => {
             } else if ("AutomationAmountUpgraded" in event) {
                 console.log(event.AutomationAmountUpgraded);
                 setAutoAmount(event.AutomationAmountUpgraded.new_level);
+            } else if ("AttackLevelUpgraded" in event) {
+                console.log(event.AttackLevelUpgraded);
+                setAttackLevel(event.AttackLevelUpgraded.new_level);
+            } else if ("DefenceLevelUpgraded" in event) {
+                console.log(event.DefenceLevelUpgraded);
+                setDefenceLevel(event.DefenceLevelUpgraded.new_level);
             }
         }
     }
@@ -100,14 +106,6 @@ const App: Component = () => {
         }
     }
 
-    const usePvp = async () => {
-        if (pvp()) {
-            setPvp(false);
-        } else {
-            setPvp(true);
-        }
-    }
-
     const upgradeAttackLevel = async () => {
         if (socket) {
             const event: ClientMessages = "UpgradeAttackLevel";
@@ -115,9 +113,9 @@ const App: Component = () => {
         }
     }
 
-    const upgradeDefenseLevel = async () => {
+    const upgradeDefenceLevel = async () => {
         if (socket) {
-            const event: ClientMessages = "UpgradeDefenseLevel";
+            const event: ClientMessages = "UpgradeDefenceLevel";
             await socket.send(JSON.stringify(event));
         }
     }
@@ -133,6 +131,7 @@ const App: Component = () => {
         console.log(`sign_up: ${response.statusText}`);
         if (response.ok) {
             setAuth(true);
+            await connectBackend();
         } else if (response.status == 400) {
             setBad_request_bool(true);
             console.log('Bad Request');
@@ -175,7 +174,6 @@ const App: Component = () => {
         } else {
             console.log(`sign_out: failed`);
         }
-
     }
 
     const clickOutside = async (el: { contains: (arg0: any) => any }, accessor: () => { (): any; new(): any }) => {
@@ -225,7 +223,6 @@ const App: Component = () => {
                         <label>Password</label>
                         <input type="password" ref={password_field!} placeholder="Your password.."/>
                         <input type="submit" value="Submit" onClick={sign_up}/>
-                        <br/>
                         <Show when={bad_request_bool()}>
                             <div class={styles.fadeout}>
                                 <label>Email already in use</label>
@@ -234,14 +231,15 @@ const App: Component = () => {
                     </div>
                 </Show>
                 <button class={styles.button} onClick={sign_out}>Abmelden</button>
-                <br />
+                <br/>
                 <Show when={pvp()}
-                      fallback={<button onClick={usePvp} class={styles.button}>PvP</button>}>
-                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                        <button class={styles.button} onClick={upgradeAttackLevel}>Upgrade Attack: {attackLevel()}</button>
-                        <button class={styles.button} onClick={upgradeDefenseLevel}>Upgrade Defense: {defenseLevel()}</button>
-                        <br />
-                        <button class={styles.button} onClick={usePvp}>Close</button>
+                      fallback={<button onClick={() => setPvp(true)} class={styles.button}>PvP</button>}>
+                    <div class={styles.modal} use:clickOutside={() => setPvp(false)}>
+                        <button class={styles.button} onClick={upgradeAttackLevel}>Upgrade
+                            Attack: {attackLevel()}</button>
+                        <br/>
+                        <button class={styles.button} onClick={upgradeDefenceLevel}>Upgrade
+                            Defence: {defenceLevel()}</button>
                     </div>
                 </Show>
             </header>

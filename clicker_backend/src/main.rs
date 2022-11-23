@@ -174,6 +174,7 @@ async fn sign_up(
             {
                 Ok(r) => {
                     session.set(PLAYER_AUTH, r.id).await;
+                    save_score_to_database(r.id, &game_state, &pool).await;
                     StatusCode::OK
                 }
                 Err(err) => {
@@ -289,10 +290,10 @@ async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgP
 }
 
 async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
-    let score_value  = serde_json::to_value((game_state.depth / 100.0) as i32
+    let score_value  = serde_json::to_value((game_state.depth / 10.0) as i32
         + game_state.attack_level + game_state.defence_level).unwrap().as_i64();
     if (sqlx::query!(
-        "UPDATE Player SET score = $1 WHERE id = $2;",
+        "UPDATE Player SET pvp_score = $1 WHERE id = $2;",
         score_value,
         id,
     ).execute(pool)

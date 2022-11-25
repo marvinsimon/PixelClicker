@@ -86,6 +86,7 @@ async fn main() {
         .route("/sign_up", get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
+        .route("/combat", get(attack))
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
@@ -205,6 +206,13 @@ async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, 
     ws.on_upgrade(move |socket| handle_game(socket, session, pool))
 }
 
+async fn attack(
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+) {
+    let defender_id = search_for_enemy(1, &pool);
+}
+
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
     let mut game_state = GameState::new();
     let mut logged_in = false;
@@ -303,7 +311,7 @@ async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) 
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     println!("Load Data");
     match sqlx::query!(
-        "SELECT game_state FROM player WHERE id = $1",
+        "SELECT game_state FROM Player WHERE id = $1",
         id
     ).fetch_one(pool)
         .await
@@ -313,5 +321,22 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
             serde_json::from_value(r.game_state).unwrap()
         }
         Err(_) => GameState::new(),
+    }
+}
+
+async fn search_for_enemy(pvp_score: i32, pool: &PgPool) -> i64 {
+    println!("Searching for Enemy");
+    match sqlx::query!(
+        "SELECT id, game_state FROM Player WHERE pvp_score <= $1 ORDER BY pvp_score ASC",
+        pvp_score
+    ).fetch_one(pool)
+        .await
+    {
+        Ok(r) => {
+            println!("Match Found: {:?}", r.id);
+            //Beute verrechnen
+            r.id
+        }
+        Err(_) => -1,
     }
 }

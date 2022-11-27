@@ -1,4 +1,4 @@
-const { Given, When, Then, AfterAll } = require('@cucumber/cucumber');
+/*const { Given, When, Then, AfterAll } = require('@cucumber/cucumber');
 const { Builder, By, Capabilities, Key } = require('selenium-webdriver');
 const { expect } = require('chai');
 
@@ -27,4 +27,4 @@ Then('the page title should start with {string}', {timeout: 60 * 1000}, async fu
 
 AfterAll(async function(){
     await driver.quit();
-});
+});*/

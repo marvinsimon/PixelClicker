@@ -120,7 +120,7 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, timestamp FROM Player WHERE email = $1 AND password = $2;",
+        "SELECT id, game_state, timestamp FROM player WHERE email = $1 AND password = $2;",
         email,
         password
     )
@@ -138,6 +138,7 @@ async fn login(
             }
             save_game_state_to_database(record.id, &game_state, &pool).await;
             save_score_to_database(record.id, &game_state, &pool).await;
+            set_player_as_online(record.id, &pool).await;
             StatusCode::OK
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
@@ -154,7 +155,7 @@ async fn sign_up(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id FROM Player WHERE email = $1;",
+        "SELECT id FROM player WHERE email = $1;",
         email
     )
         .fetch_optional(&pool)
@@ -165,7 +166,7 @@ async fn sign_up(
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(game_state.clone()).unwrap();
             match sqlx::query!(
-                "INSERT INTO Player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
+                "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
                 password,
                 game_state_value
@@ -176,6 +177,7 @@ async fn sign_up(
                 Ok(r) => {
                     session.set(PLAYER_AUTH, r.id).await;
                     save_score_to_database(r.id, &game_state, &pool).await;
+                    set_player_as_online(r.id, &pool).await;
                     StatusCode::OK
                 }
                 Err(err) => {
@@ -197,6 +199,7 @@ async fn logout(
 ) {
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
         save_timestamp_to_database(id, &pool).await;
+        set_player_as_offline(id, &pool).await;
     }
     session.remove(PLAYER_AUTH).await;
 }
@@ -210,7 +213,7 @@ async fn attack(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) {
-    let defender_id = search_for_enemy(1, &pool);
+    let defender_id = search_for_enemy(&session, &pool);
 }
 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
@@ -277,10 +280,29 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     println!("Disconnected");
 }
 
+async fn set_player_as_offline(id: i64, pool: &PgPool) {
+    println!("Setting offline");
+    if (sqlx::query!(
+        "UPDATE player SET is_online = false WHERE id = $1;",
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
+}
+
+async fn set_player_as_online(id: i64, pool: &PgPool) {
+    println!("Setting online");
+    if (sqlx::query!(
+        "UPDATE player SET is_online = true WHERE id = $1;",
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
+}
+
+
 async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
     println!("Save timestamp");
     if (sqlx::query!(
-        "UPDATE Player SET timestamp = $1 WHERE id = $2;",
+        "UPDATE player SET timestamp = $1 WHERE id = $2;",
         Utc::now().timestamp(),
         id,
     ).execute(pool)
@@ -290,7 +312,7 @@ async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
 async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
     let game_state_value = serde_json::to_value(game_state).unwrap();
     if (sqlx::query!(
-        "UPDATE Player SET game_state = $1 WHERE id = $2;",
+        "UPDATE player SET game_state = $1 WHERE id = $2;",
         game_state_value,
         id,
     ).execute(pool)
@@ -298,10 +320,10 @@ async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgP
 }
 
 async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
-    let score_value  = serde_json::to_value((game_state.depth / 10.0) as i32
+    let score_value = serde_json::to_value((game_state.depth / 10.0) as i32
         + game_state.attack_level + game_state.defence_level).unwrap().as_i64();
     if (sqlx::query!(
-        "UPDATE Player SET pvp_score = $1 WHERE id = $2;",
+        "UPDATE player SET pvp_score = $1 WHERE id = $2;",
         score_value,
         id,
     ).execute(pool)
@@ -311,7 +333,7 @@ async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) 
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     println!("Load Data");
     match sqlx::query!(
-        "SELECT game_state FROM Player WHERE id = $1",
+        "SELECT game_state FROM player WHERE id = $1",
         id
     ).fetch_one(pool)
         .await
@@ -324,19 +346,35 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     }
 }
 
-async fn search_for_enemy(pvp_score: i32, pool: &PgPool) -> i64 {
+async fn search_for_enemy(session: &AxumSession<AxumPgPool>, pool: &PgPool) -> i64 {
     println!("Searching for Enemy");
+    let id = session.get::<i64>(PLAYER_AUTH).await.unwrap();
     match sqlx::query!(
-        "SELECT id, game_state FROM Player WHERE pvp_score <= $1 ORDER BY pvp_score ASC",
-        pvp_score
-    ).fetch_one(pool)
+        "SELECT pvp_score FROM player WHERE id = $1",
+        id
+    )
+        .fetch_one(pool)
         .await
     {
         Ok(r) => {
-            println!("Match Found: {:?}", r.id);
-            //Beute verrechnen
-            r.id
+            let score = r.pvp_score;
+            match sqlx::query!(
+                "SELECT id, game_state \
+                FROM player WHERE is_online = false \
+                AND pvp_score <= $1 ORDER BY pvp_score ASC",
+                score
+            )
+                .fetch_one(pool)
+                .await
+            {
+                Ok(r) => {
+                    println!("Match Found: {:?}", r.id);
+                    //Beute verrechnen
+                    r.id
+                }
+                Err(_) => -1,
+            }
         }
-        Err(_) => -1,
+        Err(err) => -1,
     }
 }

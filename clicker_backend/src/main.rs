@@ -213,16 +213,35 @@ async fn attack(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
-    //let mut timer = Timer::new();
     let id = session.get::<i64>(PLAYER_AUTH).await.unwrap();
-    // let (tx, rx) = channel();
-    //let _guard = timer.schedule_with_delay(Duration::new(600, 0), move || {
-    //});
-    let defender_id = search_for_enemy(id, &pool).await;
-    calculate_combat(id, defender_id, &pool).await;
-    //let _ignored = tx.send(response);
-    //rx.recv().unwrap()
-    StatusCode::OK
+    match sqlx::query!(
+        "SELECT id FROM PVP WHERE id_att = $1;",
+        id
+    )
+        .fetch_optional(&pool)
+        .await {
+        Ok(Some(_)) => StatusCode::BAD_REQUEST,
+        Ok(None) => {
+            let defender_id = search_for_enemy(id, &pool).await;
+            if defender_id == -1 {
+                println!("No match found!");
+                if (sqlx::query!(
+                "DELETE FROM PVP WHERE id_att = $1",
+                id
+            )
+                    .execute(&pool)
+                    .await).is_ok()
+                {}
+            } else {
+                calculate_combat(id, defender_id, &pool).await;
+            }
+            StatusCode::OK
+        }
+        Err(err) => {
+            println!("{err:#?}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
+    }
 }
 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
@@ -329,7 +348,6 @@ async fn set_player_as_online(id: i64, pool: &PgPool) {
         .await).is_ok() {}
 }
 
-
 async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
     println!("Save timestamp");
     if (sqlx::query!(
@@ -391,7 +409,7 @@ async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
             match sqlx::query!(
                 "SELECT id, game_state \
                 FROM player WHERE is_online = false \
-                AND pvp_score <= $1 ORDER BY pvp_score ASC;",
+                AND pvp_score >= $1 ORDER BY pvp_score ASC;",
                 r.pvp_score
             )
                 .fetch_one(pool)

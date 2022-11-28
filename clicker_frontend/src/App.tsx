@@ -182,6 +182,13 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
+    const attack = async () => {
+        const response = await fetch("http://localhost:3001/combat", {
+            method: "GET",
+            credentials: "include",
+        });
+    }
+
     return (
         <div class={styles.App}>
             <header class={styles.header}>
@@ -192,6 +199,9 @@ const App: Component = () => {
                 <br/>
                 <button class={styles.button}
                         onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
+                <br/>
+                <button class={styles.button}
+                        onClick={attack}>Schaufelgeschwindigkeitslevel </button>
                 <br/>
                 <button class={styles.button}
                         onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>

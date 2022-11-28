@@ -169,16 +169,6 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
-    function showLogin(){
-        setShow(false);
-        setInnerShow(true);
-    }
-
-    function showSignUp(){
-        setInnerShow(false);
-        setShow(true);
-    }
-
     return (
 
         <div class={styles.App}>
@@ -196,7 +186,7 @@ const App: Component = () => {
                                 <input type="submit" value="Sign Up" onClick={sign_up}/>
                                 <div class={styles.switch}>
                                     <p>Already signed up?</p>
-                                    <button class={styles.buttonswitch} onClick={showLogin} >Login</button>
+                                    <button class={styles.buttonswitch} onClick= {() => {setShow(false); setInnerShow(true)}}>Login</button>
                                 </div>
                             </div>
                         </Show>
@@ -209,7 +199,7 @@ const App: Component = () => {
                                 <input type="submit" value="Log In" onClick={login}/>
                                 <div class={styles.switch}>
                                     <p>Not registered?</p>
-                                    <button class={styles.buttonswitch} onClick={showSignUp} >Sign Up</button>
+                                    <button class={styles.buttonswitch} onClick={() => {setShow(true); setInnerShow(false)}} >Sign Up</button>
                                 </div>
                             </div>
                         </Show>

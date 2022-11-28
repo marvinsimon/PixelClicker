@@ -191,22 +191,28 @@ const App: Component = () => {
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                 <h3>SignUp</h3>
-                                <br/>
-                                <button onClick={showLogin} class={styles.button}>Login</button>
+                                <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                                <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                <input type="submit" value="Sign Up" onClick={sign_up}/>
+                                <div class={styles.switch}>
+                                    <p>Already signed up?</p>
+                                    <button class={styles.buttonswitch} onClick={showLogin} >Login</button>
+                                </div>
                             </div>
                         </Show>
-
                         <Show when={innershow()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                 <h3>Login</h3>
-                                <br/>
-                                <button onClick={showSignUp} class={styles.button}>Login</button>
+                                <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                                <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                <input type="submit" value="Log In" onClick={login}/>
+                                <div class={styles.switch}>
+                                    <p>Not registered?</p>
+                                    <button class={styles.buttonswitch} onClick={showSignUp} >Sign Up</button>
+                                </div>
                             </div>
                         </Show>
-
-
-
                     </nav>
                 </div>
                 <div class={styles.board}>

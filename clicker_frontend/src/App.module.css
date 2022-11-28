@@ -180,6 +180,21 @@
     padding: 10px;
 }
 
+.buttonswitch{
+    background: none;
+    border: none;
+}
+
+.buttonswitch:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}
+
+.switch {
+    display: flex;
+    font-size: small;
+}
+
 
 input[type=text] {
     max-width: 100%;

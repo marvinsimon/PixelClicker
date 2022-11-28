@@ -20,6 +20,7 @@ const App: Component = () => {
     const [depth, setDepth] = createSignal(0);
     //PopUp Variable
     const [show, setShow] = createSignal(false);
+    const [innershow, setInnerShow] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [automation_on, setAutomation] = createSignal(false);
@@ -145,108 +146,6 @@ const App: Component = () => {
         }
     }
 
-
-    const showLoginPopUp = async () => {
-        setShow(true);
-        return (
-            <Portal>
-                <Show when={show()}
-                >
-                    <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                        Login Modal
-                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                        <div class={styles.switch}>
-                            <p>Noch nicht registriert? </p>
-                            <button class={styles.buttonswitch} onClick={showSignUpPopUp}>Registrieren</button>
-                        </div>
-                    </div>
-
-                </Show>
-
-            </Portal>
-
-            /* <Portal>
-                 <Show
-                     when={show()}
-                     fallback={<p>test</p>}>
-                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                         <h3>Anmelden</h3>
-                         <label>E-mail</label>
-                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                         <label>Passwort</label>
-                         <input type="password" ref={password_field!} style="width: 300px;"
-                                placeholder="Ihr Passwort.."/>
-                         <br/>
-                         <input type="submit" value="Anmelden" onClick={login}/>
-                         <br/>
-                         <div class={styles.switch}>
-                             <p>Sie sind noch nicht angemeldet? </p>
-                             <button class={styles.buttonswitch} onClick={showSignUpPopUp}>Registrieren</button>
-                         </div>
-
-                         <Show when={bad_request_bool()}>
-                             <div class={styles.fadeout}>
-                                 <label>Diese E-Mail existiert schon</label>
-                             </div>
-                         </Show>
-                     </div>
-                 </Show>
-             </Portal>*/
-
-        )
-    }
-
-    const showSignUpPopUp = async () => {
-        setShow(true);
-        return (
-            <Portal mount={document.getElementById("popup")}>
-                <Show when={show()}
-                >
-                    <div id={"innerpopup"} class={styles.modal} use:clickOutside={() => {
-                        const element = document.getElementById("innerpopup");
-                        element?.remove();
-                    }}>
-                        Sign UP Modal
-                        <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                        <div class={styles.switch}>
-                            <p>Sie sind schon registriert? </p>
-                            <button class={styles.buttonswitch} onClick={showLoginPopUp}>Anmelden</button>
-                        </div>
-                    </div>
-                </Show>
-            </Portal>
-            /* <Portal>
-                 <Show
-                     when={show()}
-                     fallback={<button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>}>
-                     <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                         <h3>Sign Up</h3>
-                         <label>E-mail</label>
-                         <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                         <label>Passwort</label>
-                         <input type="password" ref={password_field!} style="width: 300px;"
-                                placeholder="Ihr Passwort.."/>
-                         <br/>
-                         <input type="submit" value="Sign Up" onClick={sign_up}/>
-                         <br/>
-                         <div class={styles.switch}>
-                             <p>Sie sind schon registriert? </p>
-                             <button class={styles.buttonswitch} onClick={showLoginPopUp}>Anmelden</button>
-                         </div>
-
-                         <Show when={bad_request_bool()}>
-                             <div class={styles.fadeout}>
-                                 <label>Diese E-Mail existiert schon</label>
-                             </div>
-                         </Show>
-                     </div>
-                 </Show>
-             </Portal>*/
-
-        )
-    }
-
-
     const sign_out = async () => {
         if (auth()) {
             const response = await fetch("http://localhost:3001/logout", {
@@ -270,6 +169,16 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
+    function showLogin(){
+        setShow(false);
+        setInnerShow(true);
+    }
+
+    function showSignUp(){
+        setInnerShow(false);
+        setShow(true);
+    }
+
     return (
 
         <div class={styles.App}>
@@ -277,7 +186,25 @@ const App: Component = () => {
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
-                        <button onClick={showSignUpPopUp}>Modal Button</button>
+                        <button onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
+                        <Show when={show()}
+                              fallback={""}>
+                            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                <h3>SignUp</h3>
+                                <br/>
+                                <button onClick={showLogin} class={styles.button}>Login</button>
+                            </div>
+                        </Show>
+
+                        <Show when={innershow()}
+                              fallback={""}>
+                            <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
+                                <h3>Login</h3>
+                                <br/>
+                                <button onClick={showSignUp} class={styles.button}>Login</button>
+                            </div>
+                        </Show>
+
 
 
                     </nav>

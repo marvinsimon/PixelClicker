@@ -213,7 +213,7 @@ const App: Component = () => {
                     <label class={styles.label_info}>{depth()}</label>
                     <label class={styles.label_info}>coming soon</label>
                 </div>
-                <div class={styles.main}>
+                <div class={styles.main} onClick={mine}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>

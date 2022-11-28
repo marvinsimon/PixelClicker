@@ -11,9 +11,6 @@ const App: Component = () => {
 
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
-    let login_email_field: HTMLInputElement;
-    let login_password_field: HTMLInputElement;
-
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
@@ -118,6 +115,7 @@ const App: Component = () => {
         if (response.ok) {
             setLoggedIn(true);
             setAuth(true);
+            await connectBackend();
         } else if (response.status == 400) {
             setBad_request_bool(true);
             console.log('Bad Request');
@@ -128,7 +126,7 @@ const App: Component = () => {
         if (!auth()) {
             disconnectBackend();
             setUnauthorized(false);
-            let auth = btoa(`${login_email_field.value}:${login_password_field.value}`);
+            let auth = btoa(`${email_field.value}:${password_field.value}`);
             const response = await fetch("http://localhost:3001/login", {
                 method: "GET",
                 credentials: "include",
@@ -157,6 +155,7 @@ const App: Component = () => {
                 disconnectBackend();
                 setLoggedIn(false);
                 setAuth(false);
+                await connectBackend();
             }
         } else {
             console.log(`sign_out: failed`);
@@ -176,32 +175,35 @@ const App: Component = () => {
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
-                        <button onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
-                        <Show when={show()}
-                              fallback={""}>
-                            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                <h3>SignUp</h3>
-                                <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
-                                <input type="submit" value="Sign Up" onClick={sign_up}/>
-                                <div class={styles.switch}>
-                                    <p>Already signed up?</p>
-                                    <button class={styles.buttonswitch} onClick= {() => {setShow(false); setInnerShow(true)}}>Login</button>
+                        <Show when={!loggedIn()}
+                              fallback={<button class={styles.button} onClick= {() => {sign_out(); setShow(false); setInnerShow(false)}}>Ausloggen</button>}>
+                            <button onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
+                            <Show when={show()}
+                                  fallback={""}>
+                                <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                    <h3>SignUp</h3>
+                                    <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                                    <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                    <input type="submit" value="Sign Up" onClick={sign_up}/>
+                                    <div class={styles.switch}>
+                                        <p>Already signed up?</p>
+                                        <button class={styles.buttonswitch} onClick= {() => {setShow(false); setInnerShow(true)}}>Login</button>
+                                    </div>
                                 </div>
-                            </div>
-                        </Show>
-                        <Show when={innershow()}
-                              fallback={""}>
-                            <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
-                                <h3>Login</h3>
-                                <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
-                                <input type="submit" value="Log In" onClick={login}/>
-                                <div class={styles.switch}>
-                                    <p>Not registered?</p>
-                                    <button class={styles.buttonswitch} onClick={() => {setShow(true); setInnerShow(false)}} >Sign Up</button>
+                            </Show>
+                            <Show when={innershow()}
+                                  fallback={""}>
+                                <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
+                                    <h3>Login</h3>
+                                    <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
+                                    <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                    <input type="submit" value="Log In" onClick={login}/>
+                                    <div class={styles.switch}>
+                                        <p>Not registered?</p>
+                                        <button class={styles.buttonswitch} onClick={() => {setShow(true); setInnerShow(false)}} >Sign Up</button>
+                                    </div>
                                 </div>
-                            </div>
+                            </Show>
                         </Show>
                     </nav>
                 </div>

@@ -1,5 +1,6 @@
 use std::{net::SocketAddr, time::Duration};
 use std::io::{BufReader, Read, Write};
+use std::sync::mpsc::channel;
 
 use axum::{
     Extension,
@@ -212,8 +213,16 @@ async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, 
 async fn attack(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
-) {
-    let defender_id = search_for_enemy(&session, &pool);
+) -> StatusCode {
+    let mut timer = Timer::new();
+    let id = session.get::<i64>(PLAYER_AUTH).await.unwrap();
+    let (tx, rx) = channel();
+    let _guard = timer.schedule_with_delay(Duration::new(600, 0), move || {
+        let defender_id = serde_json::to_value(search_for_enemy(id, &pool)).unwrap().as_i64();
+        let response = steal_resources(id, defender_id.unwrap(), &pool);
+        let _ignored = tx.send(response);
+    });
+    rx.recv().unwrap()
 }
 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
@@ -346,9 +355,8 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     }
 }
 
-async fn search_for_enemy(session: &AxumSession<AxumPgPool>, pool: &PgPool) -> i64 {
+async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
     println!("Searching for Enemy");
-    let id = session.get::<i64>(PLAYER_AUTH).await.unwrap();
     match sqlx::query!(
         "SELECT pvp_score FROM player WHERE id = $1",
         id
@@ -357,24 +365,64 @@ async fn search_for_enemy(session: &AxumSession<AxumPgPool>, pool: &PgPool) -> i
         .await
     {
         Ok(r) => {
-            let score = r.pvp_score;
             match sqlx::query!(
                 "SELECT id, game_state \
                 FROM player WHERE is_online = false \
                 AND pvp_score <= $1 ORDER BY pvp_score ASC",
-                score
+                r.pvp_score
             )
                 .fetch_one(pool)
                 .await
             {
                 Ok(r) => {
                     println!("Match Found: {:?}", r.id);
-                    //Beute verrechnen
                     r.id
                 }
                 Err(_) => -1,
             }
         }
         Err(err) => -1,
+    }
+}
+
+async fn steal_resources(attacker_id: i64, defender_id: i64, pool: &PgPool) -> StatusCode {
+    match sqlx::query!(
+        "SELECT game_state FROM player WHERE id = $1",
+        attacker_id
+    )
+        .fetch_optional(pool)
+        .await
+    {
+        Ok(Some(record_att)) => {
+            match sqlx::query! (
+                "SELECT game_state From player WHERE id = $1",
+                defender_id
+            )
+                .fetch_optional(pool)
+                .await
+            {
+                Ok(Some(record_def)) => {
+                    let game_state_def = record_def.game_state;
+                    let game_state_att = record_att.game_state;
+                    let ore_diff = ((game_state_def.ore * game_state_att.attack_level)
+                        / (4 * game_state_def.defence_level)) as u64;
+                    game_state_att.ore += ore_diff;
+                    game_state_def.ore -= ore_diff;
+                    save_game_state_to_database(attacker_id, &game_state_att, &pool);
+                    save_game_state_to_database(defender_id, &game_state_def, &pool);
+                    StatusCode::OK
+                }
+                Ok(None) => StatusCode::UNAUTHORIZED,
+                Err(err) => {
+                    println!("{err:#?}");
+                    StatusCode::INTERNAL_SERVER_ERROR
+                }
+            }
+        }
+        Ok(None) => StatusCode::UNAUTHORIZED,
+        Err(err) => {
+            println!("{err:#?}");
+            StatusCode::INTERNAL_SERVER_ERROR
+        }
     }
 }

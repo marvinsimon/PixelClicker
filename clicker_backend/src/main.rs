@@ -70,7 +70,7 @@ async fn main() {
 
     let pool = connect_to_database().await.unwrap();
     let session_config = AxumSessionConfig::default()
-        .with_table_name("test_table")
+        .with_table_name("session_table")
         .with_key(key);
 
     let session_store = AxumSessionStore::<AxumPgPool>::new(Some(pool.clone().into()), session_config);
@@ -92,7 +92,6 @@ async fn main() {
 
     #[cfg(debug_assertions)]
     {
-        println!("Test");
         app = app.layer(CorsLayer::very_permissive().allow_credentials(true));
     }
 
@@ -143,7 +142,7 @@ async fn login(
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
         Err(err) => {
-            println!("{err:#?}");
+            println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -181,13 +180,13 @@ async fn sign_up(
                     StatusCode::OK
                 }
                 Err(err) => {
-                    println!("{err:#?}");
+                    println!("{}", err);
                     StatusCode::INTERNAL_SERVER_ERROR
                 }
             }
         }
         Err(err) => {
-            println!("{err:#?}");
+            println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -205,7 +204,6 @@ async fn logout(
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
-    println!("Connected");
     ws.on_upgrade(move |socket| handle_game(socket, session, pool))
 }
 
@@ -224,7 +222,6 @@ async fn attack(
         Ok(None) => {
             let defender_id = search_for_enemy(id, &pool).await;
             if defender_id == -1 {
-                println!("No match found!");
                 if (sqlx::query!(
                 "DELETE FROM PVP WHERE id_att = $1",
                 id
@@ -238,7 +235,7 @@ async fn attack(
             StatusCode::OK
         }
         Err(err) => {
-            println!("{err:#?}");
+            println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -303,21 +300,19 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         }
     }
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-        println!("Reaching with id {}", id);
         save_timestamp_to_database(id, &pool).await;
     }
-    println!("Disconnected");
 }
 
 async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
-    let mut test: f64 = 0.0;
+    let mut buffer: f64 = 0.0;
     if let Ok(record) = sqlx::query!(
         "SELECT timestamp FROM PVP WHERE id_att = $1",
         id_att
     ).fetch_one(pool)
         .await {
         if Utc::now().timestamp() - record.timestamp >= 10 {
-            test = steal_resources(id_att, pool).await;
+            buffer = steal_resources(id_att, pool).await;
             if (sqlx::query!(
                 "DELETE FROM PVP WHERE id_att = $1",
                 id_att
@@ -327,11 +322,10 @@ async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
             {}
         }
     }
-    test
+    buffer
 }
 
 async fn set_player_as_offline(id: i64, pool: &PgPool) {
-    println!("Setting offline");
     if (sqlx::query!(
         "UPDATE player SET is_online = false WHERE id = $1;",
         id,
@@ -340,7 +334,6 @@ async fn set_player_as_offline(id: i64, pool: &PgPool) {
 }
 
 async fn set_player_as_online(id: i64, pool: &PgPool) {
-    println!("Setting online");
     if (sqlx::query!(
         "UPDATE player SET is_online = true WHERE id = $1;",
         id,
@@ -349,7 +342,6 @@ async fn set_player_as_online(id: i64, pool: &PgPool) {
 }
 
 async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
-    println!("Save timestamp");
     if (sqlx::query!(
         "UPDATE player SET timestamp = $1 WHERE id = $2;",
         Utc::now().timestamp(),
@@ -359,7 +351,6 @@ async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
 }
 
 async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
-    println!("Save game state");
     let game_state_value = serde_json::to_value(game_state).unwrap();
     if (sqlx::query!(
         "UPDATE player SET game_state = $1 WHERE id = $2;",
@@ -381,7 +372,6 @@ async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) 
 }
 
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
-    println!("Load Data");
     match sqlx::query!(
         "SELECT game_state FROM player WHERE id = $1;",
         id
@@ -389,8 +379,6 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
         .await
     {
         Ok(r) => {
-            println!("Player: {}\n\
-                {:?}",id, r.game_state);
             serde_json::from_value(r.game_state).unwrap()
         }
         Err(_) => GameState::new(),
@@ -398,7 +386,6 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
 }
 
 async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
-    println!("Searching for Enemy");
     match sqlx::query!(
         "SELECT pvp_score FROM player WHERE id = $1;",
         id
@@ -417,7 +404,6 @@ async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
                 .await
             {
                 Ok(r) => {
-                    println!("Match Found: {:?}", r.id);
                     r.id
                 }
                 Err(_) => -1,
@@ -433,17 +419,12 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
     let mut loot = game_state_def.ore * game_state_att.attack_level as f64
         / (4.0 * game_state_def.defence_level as f64);
 
-    if loot > game_state_def.ore/2.0 {
-        loot = game_state_def.ore/2.0;
+    if loot > game_state_def.ore / 2.0 {
+        loot = game_state_def.ore / 2.0;
     }
 
     game_state_def.ore -= loot;
     save_game_state_to_database(id_def, &game_state_def, pool).await;
-
-    println!("Combat data\n\
-        Attacking player: {}\n\
-        Defending player: {}\n\
-        Loot: {}", id_att, id_def, loot);
 
     if (sqlx::query!(
         "INSERT INTO PVP (id_att, id_def, loot, timestamp) VALUES ( $1, $2, $3, $4);",
@@ -456,14 +437,14 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
 }
 
 async fn steal_resources(attacker_id: i64, pool: &PgPool) -> f64 {
-    let mut test: f64 = 0.0;
+    let mut buffer: f64 = 0.0;
     if let Ok(record_pvp) = sqlx::query!(
         "SELECT loot FROM PVP WHERE id_att = $1;",
         attacker_id
     )
         .fetch_one(pool)
         .await {
-        test = record_pvp.loot;
+        buffer = record_pvp.loot;
     }
-    test
+    buffer
 }

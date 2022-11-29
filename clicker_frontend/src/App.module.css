@@ -1,27 +1,170 @@
-.App {
-    text-align: center;
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 
-.logo {
-    animation: logo-spin infinite 20s linear;
-    height: 40vmin;
-    pointer-events: none;
+.container {
+    background: url("assets/background_wood_cherry.png");
+    background-size: cover;
+    height: 100vh;
+    display: grid;
+    /*grid-template-columns: repeat(4, 1fr);*/
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+    grid-template-rows: 100px 88vh;
 }
 
 .header {
-    background-color: #282c34;
-    min-height: 100vh;
+    grid-column: 1 / 5;
+    background: #45040f;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-    font-family: "Courier New", monospace;
+    padding: 10px;
+    justify-content: space-between;
 }
 
+.main {
+    grid-column: 2 / 4;
+    /*max-height: 88vh;*/
+}
+
+.controls {
+    grid-column: 4 / 5;
+}
+
+.board {
+    grid-column: 1 / 2;
+}
+
+.board_img {
+    height: 75%;
+    width: 75%;
+    margin-left: 30px;
+}
+
+.header_logo {
+}
+
+.button_sign_up {
+    background: url("assets/Button_SignUp_Test.png") no-repeat;
+    height: 30px;
+    width: 90px;
+    border: none;
+    transition-duration: .4s;
+    margin-top: 20px;
+}
+
+.button_sign_up:hover {
+    transform: scale(.95);
+    cursor: pointer;
+}
+
+.button_pvp {
+    background: url("assets/Button_PVP.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_pvp:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_mine {
+    background: url("assets/Button_Mine.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_mine:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_pvp_attack {
+    background: url("assets/Button_Attack.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    padding-right: 100px;
+    transition-duration: .4s;
+}
+
+.button_pvp_attack:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_rank {
+    background: url("assets/Button_Rank.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    padding-right: 100px;
+    transition-duration: .4s;
+}
+
+.button_rank:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_shop {
+    background: url("assets/Button_Shop.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    padding-right: 100px;
+    transition-duration: .4s;
+}
+
+.button_shop:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.game {
+    width: 100%;
+    height: 100%;
+    border: #282c34 2px solid;
+    border-radius: 3px;
+}
+
+.label_info {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 69px;
+    margin-left: 70px;
+    color: black;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.label_info:nth-of-type(1) {
+    margin-top: -365px;
+}
+
+.label_info:nth-of-type(3) {
+    font-size: 30px;
+    margin-top: 3px;
+    margin-left: 10px;
+}
 
 .modal {
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
     position: absolute;
     top: 50%;
     left: 50%;
@@ -33,19 +176,41 @@
 
     color: #282c34;
     border-radius: 5px;
-    background-color: #f2f2f2;
-    padding: 20px;
+    background: url("assets/rsz_2background_wood_oak.png");
+    padding: 10px;
 }
 
+.buttonswitch{
+    background: none;
+    border: none;
+}
+
+.buttonswitch:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}
+
+.switch {
+    display: flex;
+    font-size: small;
+}
+
+
 input[type=text] {
-    width: 100%;
+    max-width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-    margin-top: 6px;
-    margin-bottom: 16px;
-    resize: vertical;
+}
+
+input[type=password] {
+    max-width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+
 }
 
 input[type=submit] {
@@ -61,48 +226,62 @@ input[type=submit]:hover {
     background-color: #45a049;
 }
 
+.buttonswitch{
+    background: none;
+    border: none;
+}
+
+.buttonswitch:hover {
+    color: cornflowerblue;
+    cursor: pointer;
+}
+
+.switch {
+    display: flex;
+    font-size: small;
+}
+
 .button {
-    background: white;
-    padding: 1em;
-    border: none;
-    border-radius: 5px;
-    font-family: "Courier New", monospace;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
 }
 
-.submitbutton {
-    background: forestgreen;
-    padding: 1em;
-    border: none;
-    border-radius: 5px;
-
+.button:hover {
+    background: skyblue;
+    cursor: pointer;
+    border: lightskyblue 1px solid;
 }
 
-.link {
-    color: #b318f0;
-}
-
-.fadeout {
-    animation-name: fadeOut;
-    animation-delay: 5s;
-    animation-duration: 3s;
-    animation-fill-mode: forwards;
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
+@media (max-width: 800px) {
+    .container {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 100px 1fr;
     }
 
-    to {
-        opacity: 0;
+    .main {
+        grid-column: 1;
+        grid-row: 2;
+        z-index: 0;
     }
-}
 
-@keyframes logo-spin {
-    from {
-        transform: rotate(0deg);
+    .board {
+        grid-column: 1;
+        grid-row: 2;
+        z-index: 10;
     }
-    to {
-        transform: rotate(360deg);
+
+    .board_img {
+        max-height: 30%;
+        max-width: 20%;
     }
+
+    .controls {
+        display: none;
+    }
+
 }

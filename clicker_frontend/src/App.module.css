@@ -5,7 +5,7 @@
 }
 
 .container {
-    background: url("assets/background_wood_cherry.png");
+    background: url("assets/background_wood_oak.png");
     background-size: cover;
     height: 100vh;
     display: grid;
@@ -16,7 +16,7 @@
 
 .header {
     grid-column: 1 / 5;
-    background: #45040f;
+    background: #76533a;
     display: flex;
     padding: 10px;
     justify-content: space-between;
@@ -29,10 +29,22 @@
 
 .controls {
     grid-column: 4 / 5;
+    display: grid;
+    grid-template-rows: auto;
+
+}
+
+.buttonitem{
+    background: steelblue;
+    border: 1px solid black ;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
 }
 
 .board {
     grid-column: 1 / 2;
+
 }
 
 .board_img {
@@ -45,17 +57,24 @@
 }
 
 .button_sign_up {
-    background: url("assets/Button_SignUp_Test.png") no-repeat;
+    background: url("assets/rsz_button_signup.png") no-repeat;
     height: 30px;
-    width: 90px;
+    width: 130px;
     border: none;
     transition-duration: .4s;
-    margin-top: 20px;
+    margin-top: 20%;
 }
 
 .button_sign_up:hover {
     transform: scale(.95);
     cursor: pointer;
+}
+
+.buttonmodal {
+    grid-row: 2/4;
+    background: gainsboro;
+    padding: 10px;
+
 }
 
 .button_pvp {
@@ -65,6 +84,7 @@
     width: 407px;
     border: none;
     transition-duration: .4s;
+    resize: both;
 }
 
 .button_pvp:hover {
@@ -179,6 +199,8 @@
     background: url("assets/rsz_2background_wood_oak.png");
     padding: 10px;
 }
+
+
 
 .buttonswitch{
     background: none;

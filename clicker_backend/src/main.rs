@@ -389,7 +389,8 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
         .await
     {
         Ok(r) => {
-            println!("{:?}", r.game_state);
+            println!("Player: {}\n\
+                {:?}",id, r.game_state);
             serde_json::from_value(r.game_state).unwrap()
         }
         Err(_) => GameState::new(),
@@ -429,11 +430,20 @@ async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
 async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
     let game_state_att = load_game_state_from_database(id_att, pool).await;
     let mut game_state_def = load_game_state_from_database(id_def, pool).await;
-    let loot = game_state_def.ore * game_state_att.attack_level as f64
+    let mut loot = game_state_def.ore * game_state_att.attack_level as f64
         / (4.0 * game_state_def.defence_level as f64);
+
+    if loot > game_state_def.ore/2.0 {
+        loot = game_state_def.ore/2.0;
+    }
 
     game_state_def.ore -= loot;
     save_game_state_to_database(id_def, &game_state_def, pool).await;
+
+    println!("Combat data\n\
+        Attacking player: {}\n\
+        Defending player: {}\n\
+        Loot: {}", id_att, id_def, loot);
 
     if (sqlx::query!(
         "INSERT INTO PVP (id_att, id_def, loot, timestamp) VALUES ( $1, $2, $3, $4);",

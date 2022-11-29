@@ -16,6 +16,9 @@ pub struct GameState {
 
 impl GameState {
     pub fn tick(&mut self, ticks: i64) -> ServerMessages {
+        if self.ore < 0.0 {
+            self.ore = 0.0;
+        }
         self.ore += ticks as f64 * (self.multiplier * self.auto_amount_level as f64);
         self.depth += ticks as f64 * (self.multiplier * self.auto_depth_level as f64);
         ServerMessages::NewState {

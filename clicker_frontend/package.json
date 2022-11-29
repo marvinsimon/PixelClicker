@@ -6,15 +6,21 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "test": "cucumber-js"
   },
   "license": "MIT",
   "devDependencies": {
+    "chai": "^4.3.7",
     "typescript": "^4.8.2",
     "vite": "^3.0.9",
     "vite-plugin-solid": "^2.3.0"
   },
   "dependencies": {
+    "@cucumber/cucumber": "^8.9.0",
+    "chromedriver": "^107.0.3",
+    "geckodriver": "^3.2.0",
+    "selenium-webdriver": "^4.5.0",
     "solid-js": "^1.5.1"
   }
 }

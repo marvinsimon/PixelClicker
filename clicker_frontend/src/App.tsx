@@ -283,10 +283,18 @@ const App: Component = () => {
                     </nav>
                 </div>
                 <div class={styles.board}>
+                    <div class={styles.parent}>
                     <img src={board} class={styles.board_img} alt={"Value board"}/>
-                    <label class={styles.label_info}>{ore()}</label>
-                    <label class={styles.label_info}>{depth()}</label>
-                    <label class={styles.label_info}>coming soon</label>
+                            <div class={styles.label_ore}>
+                                <label>{ore()}</label>
+                            </div>
+                            <div class={styles.label_depth}>
+                                <label>{depth()}</label>
+                            </div>
+                            <div class={styles.label_diamond}>
+                                <label>coming soon</label>
+                            </div>
+                    </div>
                 </div>
                 <div class={styles.main}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>

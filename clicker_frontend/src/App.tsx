@@ -1,12 +1,15 @@
 import type {Component} from "solid-js";
 import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
+import pvpModule from "./styles/PvP.module.css";
+import mineModule from "./styles/Mining.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import board_right from "./assets/Brett2.png";
 import game from "./assets/Playground.png";
 import {Portal} from "solid-js/web";
+import {TestCaseHookDefinition} from "@cucumber/cucumber";
 
 const App: Component = () => {
 
@@ -170,6 +173,14 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
+    const hide = () => {
+        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(pvpModule.hide));
+    }
+
+    const unhide = () => {
+        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(pvpModule.hide));
+    }
+
     return (
 
         <div class={styles.App}>
@@ -178,18 +189,28 @@ const App: Component = () => {
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
                         <Show when={!loggedIn()}
-                              fallback={<button class={styles.button} onClick= {() => {sign_out(); setShow(false); setInnerShow(false)}}>Ausloggen</button>}>
+                              fallback={<button class={styles.button} onClick={() => {
+                                  sign_out();
+                                  setShow(false);
+                                  setInnerShow(false)
+                              }}>Ausloggen</button>}>
                             <button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>
                             <Show when={show()}
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                     <h3>SignUp</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                    <input type="text" ref={email_field!} style="width: 300px;"
+                                           placeholder="Ihre E-mail.."/>
+                                    <input type="password" ref={password_field!} style="width: 300px;"
+                                           placeholder="Ihr Passwort.."/>
                                     <input type="submit" value="Sign Up" onClick={sign_up}/>
                                     <div class={styles.switch}>
                                         <p>Already signed up?</p>
-                                        <button class={styles.buttonswitch} onClick= {() => {setShow(false); setInnerShow(true)}}>Login</button>
+                                        <button class={styles.buttonswitch} onClick={() => {
+                                            setShow(false);
+                                            setInnerShow(true)
+                                        }}>Login
+                                        </button>
                                     </div>
                                 </div>
                             </Show>
@@ -197,12 +218,18 @@ const App: Component = () => {
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                     <h3>Login</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                    <input type="text" ref={email_field!} style="width: 300px;"
+                                           placeholder="Ihre E-mail.."/>
+                                    <input type="password" ref={password_field!} style="width: 300px;"
+                                           placeholder="Ihr Passwort.."/>
                                     <input type="submit" value="Log In" onClick={login}/>
                                     <div class={styles.switch}>
                                         <p>Not registered?</p>
-                                        <button class={styles.buttonswitch} onClick={() => {setShow(true); setInnerShow(false)}} >Sign Up</button>
+                                        <button class={styles.buttonswitch} onClick={() => {
+                                            setShow(true);
+                                            setInnerShow(false)
+                                        }}>Sign Up
+                                        </button>
                                     </div>
                                 </div>
                             </Show>
@@ -219,56 +246,67 @@ const App: Component = () => {
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
-                    <div class={styles.buttonitem}>
-                        <Show when={showPVP()}
-                              fallback={
-                                  <>
-                                      <button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>
-                                      <div class={styles.board_right}>
-                                          <img src={board_right} class={styles.board_img} alt={"Control board"}/>
-                                      </div>
-                                  </>
-                              }>
-                            <div class={styles.slideIn}>
-                                <img src={board_right} class={styles.board_img} alt={"Control board"}/>
-                                <button class={styles.button_close} onClick={() => {setShowPVP(false)}}>X</button>
-                                <label class={styles.label_pvp}>PvP</label>
-                                <br/>
-                                <button class={styles.button_upgrade_attack}>Angriff verbessern</button>
-                                <button class={styles.button_upgrade_defence}>Verteidigung verbessern</button>
-                                <button class={styles.button_pvp_attack}></button>
-                            </div>
-                        </Show>
-                    </div>
+                    <Show when={showPVP()}
+                          fallback={
+                              <>
+                                  <div class={styles.buttonitem}>
+                                      <button onClick={(e) => {
+                                          setShowPVP(true);
+                                          hide()
+                                      }} class={pvpModule.button_pvp}></button>
+                                  </div>
+                              </>
+                          }>
+                        <div class={styles.slideIn}>
+                            <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                            <button class={styles.button_close} onClick={() => {
+                                setShowPVP(false);
+                                unhide()
+                            }}>X
+                            </button>
+                            <label class={pvpModule.label_pvp}>PvP</label>
+                            <br/>
+                            <button class={pvpModule.button_upgrade_attack}>Angriff verbessern</button>
+                            <button class={pvpModule.button_upgrade_defence}>Verteidigung verbessern</button>
+                            <button class={pvpModule.button_pvp_attack}></button>
+                        </div>
+                    </Show>
 
-                    <div class={styles.buttonitem}>
-                        <Show when={showMining()}
-                              fallback={
-                                  <>
-                                      <button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>
-                                      <div class={styles.board_right}>
-                                          <img src={board_right} class={styles.board_img} alt={"Control board"}/>
-                                      </div>
-                                  </>
-                              }>
-                            <div class={styles.slideIn}>
-                                <img src={board_right} class={styles.board_img} alt={"Control board"}/>
-                                <button class={styles.button_close} onClick={() => {setShowMining(false)}}>X</button>
-                                <label class={styles.label_pvp}>Mining</label>
+                    <Show when={showMining()}
+                          fallback={
+                              <>
+                                  <div class={styles.buttonitem}>
+                                      <button onClick={(e) => {
+                                          setShowMining(true);
+                                          hide()
+                                      }} class={mineModule.button_mine}></button>
+                                  </div>
+                              </>
+                          }>
+                        <div class={styles.slideIn}>
+                            <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                            <button class={styles.button_close} onClick={() => {
+                                setShowMining(false);
+                                unhide()
+                            }}>X
+                            </button>
+                            <label class={mineModule.label_mine}>Mining</label>
+                            <br/>
+                            <button class={mineModule.button_upgrade_speed}
+                                    onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
+                            <button class={mineModule.button_upgrade_amount}
+                                    onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
+                            <Show when={automation_on()}
+                                  fallback={<button class={mineModule.button_automate}
+                                                    onClick={automate}>Automatisierung</button>}>
+                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat
+                                    Tiefe: {autoDepth()}</button>
                                 <br/>
-                                <button class={styles.button_upgrade_attack} onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                                <button class={styles.button_upgrade_defence} onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
-                                <Show when={automation_on()}
-                                      fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
-                                    <button class={styles.button} onClick={upgradeAutoDepth}>Automat
-                                        Tiefe: {autoDepth()}</button>
-                                    <br/>
-                                    <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
-                                        Menge: {autoAmount()}</button>
-                                </Show>
-                            </div>
-                        </Show>
-                    </div>
+                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
+                                    Menge: {autoAmount()}</button>
+                            </Show>
+                        </div>
+                    </Show>
                     <div class={styles.buttonitem}>
                         <button class={styles.button_rank}></button>
                     </div>
@@ -277,7 +315,6 @@ const App: Component = () => {
                         <button class={styles.button_shop}></button>
                     </div>
                 </div>
-
 
 
             </div>

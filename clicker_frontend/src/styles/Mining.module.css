@@ -1,0 +1,58 @@
+.button_mine {
+    background: url("src/assets/Button_Mine.png");
+    transform: scale(.3);
+    height: 108px;
+    width: 407px;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_mine:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_upgrade_speed {
+    position: absolute;
+    top: 49.5%;
+    left: 31.5%;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.button_upgrade_amount {
+    position: absolute;
+    top: 67%;
+    left: 29%;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.button_automate {
+    position: absolute;
+    top: 87%;
+    left: 29%;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.label_mine {
+    position: absolute;
+    color: black;
+    font-size: 30px;
+    font-weight: bold;
+    top: 42%;
+    left: 38%;
+}

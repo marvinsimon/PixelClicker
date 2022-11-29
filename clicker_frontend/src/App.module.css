@@ -35,9 +35,9 @@
 
 }
 
-.buttonitem{
+.buttonitem {
     background: steelblue;
-    border: 1px solid black ;
+    border: 1px solid black;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -76,53 +76,6 @@
     background: gainsboro;
     padding: 10px;
 
-}
-
-.button_pvp {
-    background: url("assets/Button_PVP.png");
-    transform: scale(.3);
-    height: 108px;
-    width: 407px;
-    border: none;
-    transition-duration: .4s;
-    resize: both;
-}
-
-.button_pvp:hover {
-    transform: scale(.28);
-    cursor: pointer;
-}
-
-.button_mine {
-    background: url("assets/Button_Mine.png");
-    transform: scale(.3);
-    height: 108px;
-    width: 407px;
-    border: none;
-    transition-duration: .4s;
-}
-
-.button_mine:hover {
-    transform: scale(.28);
-    cursor: pointer;
-}
-
-.button_pvp_attack {
-    position: absolute;
-    top: 80%;
-    left: 9%;
-    background: url("assets/Button_Attack.png");
-    transform: scale(.3);
-    height: 108px;
-    width: 407px;
-    border: none;
-    padding-right: 100px;
-    transition-duration: .4s;
-}
-
-.button_pvp_attack:hover {
-    transform: scale(.28);
-    cursor: pointer;
 }
 
 .button_rank {
@@ -204,9 +157,7 @@
     padding: 10px;
 }
 
-
-
-.buttonswitch{
+.buttonswitch {
     background: none;
     border: none;
 }
@@ -220,7 +171,6 @@
     display: flex;
     font-size: small;
 }
-
 
 input[type=text] {
     max-width: 100%;
@@ -236,7 +186,6 @@ input[type=password] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-
 }
 
 input[type=submit] {
@@ -250,21 +199,6 @@ input[type=submit] {
 
 input[type=submit]:hover {
     background-color: #45a049;
-}
-
-.buttonswitch{
-    background: none;
-    border: none;
-}
-
-.buttonswitch:hover {
-    color: cornflowerblue;
-    cursor: pointer;
-}
-
-.switch {
-    display: flex;
-    font-size: small;
 }
 
 .button {
@@ -317,14 +251,19 @@ input[type=submit]:hover {
     top: 0;
     height: 100%;
     width: 100%;
-    margin-right: 30px;
+    margin-right: 10px;
     display: none;
     overflow: hidden;
     transform: translateY(-100%);
     position: relative;
 }
 
-.button_close{
+.board_img_right {
+    height: 75%;
+    width: 75%;
+}
+
+.button_close {
     position: absolute;
     top: 42%;
     left: 68.5%;
@@ -336,44 +275,14 @@ input[type=submit]:hover {
     margin: 5px;
 }
 
-.button_upgrade_attack {
-    position: absolute;
-    top: 49.5%;
-    left: 31.5%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
-.button_upgrade_defence {
-    position: absolute;
-    top: 67%;
-    left: 29%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
-.label_pvp {
-    position: absolute;
-    color: black;
-    font-size: 30px;
-    font-weight: bold;
-    top: 42%;
-    left: 38%;
-}
-
 .slideIn {
+    position: absolute;
     animation-name: slideIn;
     animation-delay: 0s;
     animation-duration: 2s;
     animation-fill-mode: forwards;
+    display: flex;
+    justify-content: center;
 }
 
 @keyframes slideIn {

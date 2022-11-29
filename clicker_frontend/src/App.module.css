@@ -49,9 +49,10 @@
 }
 
 .board_img {
-    height: 75%;
-    width: 75%;
-    margin-left: 30px;
+    max-height: 75%;
+    max-width: 75%;
+    margin-left: 2rem;
+    position: relative;
 }
 
 .header_logo {
@@ -162,24 +163,22 @@
     border-radius: 3px;
 }
 
-.label_info {
-    display: flex;
-    justify-content: center;
-    padding-bottom: 69px;
-    margin-left: 70px;
+.label_ore {
     color: black;
-    font-size: 40px;
+    font-size: 1rem;
     font-weight: bold;
+    position: absolute;
+    top:43%;
+    left: 60%;
 }
 
-.label_info:nth-of-type(1) {
-    margin-top: -365px;
+.parent {
+    position: relative;
+    border: red 2px solid;
 }
 
-.label_info:nth-of-type(3) {
-    font-size: 30px;
-    margin-top: 3px;
-    margin-left: 10px;
+.child {
+    position: absolute;
 }
 
 .modal {

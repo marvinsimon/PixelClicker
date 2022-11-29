@@ -287,8 +287,8 @@ const App: Component = () => {
                         <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
                             <h3>PvP Verbesserungen</h3>
                             <br/>
-                            <button class={styles.button}>Angriff verbessern</button>
-                            <button class={styles.button}>Verteidigung verbessern</button>
+                            <button class={styles.button} onClick={upgradeAttackLevel}>Angriff: {attackLevel()}</button>
+                            <button class={styles.button} onClick={upgradeDefenceLevel}>Verteidigung: {defenceLevel()}</button>
                         </div>
                     </Show>
 

@@ -68,6 +68,10 @@ const App: Component = () => {
                 setLoginStates(event.LoginState);
             }
         }
+        socket.onopen = () => {
+            const event: ClientMessages = "GetLoginData";
+            socket?.send(JSON.stringify(event));
+        }
     }
 
     const setLoginStates = (LoginState: { shovel_amount: I32; shovel_depth: I32; automation_depth: I32; automation_amount: I32; attack_level: I32; defence_level: I32; automation_started: boolean }) => {
@@ -175,8 +179,6 @@ const App: Component = () => {
                 await connectBackend();
                 setLoggedIn(true);
                 setAuth(true);
-                const event: ClientMessages = "GetLoginData";
-                socket?.send(JSON.stringify(event));
             } else if (response.status == 401) {
                 setUnauthorized(true);
                 console.log('Unauthorized');
@@ -280,9 +282,6 @@ const App: Component = () => {
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
-
-                    <button class={styles.button} onClick={mine}>Erz abbauen</button>
-
                     <Show when={showPVP()}
                           fallback={<button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>

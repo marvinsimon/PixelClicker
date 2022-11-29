@@ -1,7 +1,7 @@
 import type {Component} from "solid-js";
 import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
-import {ClientMessages, ServerMessages} from "./game_messages";
+import {ClientMessages, I32, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import game from "./assets/Playground.png";
@@ -63,8 +63,21 @@ const App: Component = () => {
             } else if ("DefenceLevelUpgraded" in event) {
                 console.log(event.DefenceLevelUpgraded);
                 setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+            } else if ("LoginState" in event) {
+                console.log(event.LoginState);
+                setLoginStates(event.LoginState);
             }
         }
+    }
+
+    const setLoginStates = (LoginState: { shovel_amount: I32; shovel_depth: I32; automation_depth: I32; automation_amount: I32; attack_level: I32; defence_level: I32; automation_started: boolean }) => {
+        setShovelDepth(LoginState.shovel_depth);
+        setShovelAmount(LoginState.shovel_amount);
+        setAutoAmount(LoginState.automation_amount);
+        setAutoDepth(LoginState.automation_depth);
+        setAutomation(LoginState.automation_started);
+        setAttackLevel(LoginState.attack_level);
+        setDefenceLevel(LoginState.defence_level);
     }
 
     const disconnectBackend = () => {
@@ -162,6 +175,8 @@ const App: Component = () => {
                 await connectBackend();
                 setLoggedIn(true);
                 setAuth(true);
+                const event: ClientMessages = "GetLoginData";
+                socket?.send(JSON.stringify(event));
             } else if (response.status == 401) {
                 setUnauthorized(true);
                 console.log('Unauthorized');

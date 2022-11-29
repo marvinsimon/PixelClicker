@@ -5,13 +5,14 @@ use serde::{Deserialize, Serialize};
 pub struct GameState {
     pub ore: f64,
     pub depth: f64,
-    pub multiplier: f64,
+    multiplier: f64,
     pub shovel_amount_level: i32,
     pub shovel_depth_level: i32,
     pub auto_depth_level: i32,
     pub auto_amount_level: i32,
     pub attack_level: i32,
     pub defence_level: i32,
+    pub automation_started: bool,
 }
 
 impl GameState {
@@ -80,6 +81,7 @@ impl GameState {
                 if self.ore as u64 >= auto_digger_price {
                     self.ore -= auto_digger_price as f64;
                     self.multiplier = 0.05;
+                    self.automation_started = true;
                     ServerMessages::AutomationStarted { success: true }
                 } else {
                     ServerMessages::AutomationStarted { success: false }
@@ -151,6 +153,17 @@ impl GameState {
                         new_upgrade_cost: upgrade_defence_level as u64}
                 }
             }
+            ClientMessages::GetLoginData => {
+                ServerMessages::LoginState {
+                    defence_level: self.defence_level,
+                    attack_level: self.attack_level,
+                    automation_amount: self.auto_amount_level,
+                    automation_depth: self.auto_depth_level,
+                    shovel_amount: self.shovel_amount_level,
+                    shovel_depth: self.auto_depth_level,
+                    automation_started: self.automation_started,
+                }
+            }
         }
     }
 
@@ -165,6 +178,7 @@ impl GameState {
             auto_amount_level: 1,
             attack_level: 1,
             defence_level: 1,
+            automation_started: false,
         }
     }
 }

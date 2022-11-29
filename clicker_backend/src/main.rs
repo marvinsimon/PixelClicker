@@ -258,7 +258,19 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                 save_score_to_database(id, &game_state, &pool).await;
                 interval = Instant::now();
             }
-            game_state.ore += handle_attacks(id, &pool).await;
+            let loot = handle_attacks(id, &pool).await;
+            if loot > 0.0 {
+                game_state.ore += loot;
+                let event = ServerMessages::CombatElapsed {loot: loot as u64};
+                if socket
+                    .send(Message::Text(serde_json::to_string(&event).unwrap()))
+                    .await
+                    .is_err()
+                {
+                    break;
+                }
+            }
+
         }
         let instant = Instant::now();
         let event = game_state.tick(1);
@@ -310,24 +322,23 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
 }
 
 async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
-    let mut test: f64 = 0.0;
+    let mut loot: f64 = 0.0;
     if let Ok(record) = sqlx::query!(
         "SELECT timestamp FROM PVP WHERE id_att = $1",
         id_att
     ).fetch_one(pool)
         .await {
         if Utc::now().timestamp() - record.timestamp >= 10 {
-            test = steal_resources(id_att, pool).await;
+            loot = steal_resources(id_att, pool).await;
             if (sqlx::query!(
                 "DELETE FROM PVP WHERE id_att = $1",
                 id_att
             )
                 .execute(pool)
-                .await).is_ok()
-            {}
+                .await).is_ok() {}
         }
     }
-    test
+    loot
 }
 
 async fn set_player_as_offline(id: i64, pool: &PgPool) {
@@ -390,7 +401,7 @@ async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
     {
         Ok(r) => {
             println!("Player: {}\n\
-                {:?}",id, r.game_state);
+                {:?}", id, r.game_state);
             serde_json::from_value(r.game_state).unwrap()
         }
         Err(_) => GameState::new(),
@@ -433,8 +444,8 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
     let mut loot = game_state_def.ore * game_state_att.attack_level as f64
         / (4.0 * game_state_def.defence_level as f64);
 
-    if loot > game_state_def.ore/2.0 {
-        loot = game_state_def.ore/2.0;
+    if loot > game_state_def.ore / 2.0 {
+        loot = game_state_def.ore / 2.0;
     }
 
     game_state_def.ore -= loot;
@@ -456,14 +467,14 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
 }
 
 async fn steal_resources(attacker_id: i64, pool: &PgPool) -> f64 {
-    let mut test: f64 = 0.0;
+    let mut loot: f64 = 0.0;
     if let Ok(record_pvp) = sqlx::query!(
         "SELECT loot FROM PVP WHERE id_att = $1;",
         attacker_id
     )
         .fetch_one(pool)
         .await {
-        test = record_pvp.loot;
+        loot = record_pvp.loot;
     }
-    test
+    loot
 }

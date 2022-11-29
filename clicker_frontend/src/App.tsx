@@ -1,7 +1,7 @@
 import type {Component} from "solid-js";
 import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
-import {ClientMessages, I32, ServerMessages} from "./game_messages";
+import {ClientMessages, I32, ServerMessages, U64} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import game from "./assets/Playground.png";
@@ -31,6 +31,8 @@ const App: Component = () => {
     const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
     const [showPVP, setShowPVP] = createSignal(false);
+    const [showLoot, setShowLoot] = createSignal(false);
+    const [loot, setLoot] = createSignal(0);
 
 
     let socket: WebSocket | undefined;
@@ -66,12 +68,20 @@ const App: Component = () => {
             } else if ("LoginState" in event) {
                 console.log(event.LoginState);
                 setLoginStates(event.LoginState);
+            } else if ("CombatElapsed" in event) {
+                console.log(event.CombatElapsed);
+                lootArrived(event.CombatElapsed);
             }
         }
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
             socket?.send(JSON.stringify(event));
         }
+    }
+
+    function lootArrived(CombatElapsed: {loot: U64}) {
+        setShowLoot(true);
+        setLoot(CombatElapsed.loot);
     }
 
     const setLoginStates = (LoginState: { shovel_amount: I32; shovel_depth: I32; automation_depth: I32; automation_amount: I32; attack_level: I32; defence_level: I32; automation_started: boolean }) => {
@@ -311,6 +321,13 @@ const App: Component = () => {
                                 <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
                                     Menge: {autoAmount()}</button>
                             </Show>
+                        </div>
+                    </Show>
+
+                    <Show when={showLoot()} >
+                        <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
+                            <label> Der Angriff war erfolgreich! </label>
+                            <label> Deine Beute: {loot()}</label>
                         </div>
                     </Show>
                     <button class={styles.button_pvp_attack} onClick={attack}></button>

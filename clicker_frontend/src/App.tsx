@@ -3,6 +3,8 @@ import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
+import rankModule from "./styles/Leaderboard.module.css";
+import shopModule from "./styles/Shop.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
@@ -174,11 +176,18 @@ const App: Component = () => {
     }
 
     const hide = () => {
-        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(pvpModule.hide));
+        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
     }
 
     const unhide = () => {
-        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(pvpModule.hide));
+        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
+    }
+
+    const slideOut = () => {
+        let variable = document.querySelector("." + styles.slideIn);
+        variable!.classList.remove(styles.slideIn);
+        variable!.classList.add(styles.slideOut);
+        console.log(variable);
     }
 
     return (
@@ -238,16 +247,16 @@ const App: Component = () => {
                 </div>
                 <div class={styles.board}>
                     <div class={styles.parent}>
-                    <img src={board} class={styles.board_img} alt={"Value board"}/>
-                            <div class={styles.label_ore}>
-                                <label>{ore()}</label>
-                            </div>
-                            <div class={styles.label_depth}>
-                                <label>{depth()}</label>
-                            </div>
-                            <div class={styles.label_diamond}>
-                                <label>coming soon</label>
-                            </div>
+                        <img src={board} class={styles.board_img} alt={"Value board"}/>
+                        <div class={styles.label_ore}>
+                            <label>{ore()}</label>
+                        </div>
+                        <div class={styles.label_depth}>
+                            <label>{depth()}</label>
+                        </div>
+                        <div class={styles.label_diamond}>
+                            <label>coming soon</label>
+                        </div>
                     </div>
                 </div>
                 <div class={styles.main} onClick={mine}>
@@ -266,17 +275,25 @@ const App: Component = () => {
                               </>
                           }>
                         <div class={styles.slideIn}>
-                            <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
-                            <button class={styles.button_close} onClick={() => {
-                                setShowPVP(false);
-                                unhide()
-                            }}>X
-                            </button>
-                            <label class={pvpModule.label_pvp}>PvP</label>
-                            <br/>
-                            <button class={pvpModule.button_upgrade_attack}>Angriff verbessern</button>
-                            <button class={pvpModule.button_upgrade_defence}>Verteidigung verbessern</button>
-                            <button class={pvpModule.button_pvp_attack}></button>
+                            <div class={styles.image_container}>
+                                <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                                <button class={styles.button_close} onClick={() => {
+                                    slideOut();
+                                    window.setTimeout(function () {
+                                        setShowPVP(false);
+                                        unhide();
+                                    }, 2100)
+                                }}>X
+                                </button>
+                                <label class={pvpModule.label_pvp}>PvP</label>
+                                <br/>
+                                <a class={pvpModule.icon_upgrade_attack}></a>
+                                <button class={pvpModule.button_upgrade_attack}>Angriff verbessern</button>
+                                <a class={pvpModule.icon_upgrade_defence}></a>
+                                <button class={pvpModule.button_upgrade_defence}>Verteidigung verbessern</button>
+                                <a class={pvpModule.icon_pvp_attack}></a>
+                                <button class={pvpModule.button_pvp_attack}></button>
+                            </div>
                         </div>
                     </Show>
 
@@ -294,14 +311,19 @@ const App: Component = () => {
                         <div class={styles.slideIn}>
                             <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
-                                setShowMining(false);
-                                unhide()
+                                slideOut();
+                                window.setTimeout(function () {
+                                    setShowMining(false);
+                                    unhide();
+                                }, 2100)
                             }}>X
                             </button>
                             <label class={mineModule.label_mine}>Mining</label>
                             <br/>
+                            <a class={mineModule.icon_upgrade_speed}></a>
                             <button class={mineModule.button_upgrade_speed}
                                     onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
+                            <a class={mineModule.icon_upgrade_amount}></a>
                             <button class={mineModule.button_upgrade_amount}
                                     onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
                             <Show when={automation_on()}
@@ -316,11 +338,11 @@ const App: Component = () => {
                         </div>
                     </Show>
                     <div class={styles.buttonitem}>
-                        <button class={styles.button_rank}></button>
+                        <button class={rankModule.button_rank}></button>
                     </div>
 
                     <div class={styles.buttonitem}>
-                        <button class={styles.button_shop}></button>
+                        <button class={shopModule.button_shop}></button>
                     </div>
                 </div>
 

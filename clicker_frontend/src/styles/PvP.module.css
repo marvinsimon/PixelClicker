@@ -1,11 +1,15 @@
 .button_pvp {
-    background: url("src/assets/Button_PVP.png");
+    position: absolute;
+    background-image: url("src/assets/Button_PVP.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     transform: scale(.3);
-    height: 108px;
-    width: 407px;
+    height: 55%;
+    width: 65%;
     border: none;
     transition-duration: .4s;
-    resize: both;
 }
 
 .button_pvp:hover {
@@ -13,57 +17,118 @@
     cursor: pointer;
 }
 
+.label_pvp {
+    position: absolute;
+    color: black;
+    font-size: 30px;
+    font-weight: bold;
+    top: 41%;
+}
+
+.icon_upgrade_attack {
+    position: absolute;
+    top: 42%;
+    left: 25%;
+    background-image: url("src/assets/Arrow_Symbol.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 20%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_attack {
+    position: absolute;
+    top: 42%;
+    background-image: url("src/assets/Button_Ang.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 70%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_attack:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.icon_upgrade_defence {
+    position: absolute;
+    top: 59.5%;
+    left: 25%;
+    background-image: url("src/assets/Arrow_Symbol.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 20%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_defence {
+    position: absolute;
+    top: 59.5%;
+    background-image: url("src/assets/Button_Def.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 70%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_defence:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.icon_pvp_attack {
+    position: absolute;
+    top: 79.5%;
+    left: 20%;
+    background-image: url("src/assets/attack_icon.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 15%;
+    width: 25%;
+    border: none;
+    transition-duration: .4s;
+}
+
 .button_pvp_attack {
     position: absolute;
-    top: 80%;
-    left: 9%;
-    background: url("src/assets/Button_Attack.png");
+    top: 79.5%;
+    background-image: url("src/assets/Button_Attack.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     transform: scale(.3);
-    height: 108px;
-    width: 407px;
+    height: 15%;
+    width: 80%;
     border: none;
-    padding-right: 100px;
     transition-duration: .4s;
 }
 
 .button_pvp_attack:hover {
     transform: scale(.28);
     cursor: pointer;
-}
-
-.button_upgrade_attack {
-    position: absolute;
-    top: 49.5%;
-    left: 31.5%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
-.button_upgrade_defence {
-    position: absolute;
-    top: 67%;
-    left: 29%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
-.label_pvp {
-    position: absolute;
-    color: black;
-    font-size: 30px;
-    font-weight: bold;
-    top: 42%;
-    left: 38%;
-}
-
-.hide {
-    display: none;
 }

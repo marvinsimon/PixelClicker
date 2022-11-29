@@ -1,8 +1,13 @@
 .button_mine {
-    background: url("src/assets/Button_Mine.png");
+    position: absolute;
+    background-image: url("src/assets/Button_Mine.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
     transform: scale(.3);
-    height: 108px;
-    width: 407px;
+    height: 55%;
+    width: 75%;
     border: none;
     transition-duration: .4s;
 }
@@ -12,47 +17,102 @@
     cursor: pointer;
 }
 
-.button_upgrade_speed {
-    position: absolute;
-    top: 49.5%;
-    left: 31.5%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
-.button_upgrade_amount {
-    position: absolute;
-    top: 67%;
-    left: 29%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
-.button_automate {
-    position: absolute;
-    top: 87%;
-    left: 29%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
-}
-
 .label_mine {
     position: absolute;
     color: black;
     font-size: 30px;
     font-weight: bold;
+    top: 41%;
+}
+
+.icon_upgrade_speed {
+    position: absolute;
     top: 42%;
-    left: 38%;
+    left: 25%;
+    background-image: url("src/assets/Arrow_Symbol.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 20%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_speed {
+    position: absolute;
+    top: 44.5%;
+    background-image: url("src/assets/Button_Mine.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 15%;
+    width: 75%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_speed:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.icon_upgrade_amount {
+    position: absolute;
+    top: 59.5%;
+    left: 25%;
+    background-image: url("src/assets/Arrow_Symbol.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 20%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_amount {
+    position: absolute;
+    top: 62%;
+    background-image: url("src/assets/Button_Mine.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 15%;
+    width: 75%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_upgrade_amount:hover {
+    transform: scale(.28);
+    cursor: pointer;
+}
+
+.button_automate {
+    position: absolute;
+    top: 79.5%;
+    background-image: url("src/assets/Button_Mine.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 15%;
+    width: 75%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_automate:hover {
+    transform: scale(.28);
+    cursor: pointer;
 }

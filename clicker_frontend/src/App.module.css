@@ -41,6 +41,8 @@
     display: flex;
     align-items: center;
     overflow: hidden;
+    position: relative;
+    justify-content: center;
 }
 
 .board {
@@ -77,36 +79,6 @@
     background: gainsboro;
     padding: 10px;
 
-}
-
-.button_rank {
-    background: url("assets/Button_Rank.png");
-    transform: scale(.3);
-    height: 108px;
-    width: 407px;
-    border: none;
-    padding-right: 100px;
-    transition-duration: .4s;
-}
-
-.button_rank:hover {
-    transform: scale(.28);
-    cursor: pointer;
-}
-
-.button_shop {
-    background: url("assets/Button_Shop.png");
-    transform: scale(.3);
-    height: 108px;
-    width: 407px;
-    border: none;
-    padding-right: 100px;
-    transition-duration: .4s;
-}
-
-.button_shop:hover {
-    transform: scale(.28);
-    cursor: pointer;
 }
 
 .game {
@@ -250,7 +222,6 @@ input[type=submit]:hover {
     top: 0;
     height: 100%;
     width: 100%;
-    margin-right: 10px;
     display: none;
     overflow: hidden;
     transform: translateY(-100%);
@@ -258,20 +229,36 @@ input[type=submit]:hover {
 }
 
 .board_img_right {
-    height: 75%;
+    height: 100%;
     width: 75%;
+}
+
+.image_container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .button_close {
     position: absolute;
-    top: 42%;
-    left: 68.5%;
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
+    top: 36%;
+    left: 67.5%;
+    background-image: url("src/assets/attack_icon.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 15%;
+    width: 25%;
+    border: none;
+    transition-duration: .4s;
+}
+
+.button_close:hover {
+    transform: scale(.28);
+    cursor: pointer;
 }
 
 .slideIn {
@@ -297,4 +284,33 @@ input[type=submit]:hover {
     100% {
         transform: translateY(-0.5%);
     }
+}
+
+.slideOut {
+    position: absolute;
+    animation-name: slideOut;
+    animation-delay: 0s;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+    display: flex;
+    justify-content: center;
+}
+
+@keyframes slideOut {
+    0% {
+        transform: translateY(-0.5%);
+    }
+    50% {
+        transform: translateY(-3%);
+    }
+    70% {
+        transform: translateY(0%);
+    }
+    100% {
+        transform: translateY(-100%);
+    }
+}
+
+.hide {
+    display: none;
 }

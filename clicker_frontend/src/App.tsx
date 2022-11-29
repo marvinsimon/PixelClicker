@@ -4,6 +4,7 @@ import styles from "./App.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
+import board_right from "./assets/Brett2.png";
 import game from "./assets/Playground.png";
 import {Portal} from "solid-js/web";
 
@@ -28,6 +29,7 @@ const App: Component = () => {
     const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
     const [showPVP, setShowPVP] = createSignal(false);
+    const [popup, setPopup] = createSignal(false);
 
 
     let socket: WebSocket | undefined;
@@ -217,30 +219,41 @@ const App: Component = () => {
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
-
-                    <button class={styles.button} onClick={mine}>Erz abbauen</button>
-
                     <Show when={showPVP()}
-                          fallback={<button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
-                        <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
-                            <h3>PvP Verbesserungen</h3>
+                          fallback={
+                              <>
+                                  <button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>
+                                  <div class={styles.board_right}>
+                                      <img src={board_right} class={styles.board_img} alt={"Control board"}/>
+                                  </div>
+                              </>
+                         }>
+                        <div class={styles.slideIn}>
+                            <img src={board_right} class={styles.board_img} alt={"Control board"}/>
+                            <button class={styles.button_close} onClick={() => {setShowPVP(false)}}>X</button>
+                            <label class={styles.label_pvp}>PvP</label>
                             <br/>
-                            <button class={styles.button}>Angriff verbessern</button>
-                            <button class={styles.button}>Verteidigung verbessern</button>
+                            <button class={styles.button_upgrade_attack}>Angriff verbessern</button>
+                            <button class={styles.button_upgrade_defence}>Verteidigung verbessern</button>
+                            <button class={styles.button_pvp_attack}></button>
                         </div>
                     </Show>
-
-
                     <Show when={showMining()}
-                          fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
-                        <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
-                            <h3>Mining Verbesserungen</h3>
+                          fallback={
+                              <>
+                                  <button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>
+                                  <div class={styles.board_right}>
+                                      <img src={board_right} class={styles.board_img} alt={"Control board"}/>
+                                  </div>
+                              </>
+                          }>
+                        <div class={styles.slideIn}>
+                            <img src={board_right} class={styles.board_img} alt={"Control board"}/>
+                            <button class={styles.button_close} onClick={() => {setShowMining(false)}}>X</button>
+                            <label class={styles.label_pvp}>Mining</label>
                             <br/>
-                            <button class={styles.button}
-                                    onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                            <button class={styles.button}
-                                    onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
-                            <br/>
+                            <button class={styles.button_upgrade_attack} onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
+                            <button class={styles.button_upgrade_defence} onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
                                 <button class={styles.button} onClick={upgradeAutoDepth}>Automat
@@ -251,7 +264,6 @@ const App: Component = () => {
                             </Show>
                         </div>
                     </Show>
-                    <button class={styles.button_pvp_attack}></button>
                     <button class={styles.button_rank}></button>
                     <button class={styles.button_shop}></button>
 

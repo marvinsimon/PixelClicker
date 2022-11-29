@@ -20,6 +20,7 @@
     display: flex;
     padding: 10px;
     justify-content: space-between;
+    z-index: 2;
 }
 
 .main {
@@ -87,6 +88,9 @@
 }
 
 .button_pvp_attack {
+    position: absolute;
+    top: 80%;
+    left: 9%;
     background: url("assets/Button_Attack.png");
     transform: scale(.3);
     height: 108px;
@@ -284,4 +288,83 @@ input[type=submit]:hover {
         display: none;
     }
 
+}
+
+.board_right {
+    z-index: 1;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    margin-right: 30px;
+    display: none;
+    overflow: hidden;
+    transform: translateY(-100%);
+    position: relative;
+}
+
+.button_close{
+    position: absolute;
+    top: 42%;
+    left: 68.5%;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.button_upgrade_attack {
+    position: absolute;
+    top: 49.5%;
+    left: 31.5%;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.button_upgrade_defence {
+    position: absolute;
+    top: 67%;
+    left: 29%;
+    background: steelblue;
+    color: white;
+    border: cornflowerblue 1px solid;
+    border-radius: 3px;
+    padding: 7px;
+    margin: 5px;
+}
+
+.label_pvp {
+    position: absolute;
+    color: black;
+    font-size: 30px;
+    font-weight: bold;
+    top: 42%;
+    left: 38%;
+}
+
+.slideIn {
+    animation-name: slideIn;
+    animation-delay: 0s;
+    animation-duration: 2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes slideIn {
+    0% {
+        transform: translateY(-100%);
+    }
+    50% {
+        transform: translateY(0%);
+    }
+    70% {
+        transform: translateY(-3%);
+    }
+    100% {
+        transform: translateY(-0.5%);
+    }
 }

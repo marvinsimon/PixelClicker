@@ -295,7 +295,7 @@ const App: Component = () => {
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
                         <Show when={!loggedIn()}
-                              fallback={<button class={styles.button} onClick={() => {
+                              fallback={<button class={styles.User_symbol} onClick={() => {
                                   sign_out();
                                   setShow(false);
                                   setInnerShow(false)
@@ -407,7 +407,7 @@ const App: Component = () => {
                                     class={styles.label_header + " " + pvpModule.label_defence_level}>{defenceLevel()}</label>
 
                                 <a class={styles.icon_upgrade + " " + pvpModule.icon_pvp_attack}></a>
-                                <button class={styles.button + " " + pvpModule.pvp_attack}></button>
+                                <button class={styles.button + " " + pvpModule.pvp_attack} onClick={attack}></button>
                             </div>
                         </div>
                     </Show>

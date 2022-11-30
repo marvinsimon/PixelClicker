@@ -218,11 +218,11 @@ const App: Component = () => {
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
                         <Show when={!loggedIn()}
-                              fallback={<button class={styles.button} onClick={() => {
+                              fallback={<button class={styles.User_symbol} onClick={() => {
                                   sign_out();
                                   setShow(false);
                                   setInnerShow(false)
-                              }}>Ausloggen</button>}>
+                              }}></button>}>
                             <button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>
                             <Show when={show()}
                                   fallback={""}>
@@ -295,7 +295,7 @@ const App: Component = () => {
                                           setShowPVP(true);
                                           hide();
                                           rotateClockwise();
-                                      }} class={styles.button + " " + pvpModule.pvp}></button>
+                                      }} class={styles.button}>PVP</button>
                                   </div>
                               </>
                           }>
@@ -337,7 +337,7 @@ const App: Component = () => {
                                           setShowMining(true);
                                           hide();
                                           rotateClockwise();
-                                      }} class={styles.button + " " + mineModule.mine}></button>
+                                      }} class={styles.button}>Mining</button>
                                   </div>
                               </>
                           }>
@@ -378,10 +378,10 @@ const App: Component = () => {
                         </div>
                     </Show>
                     <div class={styles.buttonitem}>
-                        <button class={styles.button + " " + rankModule.rank}></button>
+                        <button class={styles.button}>Rank</button>
                     </div>
                     <div class={styles.buttonitem}>
-                        <button class={styles.button + " " + shopModule.shop}></button>
+                        <button class={styles.button}>Shop</button>
                     </div>
                 </div>
 

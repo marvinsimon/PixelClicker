@@ -2,6 +2,7 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
+    font-family: Public Pixel Font, monospace;
 }
 
 @font-face {
@@ -10,7 +11,7 @@
 }
 
 .container {
-    background: url("assets/background_wood_oak.png");
+    background: #76623f;
     background-size: cover;
     height: 100vh;
     display: grid;
@@ -42,8 +43,6 @@
 }
 
 .buttonitem {
-    background: steelblue;
-    border: 1px solid black;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -81,6 +80,21 @@
 }
 
 .button_sign_up:hover {
+    transform: scale(.95);
+    cursor: pointer;
+}
+
+.User_symbol {
+    background: url("assets/User_symbol.png") no-repeat center center;
+    background-size: 100% 100%;
+    height: 6em;
+    width: 6em;
+    border: none;
+    transition-duration: .4s;
+    margin-top: auto;
+}
+
+.User_symbol:hover {
     transform: scale(.95);
     cursor: pointer;
 }
@@ -167,6 +181,10 @@ input[type=submit]:hover {
     transform: scale(.3);
     border: none;
     transition-duration: .4s;
+    background-image: url("src/assets/stone_button_dark.png");
+    height: 300%;
+    width: 150%;
+    font-size: 3rem;
 }
 
 .button:hover {
@@ -240,6 +258,10 @@ input[type=submit]:hover {
         display: none;
     }
 
+    .board_img_container {
+        justify-content: start;
+        padding-left: 10px;
+    }
 }
 
 .board_right {

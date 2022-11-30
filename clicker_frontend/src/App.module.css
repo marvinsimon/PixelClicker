@@ -250,22 +250,20 @@ input[type=submit]:hover {
 
 .button_close {
     position: absolute;
-    top: 36%;
-    left: 67.5%;
-    background-image: url("src/assets/attack_icon.png");
+    top: 80%;
+    background-image: url("src/assets/board_wood_small.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    transform: scale(.3);
-    height: 15%;
-    width: 25%;
+    height: 40%;
+    width: 55%;
     border: none;
     transition-duration: .4s;
 }
 
 .button_close:hover {
-    transform: scale(.28);
+    transform: scale(.8);
     cursor: pointer;
 }
 

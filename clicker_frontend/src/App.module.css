@@ -84,6 +84,21 @@
     cursor: pointer;
 }
 
+.User_symbol {
+    background: url("assets/User_symbol.png") no-repeat center center;
+    background-size: 100% 100%;
+    height: 6em;
+    width: 6em;
+    border: none;
+    transition-duration: .4s;
+    margin-top: auto;
+}
+
+.User_symbol:hover {
+    transform: scale(.95);
+    cursor: pointer;
+}
+
 .game {
     width: 100%;
     height: 100%;

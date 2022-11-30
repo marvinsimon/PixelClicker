@@ -33,6 +33,7 @@ const App: Component = () => {
     const [showPVP, setShowPVP] = createSignal(false);
     const [showLoot, setShowLoot] = createSignal(false);
     const [loot, setLoot] = createSignal(0);
+    const [startTimer, setShowTimer] = createSignal(false);
 
 
     let socket: WebSocket | undefined;
@@ -78,6 +79,8 @@ const App: Component = () => {
             socket?.send(JSON.stringify(event));
         }
     }
+
+    connectBackend();
 
     function lootArrived(CombatElapsed: {loot: U64}) {
         setShowLoot(true);
@@ -167,7 +170,6 @@ const App: Component = () => {
         if (response.ok) {
             setLoggedIn(true);
             setAuth(true);
-            await connectBackend();
         } else if (response.status == 400) {
             setBad_request_bool(true);
             console.log('Bad Request');
@@ -225,10 +227,16 @@ const App: Component = () => {
             method: "GET",
             credentials: "include",
         });
+        if (response.status == 200){ //200 == StatusCode OK
+            console.log("Start timer");
+            //Start timer
+            setShowTimer(true);
+        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
+            console.log("No match");
+        }
     }
 
     return (
-
         <div class={styles.App}>
             <div class={styles.container}>
                 <div class={styles.header}>
@@ -260,6 +268,7 @@ const App: Component = () => {
                                     </div>
                                 </div>
                             </Show>
+
                             <Show when={innershow()}
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
@@ -302,7 +311,6 @@ const App: Component = () => {
                         </div>
                     </Show>
 
-
                     <Show when={showMining()}
                           fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
@@ -330,15 +338,19 @@ const App: Component = () => {
                             <label> Deine Beute: {loot()}</label>
                         </div>
                     </Show>
+
                     <button class={styles.button_pvp_attack} onClick={attack}></button>
                     <button class={styles.button_rank}></button>
                     <button class={styles.button_shop}></button>
 
+                    <Show when={startTimer()}>
+                        <label class={styles.label_info} use:onClick={() => setShowTimer(false)}>
+                            Angreifen...
+                        </label>
+                    </Show>
 
                 </div>
-
                 <div id={"popup"}>
-
                 </div>
             </div>
         </div>

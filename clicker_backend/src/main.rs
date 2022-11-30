@@ -163,7 +163,7 @@ async fn sign_up(
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
             let game_state = GameState::new();
-            let game_state_value = serde_json::to_value(game_state.clone()).unwrap();
+            let game_state_value = serde_json::to_value(&game_state).unwrap();
             match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
@@ -200,10 +200,12 @@ async fn logout(
         save_timestamp_to_database(id, &pool).await;
         set_player_as_offline(id, &pool).await;
     }
+    println!("Logging out!");
     session.remove(PLAYER_AUTH).await;
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
+    println!("Connected!");
     ws.on_upgrade(move |socket| handle_game(socket, session, pool))
 }
 
@@ -228,7 +230,10 @@ async fn attack(
             )
                     .execute(&pool)
                     .await).is_ok()
-                {}
+                {
+                    println!("No match found!");
+                    return StatusCode::NO_CONTENT;
+                }
             } else {
                 calculate_combat(id, defender_id, &pool).await;
             }
@@ -248,7 +253,9 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
             if !logged_in {
-                game_state = load_game_state_from_database(id, &pool).await;
+                if !test_for_new_registry(id, &pool).await {
+                    game_state = load_game_state_from_database(id, &pool).await;
+                }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
                 save_game_state_to_database(id, &game_state, &pool).await;
@@ -316,6 +323,22 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     }
 }
 
+async fn test_for_new_registry(id: i64, pool: &PgPool) -> bool {
+    match sqlx::query!(
+        "SELECT is_new FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await {
+        Ok(r) => {
+            r.is_new
+        }
+        Err(_) => {
+            false
+        }
+    }
+}
+
 async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
     let mut loot: f64 = 0.0;
     if let Ok(record) = sqlx::query!(
@@ -364,7 +387,7 @@ async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
 async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
     let game_state_value = serde_json::to_value(game_state).unwrap();
     if (sqlx::query!(
-        "UPDATE player SET game_state = $1 WHERE id = $2;",
+        "UPDATE player SET game_state = $1, is_new = false WHERE id = $2;",
         game_state_value,
         id,
     ).execute(pool)
@@ -383,8 +406,9 @@ async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) 
 }
 
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
+    println!("Loading GameState!");
     match sqlx::query!(
-        "SELECT game_state FROM player WHERE id = $1;",
+        "SELECT game_state, is_new FROM player WHERE id = $1;",
         id
     ).fetch_one(pool)
         .await
@@ -415,6 +439,7 @@ async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
                 .await
             {
                 Ok(r) => {
+                    println!("Match found: {}", r.id);
                     r.id
                 }
                 Err(_) => -1,
@@ -444,7 +469,13 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
         loot,
         Utc::now().timestamp()
     ).execute(pool)
-        .await).is_ok() {}
+        .await).is_ok() {
+        println!("COMBAT DATA:\n\
+        Attacker: {}\n\
+        Defender: {}\n\
+        Loot: {}",
+        id_att, id_def, loot);
+    }
 }
 
 async fn steal_resources(attacker_id: i64, pool: &PgPool) -> f64 {

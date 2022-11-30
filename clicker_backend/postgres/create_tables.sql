@@ -7,7 +7,8 @@ CREATE TABLE Player
     game_state JSON    NOT NULL,
     timestamp  BIGINT,
     pvp_score  BIGINT,
-    is_online  BOOLEAN NOT NULL DEFAULT false
+    is_online  BOOLEAN NOT NULL DEFAULT false,
+    is_new     BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE TABLE PVP

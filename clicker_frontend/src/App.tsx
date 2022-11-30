@@ -187,7 +187,6 @@ const App: Component = () => {
         let variable = document.querySelector("." + styles.slideIn);
         variable!.classList.remove(styles.slideIn);
         variable!.classList.add(styles.slideOut);
-        console.log(variable);
     }
 
     return (
@@ -269,8 +268,8 @@ const App: Component = () => {
                                   <div class={styles.buttonitem}>
                                       <button onClick={(e) => {
                                           setShowPVP(true);
-                                          hide()
-                                      }} class={pvpModule.button_pvp}></button>
+                                          hide();
+                                      }} class={styles.button + " " + pvpModule.pvp}></button>
                                   </div>
                               </>
                           }>
@@ -285,14 +284,18 @@ const App: Component = () => {
                                     }, 2100)
                                 }}>X
                                 </button>
-                                <label class={pvpModule.label_pvp}>PvP</label>
-                                <br/>
-                                <a class={pvpModule.icon_upgrade_attack}></a>
-                                <button class={pvpModule.button_upgrade_attack}>Angriff verbessern</button>
-                                <a class={pvpModule.icon_upgrade_defence}></a>
-                                <button class={pvpModule.button_upgrade_defence}>Verteidigung verbessern</button>
-                                <a class={pvpModule.icon_pvp_attack}></a>
-                                <button class={pvpModule.button_pvp_attack}></button>
+                                <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
+
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
+                                <button class={styles.button + " " + pvpModule.upgrade_attack}></button>
+                                <label class={styles.label_header + " " + pvpModule.label_attack_level}>0</label>
+
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
+                                <button class={styles.button + " " + pvpModule.upgrade_defence}></button>
+                                <label class={styles.label_header + " " + pvpModule.label_defence_level}>0</label>
+
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_pvp_attack}></a>
+                                <button class={styles.button + " " + pvpModule.pvp_attack}></button>
                             </div>
                         </div>
                     </Show>
@@ -304,7 +307,7 @@ const App: Component = () => {
                                       <button onClick={(e) => {
                                           setShowMining(true);
                                           hide()
-                                      }} class={mineModule.button_mine}></button>
+                                      }} class={styles.button + " " + mineModule.mine}></button>
                                   </div>
                               </>
                           }>
@@ -318,31 +321,32 @@ const App: Component = () => {
                                 }, 2100)
                             }}>X
                             </button>
-                            <label class={mineModule.label_mine}>Mining</label>
-                            <br/>
-                            <a class={mineModule.icon_upgrade_speed}></a>
-                            <button class={mineModule.button_upgrade_speed}
-                                    onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                            <a class={mineModule.icon_upgrade_amount}></a>
-                            <button class={mineModule.button_upgrade_amount}
-                                    onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
+                            <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
+
+                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
+                            <button class={styles.button + " " + mineModule.upgrade_speed}
+                                    onClick={upgradeShovelDepth}></button>
+                            <label class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
+
+                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
+                            <button class={styles.button + " " + mineModule.upgrade_amount}
+                                    onClick={upgradeShovelAmount}></button>
+                            <label class={styles.label_header + " " + mineModule.label_amount_level}>{shovelAmount()}</label>
+
                             <Show when={automation_on()}
-                                  fallback={<button class={mineModule.button_automate}
-                                                    onClick={automate}>Automatisierung</button>}>
-                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat
-                                    Tiefe: {autoDepth()}</button>
+                                  fallback={<button class={styles.button + " " + mineModule.automate}
+                                                    onClick={automate}></button>}>
+                                <button class={styles.button} onClick={upgradeAutoDepth}>{autoDepth()}</button>
                                 <br/>
-                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
-                                    Menge: {autoAmount()}</button>
+                                <button class={styles.button} onClick={upgradeAutoAmount}>{autoAmount()}</button>
                             </Show>
                         </div>
                     </Show>
                     <div class={styles.buttonitem}>
-                        <button class={rankModule.button_rank}></button>
+                        <button class={styles.button + " " + rankModule.rank}></button>
                     </div>
-
                     <div class={styles.buttonitem}>
-                        <button class={shopModule.button_shop}></button>
+                        <button class={styles.button + " " + shopModule.shop}></button>
                     </div>
                 </div>
 

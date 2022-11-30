@@ -223,6 +223,10 @@ input[type=submit]:hover {
         display: none;
     }
 
+    .board_img_container {
+        justify-content: start;
+        padding-left: 10px;
+    }
 }
 
 .board_right {

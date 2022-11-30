@@ -5,15 +5,21 @@ use serde::{Deserialize, Serialize};
 pub struct GameState {
     pub ore: f64,
     pub depth: f64,
-    pub multiplier: f64,
+    multiplier: f64,
     pub shovel_amount_level: i32,
     pub shovel_depth_level: i32,
     pub auto_depth_level: i32,
     pub auto_amount_level: i32,
+    pub attack_level: i32,
+    pub defence_level: i32,
+    pub automation_started: bool,
 }
 
 impl GameState {
     pub fn tick(&mut self, ticks: i64) -> ServerMessages {
+        if self.ore < 0.0 {
+            self.ore = 0.0;
+        }
         self.ore += ticks as f64 * (self.multiplier * self.auto_amount_level as f64);
         self.depth += ticks as f64 * (self.multiplier * self.auto_depth_level as f64);
         ServerMessages::NewState {
@@ -28,6 +34,8 @@ impl GameState {
         let amount_upgrade_cost = self.shovel_amount_level * 50;
         let mut upgrade_auto_depth_cost = self.auto_depth_level * 50;
         let mut upgrade_auto_amount_cost = self.auto_amount_level * 50;
+        let mut upgrade_attack_level = self.attack_level * 50;
+        let mut upgrade_defence_level = self.defence_level * 50;
         let auto_digger_price = 200;
         match event {
             ClientMessages::Mine => {
@@ -76,6 +84,7 @@ impl GameState {
                 if self.ore as u64 >= auto_digger_price {
                     self.ore -= auto_digger_price as f64;
                     self.multiplier = 0.05;
+                    self.automation_started = true;
                     ServerMessages::AutomationStarted { success: true }
                 } else {
                     ServerMessages::AutomationStarted { success: false }
@@ -83,6 +92,7 @@ impl GameState {
             }
             ClientMessages::UpgradeAutomationDepth => {
                 if self.ore as u64 >= upgrade_auto_depth_cost as u64 {
+                    self.ore -= upgrade_auto_depth_cost as f64;
                     self.auto_depth_level += 1;
                     upgrade_auto_depth_cost = self.auto_depth_level * 50;
                     ServerMessages::AutomationDepthUpgraded {
@@ -100,6 +110,7 @@ impl GameState {
             }
             ClientMessages::UpgradeAutomationAmount => {
                 if self.ore as u64 >= upgrade_auto_amount_cost as u64 {
+                    self.ore -= upgrade_auto_amount_cost as f64;
                     self.auto_amount_level += 1;
                     upgrade_auto_amount_cost = self.auto_amount_level * 50;
                     ServerMessages::AutomationAmountUpgraded {
@@ -111,6 +122,49 @@ impl GameState {
                         success: false,
                         new_level: self.auto_amount_level,
                         new_upgrade_cost: upgrade_auto_amount_cost as u64}
+                }
+            }
+            ClientMessages::UpgradeAttackLevel => {
+                if self.ore as u64 >= upgrade_attack_level as u64 {
+                    self.ore -= upgrade_attack_level as f64;
+                    self.attack_level += 1;
+                    upgrade_attack_level = self.attack_level * 50;
+                    ServerMessages::AttackLevelUpgraded {
+                        success: true,
+                        new_level: self.attack_level,
+                        new_upgrade_cost: upgrade_attack_level as u64}
+                } else {
+                    ServerMessages::AttackLevelUpgraded {
+                        success: false,
+                        new_level: self.attack_level,
+                        new_upgrade_cost: upgrade_attack_level as u64}
+                }
+            }
+            ClientMessages::UpgradeDefenceLevel => {
+                if self.ore as u64 >= upgrade_defence_level as u64 {
+                    self.ore -= upgrade_defence_level as f64;
+                    self.defence_level += 1;
+                    upgrade_defence_level = self.defence_level * 50;
+                    ServerMessages::DefenceLevelUpgraded {
+                        success: true,
+                        new_level: self.defence_level,
+                        new_upgrade_cost: upgrade_defence_level as u64}
+                } else {
+                    ServerMessages::DefenceLevelUpgraded {
+                        success: false,
+                        new_level: self.defence_level,
+                        new_upgrade_cost: upgrade_defence_level as u64}
+                }
+            }
+            ClientMessages::GetLoginData => {
+                ServerMessages::LoginState {
+                    defence_level: self.defence_level,
+                    attack_level: self.attack_level,
+                    automation_amount: self.auto_amount_level,
+                    automation_depth: self.auto_depth_level,
+                    shovel_amount: self.shovel_amount_level,
+                    shovel_depth: self.auto_depth_level,
+                    automation_started: self.automation_started,
                 }
             }
         }
@@ -125,6 +179,9 @@ impl GameState {
             shovel_depth_level: 1,
             auto_depth_level: 1,
             auto_amount_level: 1,
+            attack_level: 1,
+            defence_level: 1,
+            automation_started: false,
         }
     }
 }

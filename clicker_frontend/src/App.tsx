@@ -3,16 +3,12 @@ import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
-import rankModule from "./styles/Leaderboard.module.css";
-import shopModule from "./styles/Shop.module.css";
 import displayModule from "./styles/Display.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import board_right from "./assets/Brett2.png";
 import game from "./assets/Playground.png";
-import {Portal} from "solid-js/web";
-import {TestCaseHookDefinition} from "@cucumber/cucumber";
 
 const App: Component = () => {
 
@@ -30,17 +26,24 @@ const App: Component = () => {
     const [automation_on, setAutomation] = createSignal(false);
     const [autoDepth, setAutoDepth] = createSignal(1);
     const [autoAmount, setAutoAmount] = createSignal(1);
+    const [pvp, setPvp] = createSignal(false);
+    const [attackLevel, setAttackLevel] = createSignal(1);
+    const [defenceLevel, setDefenceLevel] = createSignal(1);
     const [loggedIn, setLoggedIn] = createSignal(false);
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
     const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
     const [showPVP, setShowPVP] = createSignal(false);
     const [popup, setPopup] = createSignal(false);
+    const [showLoot, setShowLoot] = createSignal(false);
+    const [loot, setLoot] = createSignal(0);
 
 
     let socket: WebSocket | undefined;
 
     const connectBackend = async () => {
+        if (socket != null)
+            disconnectBackend();
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
@@ -60,8 +63,47 @@ const App: Component = () => {
             } else if ("AutomationAmountUpgraded" in event) {
                 console.log(event.AutomationAmountUpgraded);
                 setAutoAmount(event.AutomationAmountUpgraded.new_level);
+            } else if ("AttackLevelUpgraded" in event) {
+                console.log(event.AttackLevelUpgraded);
+                setAttackLevel(event.AttackLevelUpgraded.new_level);
+            } else if ("DefenceLevelUpgraded" in event) {
+                console.log(event.DefenceLevelUpgraded);
+                setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+            } else if ("LoginState" in event) {
+                console.log(event.LoginState);
+                setLoginStates(event.LoginState);
+            } else if ("CombatElapsed" in event) {
+                console.log(event.CombatElapsed);
+                lootArrived(event.CombatElapsed);
+            } else if ("LoggedIn" in event) {
+                console.log("Still logged in")
+                setAuth(true);
+                setLoggedIn(true);
             }
         }
+        socket.onopen = () => {
+            const event: ClientMessages = "GetLoginData";
+            socket?.send(JSON.stringify(event));
+        }
+    }
+
+    window.onload = async () => {
+        await connectBackend();
+    }
+
+    function lootArrived(CombatElapsed: { loot: number }) {
+        setShowLoot(true);
+        setLoot(CombatElapsed.loot);
+    }
+
+    const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean }) => {
+        setShovelDepth(LoginState.shovel_depth);
+        setShovelAmount(LoginState.shovel_amount);
+        setAutoAmount(LoginState.automation_amount);
+        setAutoDepth(LoginState.automation_depth);
+        setAutomation(LoginState.automation_started);
+        setAttackLevel(LoginState.attack_level);
+        setDefenceLevel(LoginState.defence_level);
     }
 
     const disconnectBackend = () => {
@@ -111,6 +153,20 @@ const App: Component = () => {
         }
     }
 
+    const upgradeAttackLevel = async () => {
+        if (socket) {
+            const event: ClientMessages = "UpgradeAttackLevel";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const upgradeDefenceLevel = async () => {
+        if (socket) {
+            const event: ClientMessages = "UpgradeDefenceLevel";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     const sign_up = async () => {
         setBad_request_bool(false);
         let auth = btoa(`${email_field.value}:${password_field.value}`);
@@ -123,7 +179,6 @@ const App: Component = () => {
         if (response.ok) {
             setLoggedIn(true);
             setAuth(true);
-            await connectBackend();
         } else if (response.status == 400) {
             setBad_request_bool(true);
             console.log('Bad Request');
@@ -209,20 +264,42 @@ const App: Component = () => {
         right!.classList.remove(styles.gear_rotate_counterClockwise);
         right!.classList.add(styles.gear_rotate_clockwise);
     }
+    const startTimer = async () => {
+        var reverse_counter = 9;
+        var combatTimer = setInterval(function () {
+            document.querySelector("#progressBar")!.value = 9 - --reverse_counter;
+            if (reverse_counter <= 0)
+                clearInterval(combatTimer);
+            document.querySelector("#counting")!.innerHTML = reverse_counter;
+        }, 1000);
+    }
+
+    const attack = async () => {
+        const response = await fetch("http://localhost:3001/combat", {
+            method: "GET",
+            credentials: "include",
+        });
+        if (response.status == 200) { //200 == StatusCode OK
+            console.log("Start timer");
+            //Start timer
+            await startTimer();
+        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
+            console.log("No match");
+        }
+    }
 
     return (
-
         <div class={styles.App}>
             <div class={styles.container}>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
                         <Show when={!loggedIn()}
-                              fallback={<button class={styles.User_symbol} onClick={() => {
+                              fallback={<button class={styles.button} onClick={() => {
                                   sign_out();
                                   setShow(false);
                                   setInnerShow(false)
-                              }}></button>}>
+                              }}>Ausloggen</button>}>
                             <button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>
                             <Show when={show()}
                                   fallback={""}>
@@ -243,6 +320,7 @@ const App: Component = () => {
                                     </div>
                                 </div>
                             </Show>
+
                             <Show when={innershow()}
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
@@ -285,7 +363,7 @@ const App: Component = () => {
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
-                    <a class={styles.gear_normal + " " + styles.gear_left}></a>
+                    <a class={styles.gear_normal + " " + styles.gear_left}/>
                     <a class={styles.gear_normal + " " + styles.gear_right}></a>
                     <Show when={showPVP()}
                           fallback={
@@ -295,7 +373,8 @@ const App: Component = () => {
                                           setShowPVP(true);
                                           hide();
                                           rotateClockwise();
-                                      }} class={styles.button}>PVP</button>
+                                      }} class={styles.button}>PVP
+                                      </button>
                                   </div>
                               </>
                           }>
@@ -316,12 +395,16 @@ const App: Component = () => {
                                     <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
                                 </a>
                                 <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
-                                <button class={styles.button + " " + pvpModule.upgrade_attack}></button>
-                                <label class={styles.label_header + " " + pvpModule.label_attack_level}>0</label>
+                                <button class={styles.button + " " + pvpModule.upgrade_attack}
+                                        onClick={upgradeAttackLevel}></button>
+                                <label
+                                    class={styles.label_header + " " + pvpModule.label_attack_level}>{attackLevel()}</label>
 
                                 <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
-                                <button class={styles.button + " " + pvpModule.upgrade_defence}></button>
-                                <label class={styles.label_header + " " + pvpModule.label_defence_level}>0</label>
+                                <button class={styles.button + " " + pvpModule.upgrade_defence}
+                                        onClick={upgradeDefenceLevel}></button>
+                                <label
+                                    class={styles.label_header + " " + pvpModule.label_defence_level}>{defenceLevel()}</label>
 
                                 <a class={styles.icon_upgrade + " " + pvpModule.icon_pvp_attack}></a>
                                 <button class={styles.button + " " + pvpModule.pvp_attack}></button>
@@ -337,7 +420,8 @@ const App: Component = () => {
                                           setShowMining(true);
                                           hide();
                                           rotateClockwise();
-                                      }} class={styles.button}>Mining</button>
+                                      }} class={styles.button}>Mining
+                                      </button>
                                   </div>
                               </>
                           }>
@@ -383,12 +467,23 @@ const App: Component = () => {
                     <div class={styles.buttonitem}>
                         <button class={styles.button}>Shop</button>
                     </div>
+
+                    <Show when={showLoot()}>
+                        <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
+                            <label> Der Angriff war erfolgreich! </label>
+                            <label> Deine Beute: {loot()}</label>
+                        </div>
+                    </Show>
+
+                    <progress value={"0"} max={"9"} id="progressBar"></progress>
+
                 </div>
-
-
+                <div id={"popup"}>
+                </div>
             </div>
         </div>
-    );
+    )
+        ;
 };
 
 export default App;

@@ -70,7 +70,7 @@ async fn main() {
 
     let pool = connect_to_database().await.unwrap();
     let session_config = AxumSessionConfig::default()
-        .with_table_name("test_table")
+        .with_table_name("session_table")
         .with_key(key);
 
     let session_store = AxumSessionStore::<AxumPgPool>::new(Some(pool.clone().into()), session_config);
@@ -86,12 +86,12 @@ async fn main() {
         .route("/sign_up", get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
+        .route("/combat", get(attack))
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
     #[cfg(debug_assertions)]
     {
-        println!("Test");
         app = app.layer(CorsLayer::very_permissive().allow_credentials(true));
     }
 
@@ -119,7 +119,7 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, timestamp FROM Player WHERE email = $1 AND password = $2;",
+        "SELECT id, game_state, timestamp FROM player WHERE email = $1 AND password = $2;",
         email,
         password
     )
@@ -136,11 +136,13 @@ async fn login(
                 game_state.tick(elapsed_time * 100);
             }
             save_game_state_to_database(record.id, &game_state, &pool).await;
+            save_score_to_database(record.id, &game_state, &pool).await;
+            set_player_as_online(record.id, &pool).await;
             StatusCode::OK
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
         Err(err) => {
-            println!("{err:#?}");
+            println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -152,7 +154,7 @@ async fn sign_up(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id FROM Player WHERE email = $1;",
+        "SELECT id FROM player WHERE email = $1;",
         email
     )
         .fetch_optional(&pool)
@@ -161,9 +163,9 @@ async fn sign_up(
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
             let game_state = GameState::new();
-            let game_state_value = serde_json::to_value(game_state.clone()).unwrap();
+            let game_state_value = serde_json::to_value(&game_state).unwrap();
             match sqlx::query!(
-                "INSERT INTO Player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
+                "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
                 password,
                 game_state_value
@@ -173,16 +175,18 @@ async fn sign_up(
             {
                 Ok(r) => {
                     session.set(PLAYER_AUTH, r.id).await;
+                    save_score_to_database(r.id, &game_state, &pool).await;
+                    set_player_as_online(r.id, &pool).await;
                     StatusCode::OK
                 }
                 Err(err) => {
-                    println!("{err:#?}");
+                    println!("{}", err);
                     StatusCode::INTERNAL_SERVER_ERROR
                 }
             }
         }
         Err(err) => {
-            println!("{err:#?}");
+            println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
@@ -194,13 +198,56 @@ async fn logout(
 ) {
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
         save_timestamp_to_database(id, &pool).await;
+        set_player_as_offline(id, &pool).await;
     }
+    println!("Logging out!");
     session.remove(PLAYER_AUTH).await;
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
-    println!("Connected");
+    println!("Connected!");
     ws.on_upgrade(move |socket| handle_game(socket, session, pool))
+}
+
+async fn attack(
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+) -> StatusCode {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+        match sqlx::query!(
+        "SELECT id FROM PVP WHERE id_att = $1;",
+        id
+    )
+            .fetch_optional(&pool)
+            .await {
+            Ok(Some(_)) => {
+                return StatusCode::BAD_REQUEST;
+            }
+            Ok(None) => {
+                let defender_id = search_for_enemy(id, &pool).await;
+                if defender_id == -1 {
+                    if (sqlx::query!(
+                "DELETE FROM PVP WHERE id_att = $1",
+                id
+            )
+                        .execute(&pool)
+                        .await).is_ok()
+                    {
+                        println!("No match found!");
+                        return StatusCode::NO_CONTENT;
+                    }
+                } else {
+                    calculate_combat(id, defender_id, &pool).await;
+                }
+                return StatusCode::OK;
+            }
+            Err(err) => {
+                println!("{}", err);
+                return StatusCode::INTERNAL_SERVER_ERROR;
+            }
+        }
+    }
+    StatusCode::BAD_REQUEST
 }
 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
@@ -210,11 +257,32 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
             if !logged_in {
-                game_state = load_game_state_from_database(id, &pool).await;
+                if !test_for_new_registry(id, &pool).await {
+                    game_state = load_game_state_from_database(id, &pool).await;
+                    let event = ServerMessages::LoggedIn {};
+                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                        .await
+                        .is_err() {
+                        break;
+                    }
+                }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
                 save_game_state_to_database(id, &game_state, &pool).await;
+                save_score_to_database(id, &game_state, &pool).await;
                 interval = Instant::now();
+            }
+            let loot = handle_attacks(id, &pool).await;
+            if loot > 0.0 {
+                game_state.ore += loot;
+                let event = ServerMessages::CombatElapsed { loot: loot as u64 };
+                if socket
+                    .send(Message::Text(serde_json::to_string(&event).unwrap()))
+                    .await
+                    .is_err()
+                {
+                    break;
+                }
             }
         }
         let instant = Instant::now();
@@ -260,44 +328,174 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         }
     }
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-        println!("Reaching with id {}", id);
         save_timestamp_to_database(id, &pool).await;
     }
-    println!("Disconnected");
+}
+
+async fn test_for_new_registry(id: i64, pool: &PgPool) -> bool {
+    match sqlx::query!(
+        "SELECT is_new FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await {
+        Ok(r) => {
+            r.is_new
+        }
+        Err(_) => {
+            false
+        }
+    }
+}
+
+async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
+    let mut loot: f64 = 0.0;
+    if let Ok(record) = sqlx::query!(
+        "SELECT timestamp FROM PVP WHERE id_att = $1",
+        id_att
+    ).fetch_one(pool)
+        .await {
+        if Utc::now().timestamp() - record.timestamp >= 10 {
+            loot = steal_resources(id_att, pool).await;
+            if (sqlx::query!(
+                "DELETE FROM PVP WHERE id_att = $1",
+                id_att
+            )
+                .execute(pool)
+                .await).is_ok() {}
+        }
+    }
+    loot
+}
+
+async fn set_player_as_offline(id: i64, pool: &PgPool) {
+    if (sqlx::query!(
+        "UPDATE player SET is_online = false WHERE id = $1;",
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
+}
+
+async fn set_player_as_online(id: i64, pool: &PgPool) {
+    if (sqlx::query!(
+        "UPDATE player SET is_online = true WHERE id = $1;",
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
 }
 
 async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
-    println!("Save timestamp");
     if (sqlx::query!(
-        "UPDATE Player SET timestamp = $1 WHERE id = $2;",
+        "UPDATE player SET timestamp = $1 WHERE id = $2;",
         Utc::now().timestamp(),
         id,
     ).execute(pool)
-        .await).is_ok() { }
+        .await).is_ok() {}
 }
 
 async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
     let game_state_value = serde_json::to_value(game_state).unwrap();
     if (sqlx::query!(
-        "UPDATE Player SET game_state = $1 WHERE id = $2;",
+        "UPDATE player SET game_state = $1, is_new = false WHERE id = $2;",
         game_state_value,
         id,
     ).execute(pool)
         .await).is_ok() {}
 }
 
+async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
+    let score_value = serde_json::to_value((game_state.depth / 10.0) as i32
+        + game_state.attack_level + game_state.defence_level).unwrap().as_i64();
+    if (sqlx::query!(
+        "UPDATE player SET pvp_score = $1 WHERE id = $2;",
+        score_value,
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
+}
+
 async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
-    println!("Load Data");
+    println!("Loading GameState!");
     match sqlx::query!(
-        "SELECT game_state FROM player WHERE id = $1",
+        "SELECT game_state, is_new FROM player WHERE id = $1;",
         id
     ).fetch_one(pool)
         .await
     {
         Ok(r) => {
-            println!("{:?}", r.game_state);
             serde_json::from_value(r.game_state).unwrap()
         }
         Err(_) => GameState::new(),
     }
+}
+
+async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
+    match sqlx::query!(
+        "SELECT pvp_score FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await
+    {
+        Ok(r) => {
+            match sqlx::query!(
+                "SELECT id, game_state \
+                FROM player WHERE is_online = false \
+                AND pvp_score >= $1 ORDER BY pvp_score ASC;",
+                r.pvp_score
+            )
+                .fetch_one(pool)
+                .await
+            {
+                Ok(r) => {
+                    println!("Match found: {}", r.id);
+                    r.id
+                }
+                Err(_) => -1,
+            }
+        }
+        Err(_err) => -1,
+    }
+}
+
+async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
+    let game_state_att = load_game_state_from_database(id_att, pool).await;
+    let mut game_state_def = load_game_state_from_database(id_def, pool).await;
+    let mut loot = game_state_def.ore * game_state_att.attack_level as f64
+        / (4.0 * game_state_def.defence_level as f64);
+
+    if loot > game_state_def.ore / 2.0 {
+        loot = game_state_def.ore / 2.0;
+    }
+
+    game_state_def.ore -= loot;
+    save_game_state_to_database(id_def, &game_state_def, pool).await;
+
+    if (sqlx::query!(
+        "INSERT INTO PVP (id_att, id_def, loot, timestamp) VALUES ( $1, $2, $3, $4);",
+        id_att,
+        id_def,
+        loot,
+        Utc::now().timestamp()
+    ).execute(pool)
+        .await).is_ok() {
+        println!("COMBAT DATA:\n\
+        Attacker: {}\n\
+        Defender: {}\n\
+        Loot: {}",
+                 id_att, id_def, loot);
+    }
+}
+
+async fn steal_resources(attacker_id: i64, pool: &PgPool) -> f64 {
+    let mut loot: f64 = 0.0;
+    if let Ok(record_pvp) = sqlx::query!(
+        "SELECT loot FROM PVP WHERE id_att = $1;",
+        attacker_id
+    )
+        .fetch_one(pool)
+        .await {
+        loot = record_pvp.loot;
+    }
+    loot
 }

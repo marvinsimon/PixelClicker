@@ -5,10 +5,8 @@
 }
 
 @font-face {
-    font-family: 'Public Pixel Font', monospace;
-    src: url("./assets/PublicPixel.ttf") format("truetype");
-    font-weight: normal;
-    font-style: normal;
+    font-family: 'Public Pixel Font';
+    src: url("./assets/PublicPixel.ttf");
 }
 
 .container {
@@ -91,34 +89,6 @@
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
-}
-
-.label_ore {
-    color: black;
-    font-size: 1.5vw;
-    font-weight: bold;
-    position: absolute;
-    top: 49%;
-    left: 70%;
-
-}
-
-.label_depth {
-    color: black;
-    font-size: 1.5vw;
-    font-weight: bold;
-    position: absolute;
-    top: 66.5%;
-    left: 70%;
-}
-
-.label_diamond {
-    color: black;
-    font-size: 1.5vw;
-    font-weight: bold;
-    position: absolute;
-    top: 84%;
-    left: 40%;
 }
 
 .modal {
@@ -206,7 +176,7 @@ input[type=submit]:hover {
 .label_header {
     position: absolute;
     color: black;
-    font-family: Public Pixel Font;
+    font-family: Public Pixel Font, monospace;
     font-size: 1.5vw;
     font-weight: bold;
 }
@@ -251,24 +221,6 @@ input[type=submit]:hover {
 
     .controls {
         display: none;
-    }
-
-}
-
-@media (min-width: 2700px) {
-    .label_depth {
-        font-size: 1vw;
-        left: 65%;
-    }
-
-    .label_ore {
-        font-size: 1vw;
-        left: 65%;
-    }
-
-    .label_diamond {
-        left: 45%;
-        font-size: 1vw;
     }
 
 }

@@ -5,6 +5,7 @@ import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import rankModule from "./styles/Leaderboard.module.css";
 import shopModule from "./styles/Shop.module.css";
+import displayModule from "./styles/Display.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
@@ -248,14 +249,14 @@ const App: Component = () => {
                     <div class={styles.val_board}>
                     <div class={styles.board_img_container}>
                         <img src={board} class={styles.board_img} alt={"Value board"}/>
-                        <div class={styles.label_ore}>
+                        <div class={styles.label_header + " " + displayModule.label_ore}>
                             <label>{ore()}</label>
                         </div>
-                        <div class={styles.label_depth}>
+                        <div class={styles.label_header + " " + displayModule.label_depth}>
                             <label>{depth()}</label>
                         </div>
-                        <div class={styles.label_diamond}>
-                            <label>coming soon</label>
+                        <div class={styles.label_header + " " + displayModule.label_diamond}>
+                            <label>soon</label>
                         </div>
                     </div>
                     </div>

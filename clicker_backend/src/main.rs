@@ -275,21 +275,17 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                         break;
                     }
                     if game_state.automation_started {
-                        match sqlx::query!(
+                        if let Ok(r) = sqlx::query!(
                             "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
-                            id,
+                           id,
                             ).fetch_one(&pool)
-                            .await
-                        {
-                            Ok(r) => {
-                                let event = ServerMessages::MinedOffline { ore: r.offline_ore as u64, depth: r.offline_depth as u64 };
-                                if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
-                                    .await
-                                    .is_err() {
-                                    break;
-                                }
+                            .await {
+                            let event = ServerMessages::MinedOffline { ore: r.offline_ore as u64, depth: r.offline_depth as u64 };
+                            if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                                .await
+                                .is_err() {
+                                break;
                             }
-                            Err(_) => {}
                         }
                     }
                 }

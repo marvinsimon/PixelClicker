@@ -4,6 +4,11 @@
     margin: 0;
 }
 
+@font-face {
+    font-family: 'Public Pixel Font';
+    src: url("./assets/PublicPixel.ttf");
+}
+
 .container {
     background: url("assets/background_wood_oak.png");
     background-size: cover;
@@ -47,13 +52,18 @@
 
 .board {
     grid-column: 1 / 2;
+}
 
+.board_img_container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .board_img {
     max-height: 75%;
     max-width: 75%;
-    margin-left: 2rem;
     position: relative;
 }
 
@@ -74,36 +84,11 @@
     cursor: pointer;
 }
 
-.buttonmodal {
-    grid-row: 2/4;
-    background: gainsboro;
-    padding: 10px;
-
-}
-
 .game {
     width: 100%;
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
-}
-
-.label_ore {
-    color: black;
-    font-size: 1rem;
-    font-weight: bold;
-    position: absolute;
-    top:43%;
-    left: 60%;
-}
-
-.parent {
-    position: relative;
-    border: red 2px solid;
-}
-
-.child {
-    position: absolute;
 }
 
 .modal {
@@ -173,18 +158,41 @@ input[type=submit]:hover {
 }
 
 .button {
-    background: steelblue;
-    color: white;
-    border: cornflowerblue 1px solid;
-    border-radius: 3px;
-    padding: 7px;
-    margin: 5px;
+    position: absolute;
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    border: none;
+    transition-duration: .4s;
 }
 
 .button:hover {
-    background: skyblue;
+    transform: scale(.28);
     cursor: pointer;
-    border: lightskyblue 1px solid;
+}
+
+.label_header {
+    position: absolute;
+    color: black;
+    font-family: Public Pixel Font, monospace;
+    font-size: 1.5vw;
+    font-weight: bold;
+}
+
+.icon_upgrade {
+    position: absolute;
+    background-image: url("src/assets/Arrow_Symbol.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.3);
+    height: 20%;
+    width: 20%;
+    border: none;
+    transition-duration: .4s;
 }
 
 @media (max-width: 800px) {
@@ -215,6 +223,10 @@ input[type=submit]:hover {
         display: none;
     }
 
+    .board_img_container {
+        justify-content: start;
+        padding-left: 10px;
+    }
 }
 
 .board_right {
@@ -242,22 +254,20 @@ input[type=submit]:hover {
 
 .button_close {
     position: absolute;
-    top: 36%;
-    left: 67.5%;
-    background-image: url("src/assets/attack_icon.png");
+    top: 80%;
+    background-image: url("src/assets/board_wood_small.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    transform: scale(.3);
-    height: 15%;
-    width: 25%;
+    height: 40%;
+    width: 55%;
     border: none;
     transition-duration: .4s;
 }
 
 .button_close:hover {
-    transform: scale(.28);
+    transform: scale(.8);
     cursor: pointer;
 }
 
@@ -265,7 +275,7 @@ input[type=submit]:hover {
     position: absolute;
     animation-name: slideIn;
     animation-delay: 0s;
-    animation-duration: 2s;
+    animation-duration: 1.2s;
     animation-fill-mode: forwards;
     display: flex;
     justify-content: center;
@@ -290,7 +300,7 @@ input[type=submit]:hover {
     position: absolute;
     animation-name: slideOut;
     animation-delay: 0s;
-    animation-duration: 2s;
+    animation-duration: 1.2s;
     animation-fill-mode: forwards;
     display: flex;
     justify-content: center;

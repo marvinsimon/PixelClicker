@@ -1,18 +1,5 @@
-.button_shop {
-    position: absolute;
+.shop {
     background-image: url("src/assets/Button_Shop.png");
-    background-color: transparent;
-    background-position: center center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    transform: scale(.3);
     height: 55%;
     width: 65%;
-    border: none;
-    transition-duration: .4s;
-}
-
-.button_shop:hover {
-    transform: scale(.28);
-    cursor: pointer;
 }

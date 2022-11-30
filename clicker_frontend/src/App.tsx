@@ -265,12 +265,11 @@ const App: Component = () => {
         right!.classList.add(styles.gear_rotate_clockwise);
     }
     const startTimer = async () => {
-        var reverse_counter = 9;
-        var combatTimer = setInterval(function () {
-            document.querySelector("#progressBar")!.value = 9 - --reverse_counter;
+        let reverse_counter = 9;
+        const combatTimer = setInterval(function () {
+            document.querySelector<HTMLProgressElement>("#progressBar")!.value = 9 - --reverse_counter;
             if (reverse_counter <= 0)
                 clearInterval(combatTimer);
-            document.querySelector("#counting")!.innerHTML = reverse_counter;
         }, 1000);
     }
 

@@ -4,6 +4,13 @@
     margin: 0;
 }
 
+@font-face {
+    font-family: 'Public Pixel Font', monospace;
+    src: url("./assets/PublicPixel.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
 .container {
     background: url("assets/background_wood_oak.png");
     background-size: cover;
@@ -72,13 +79,6 @@
 .button_sign_up:hover {
     transform: scale(.95);
     cursor: pointer;
-}
-
-.buttonmodal {
-    grid-row: 2/4;
-    background: gainsboro;
-    padding: 10px;
-
 }
 
 .game {
@@ -191,6 +191,7 @@ input[type=submit]:hover {
 .label_header {
     position: absolute;
     color: black;
+    font-family: Public Pixel Font;
     font-size: 1.5vw;
     font-weight: bold;
 }

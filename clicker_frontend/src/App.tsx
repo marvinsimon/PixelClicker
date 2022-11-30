@@ -227,6 +227,17 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
+    const startTimer = async () => {
+        var reverse_counter = 9;
+        var combatTimer = setInterval(function(){
+            document.getElementById("progressBar").value = 9 - --reverse_counter;
+            if (reverse_counter <= 0)
+                clearInterval(combatTimer);
+
+            document.getElementById("counting").innerHTML = reverse_counter;
+        },1000);
+    }
+
     const attack = async () => {
         const response = await fetch("http://localhost:3001/combat", {
             method: "GET",
@@ -235,6 +246,7 @@ const App: Component = () => {
         if (response.status == 200){ //200 == StatusCode OK
             console.log("Start timer");
             //Start timer
+            await startTimer();
         } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
             console.log("No match");
         }
@@ -346,6 +358,8 @@ const App: Component = () => {
                     <button class={styles.button_pvp_attack} onClick={attack}></button>
                     <button class={styles.button_rank}></button>
                     <button class={styles.button_shop}></button>
+
+                    <progress value={"0"} max={"9"} id = "progressBar"></progress>
 
                 </div>
                 <div id={"popup"}>

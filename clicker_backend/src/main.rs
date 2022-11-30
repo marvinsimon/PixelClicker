@@ -255,6 +255,12 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             if !logged_in {
                 if !test_for_new_registry(id, &pool).await {
                     game_state = load_game_state_from_database(id, &pool).await;
+                    let event = ServerMessages::LoggedIn {};
+                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                        .await
+                        .is_err() {
+                        break;
+                    }
                 }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {

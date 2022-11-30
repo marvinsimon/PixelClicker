@@ -72,6 +72,10 @@ const App: Component = () => {
             } else if ("CombatElapsed" in event) {
                 console.log(event.CombatElapsed);
                 lootArrived(event.CombatElapsed);
+            } else if ("LoggedIn" in event) {
+                console.log("Still logged in")
+                setAuth(true);
+                setLoggedIn(true);
             }
         }
         socket.onopen = () => {
@@ -80,7 +84,9 @@ const App: Component = () => {
         }
     }
 
-    connectBackend();
+    window.onload = async () => {
+        await connectBackend();
+    }
 
     function lootArrived(CombatElapsed: {loot: U64}) {
         setShowLoot(true);

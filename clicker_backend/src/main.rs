@@ -213,37 +213,41 @@ async fn attack(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
-    let id = session.get::<i64>(PLAYER_AUTH).await.unwrap();
-    match sqlx::query!(
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+        match sqlx::query!(
         "SELECT id FROM PVP WHERE id_att = $1;",
         id
     )
-        .fetch_optional(&pool)
-        .await {
-        Ok(Some(_)) => StatusCode::BAD_REQUEST,
-        Ok(None) => {
-            let defender_id = search_for_enemy(id, &pool).await;
-            if defender_id == -1 {
-                if (sqlx::query!(
+            .fetch_optional(&pool)
+            .await {
+            Ok(Some(_)) => {
+                return StatusCode::BAD_REQUEST;
+            }
+            Ok(None) => {
+                let defender_id = search_for_enemy(id, &pool).await;
+                if defender_id == -1 {
+                    if (sqlx::query!(
                 "DELETE FROM PVP WHERE id_att = $1",
                 id
             )
-                    .execute(&pool)
-                    .await).is_ok()
-                {
-                    println!("No match found!");
-                    return StatusCode::NO_CONTENT;
+                        .execute(&pool)
+                        .await).is_ok()
+                    {
+                        println!("No match found!");
+                        return StatusCode::NO_CONTENT;
+                    }
+                } else {
+                    calculate_combat(id, defender_id, &pool).await;
                 }
-            } else {
-                calculate_combat(id, defender_id, &pool).await;
+                return StatusCode::OK;
             }
-            StatusCode::OK
-        }
-        Err(err) => {
-            println!("{}", err);
-            StatusCode::INTERNAL_SERVER_ERROR
+            Err(err) => {
+                println!("{}", err);
+                return StatusCode::INTERNAL_SERVER_ERROR;
+            }
         }
     }
+    StatusCode::BAD_REQUEST
 }
 
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
@@ -271,7 +275,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             let loot = handle_attacks(id, &pool).await;
             if loot > 0.0 {
                 game_state.ore += loot;
-                let event = ServerMessages::CombatElapsed {loot: loot as u64};
+                let event = ServerMessages::CombatElapsed { loot: loot as u64 };
                 if socket
                     .send(Message::Text(serde_json::to_string(&event).unwrap()))
                     .await
@@ -280,7 +284,6 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                     break;
                 }
             }
-
         }
         let instant = Instant::now();
         let event = game_state.tick(1);
@@ -480,7 +483,7 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
         Attacker: {}\n\
         Defender: {}\n\
         Loot: {}",
-        id_att, id_def, loot);
+                 id_att, id_def, loot);
     }
 }
 

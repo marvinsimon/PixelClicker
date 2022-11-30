@@ -33,7 +33,6 @@ const App: Component = () => {
     const [showPVP, setShowPVP] = createSignal(false);
     const [showLoot, setShowLoot] = createSignal(false);
     const [loot, setLoot] = createSignal(0);
-    const [startTimer, setShowTimer] = createSignal(false);
 
 
     let socket: WebSocket | undefined;
@@ -236,7 +235,6 @@ const App: Component = () => {
         if (response.status == 200){ //200 == StatusCode OK
             console.log("Start timer");
             //Start timer
-            setShowTimer(true);
         } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
             console.log("No match");
         }
@@ -348,12 +346,6 @@ const App: Component = () => {
                     <button class={styles.button_pvp_attack} onClick={attack}></button>
                     <button class={styles.button_rank}></button>
                     <button class={styles.button_shop}></button>
-
-                    <Show when={startTimer()}>
-                        <label class={styles.label_info} use:onClick={() => setShowTimer(false)}>
-                            Angreifen...
-                        </label>
-                    </Show>
 
                 </div>
                 <div id={"popup"}>

@@ -246,7 +246,8 @@ const App: Component = () => {
                     </nav>
                 </div>
                 <div class={styles.board}>
-                    <div class={styles.parent}>
+                    <div class={styles.val_board}>
+                    <div class={styles.board_img_container}>
                         <img src={board} class={styles.board_img} alt={"Value board"}/>
                         <div class={styles.label_ore}>
                             <label>{ore()}</label>
@@ -257,6 +258,7 @@ const App: Component = () => {
                         <div class={styles.label_diamond}>
                             <label>coming soon</label>
                         </div>
+                    </div>
                     </div>
                 </div>
                 <div class={styles.main} onClick={mine}>

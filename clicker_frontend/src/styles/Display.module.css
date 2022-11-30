@@ -32,17 +32,17 @@
 
 @media (max-width: 800px) {
     .label_ore {
-        left: 17%;
+        left: 16%;
         top: 49.5%;
     }
 
     .label_depth {
-        left: 17%;
+        left: 16%;
         top: 67%;
     }
 
     .label_diamond {
-        left: 14%;
+        left: 12%;
         top: 84.5%;
     }
 }

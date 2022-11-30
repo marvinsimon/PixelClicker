@@ -54,13 +54,18 @@
 
 .board {
     grid-column: 1 / 2;
+}
 
+.board_img_container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .board_img {
     max-height: 75%;
     max-width: 75%;
-    margin-left: 2rem;
     position: relative;
 }
 
@@ -90,20 +95,30 @@
 
 .label_ore {
     color: black;
-    font-size: 1rem;
+    font-size: 1.5vw;
     font-weight: bold;
     position: absolute;
-    top:43%;
-    left: 60%;
+    top: 49%;
+    left: 70%;
+
 }
 
-.parent {
-    position: relative;
-    border: red 2px solid;
-}
-
-.child {
+.label_depth {
+    color: black;
+    font-size: 1.5vw;
+    font-weight: bold;
     position: absolute;
+    top: 66.5%;
+    left: 70%;
+}
+
+.label_diamond {
+    color: black;
+    font-size: 1.5vw;
+    font-weight: bold;
+    position: absolute;
+    top: 84%;
+    left: 40%;
 }
 
 .modal {
@@ -236,6 +251,24 @@ input[type=submit]:hover {
 
     .controls {
         display: none;
+    }
+
+}
+
+@media (min-width: 2700px) {
+    .label_depth {
+        font-size: 1vw;
+        left: 65%;
+    }
+
+    .label_ore {
+        font-size: 1vw;
+        left: 65%;
+    }
+
+    .label_diamond {
+        left: 45%;
+        font-size: 1vw;
     }
 
 }

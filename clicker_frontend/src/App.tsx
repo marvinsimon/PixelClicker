@@ -272,7 +272,7 @@ const App: Component = () => {
                                       <button onClick={(e) => {
                                           setShowPVP(true);
                                           hide();
-                                      }} class={styles.button + " " + pvpModule.pvp}></button>
+                                      }} class={styles.button}>PVP</button>
                                   </div>
                               </>
                           }>
@@ -310,7 +310,7 @@ const App: Component = () => {
                                       <button onClick={(e) => {
                                           setShowMining(true);
                                           hide()
-                                      }} class={styles.button + " " + mineModule.mine}></button>
+                                      }} class={styles.button}>Mining</button>
                                   </div>
                               </>
                           }>
@@ -348,10 +348,10 @@ const App: Component = () => {
                         </div>
                     </Show>
                     <div class={styles.buttonitem}>
-                        <button class={styles.button + " " + rankModule.rank}></button>
+                        <button class={styles.button}>Rank</button>
                     </div>
                     <div class={styles.buttonitem}>
-                        <button class={styles.button + " " + shopModule.shop}></button>
+                        <button class={styles.button}>Shop</button>
                     </div>
                 </div>
 

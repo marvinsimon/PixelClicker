@@ -287,7 +287,7 @@ input[type=submit]:hover {
     position: absolute;
     animation-name: slideIn;
     animation-delay: 0s;
-    animation-duration: 2s;
+    animation-duration: 1.2s;
     animation-fill-mode: forwards;
     display: flex;
     justify-content: center;
@@ -312,7 +312,7 @@ input[type=submit]:hover {
     position: absolute;
     animation-name: slideOut;
     animation-delay: 0s;
-    animation-duration: 2s;
+    animation-duration: 1.2s;
     animation-fill-mode: forwards;
     display: flex;
     justify-content: center;

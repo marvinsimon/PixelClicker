@@ -179,7 +179,7 @@ const App: Component = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
     }
 
-    const unhide = () => {
+    const unHide = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
     }
 
@@ -280,8 +280,8 @@ const App: Component = () => {
                                     slideOut();
                                     window.setTimeout(function () {
                                         setShowPVP(false);
-                                        unhide();
-                                    }, 2100)
+                                        unHide();
+                                    }, 1300)
                                 }}>X
                                 </button>
                                 <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
@@ -317,8 +317,8 @@ const App: Component = () => {
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
-                                    unhide();
-                                }, 2100)
+                                    unHide();
+                                }, 1300)
                             }}>X
                             </button>
                             <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
@@ -326,12 +326,14 @@ const App: Component = () => {
                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <button class={styles.button + " " + mineModule.upgrade_speed}
                                     onClick={upgradeShovelDepth}></button>
-                            <label class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
+                            <label
+                                class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
 
                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             <button class={styles.button + " " + mineModule.upgrade_amount}
                                     onClick={upgradeShovelAmount}></button>
-                            <label class={styles.label_header + " " + mineModule.label_amount_level}>{shovelAmount()}</label>
+                            <label
+                                class={styles.label_header + " " + mineModule.label_amount_level}>{shovelAmount()}</label>
 
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button + " " + mineModule.automate}

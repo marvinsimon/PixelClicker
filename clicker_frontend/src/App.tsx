@@ -1,7 +1,7 @@
 import type {Component} from "solid-js";
 import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
-import {ClientMessages, ServerMessages} from "./game_messages";
+import {ClientMessages, I32, ServerMessages, U64} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import game from "./assets/Playground.png";
@@ -23,16 +23,23 @@ const App: Component = () => {
     const [automation_on, setAutomation] = createSignal(false);
     const [autoDepth, setAutoDepth] = createSignal(1);
     const [autoAmount, setAutoAmount] = createSignal(1);
+    const [pvp, setPvp] = createSignal(false);
+    const [attackLevel, setAttackLevel] = createSignal(1);
+    const [defenceLevel, setDefenceLevel] = createSignal(1);
     const [loggedIn, setLoggedIn] = createSignal(false);
     const [bad_request_bool, setBad_request_bool] = createSignal(false);
     const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
     const [showPVP, setShowPVP] = createSignal(false);
+    const [showLoot, setShowLoot] = createSignal(false);
+    const [loot, setLoot] = createSignal(0);
 
 
     let socket: WebSocket | undefined;
 
     const connectBackend = async () => {
+        if (socket != null)
+            disconnectBackend();
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
@@ -52,8 +59,47 @@ const App: Component = () => {
             } else if ("AutomationAmountUpgraded" in event) {
                 console.log(event.AutomationAmountUpgraded);
                 setAutoAmount(event.AutomationAmountUpgraded.new_level);
+            } else if ("AttackLevelUpgraded" in event) {
+                console.log(event.AttackLevelUpgraded);
+                setAttackLevel(event.AttackLevelUpgraded.new_level);
+            } else if ("DefenceLevelUpgraded" in event) {
+                console.log(event.DefenceLevelUpgraded);
+                setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+            } else if ("LoginState" in event) {
+                console.log(event.LoginState);
+                setLoginStates(event.LoginState);
+            } else if ("CombatElapsed" in event) {
+                console.log(event.CombatElapsed);
+                lootArrived(event.CombatElapsed);
+            } else if ("LoggedIn" in event) {
+                console.log("Still logged in")
+                setAuth(true);
+                setLoggedIn(true);
             }
         }
+        socket.onopen = () => {
+            const event: ClientMessages = "GetLoginData";
+            socket?.send(JSON.stringify(event));
+        }
+    }
+
+    window.onload = async () => {
+        await connectBackend();
+    }
+
+    function lootArrived(CombatElapsed: {loot: U64}) {
+        setShowLoot(true);
+        setLoot(CombatElapsed.loot);
+    }
+
+    const setLoginStates = (LoginState: { shovel_amount: I32; shovel_depth: I32; automation_depth: I32; automation_amount: I32; attack_level: I32; defence_level: I32; automation_started: boolean }) => {
+        setShovelDepth(LoginState.shovel_depth);
+        setShovelAmount(LoginState.shovel_amount);
+        setAutoAmount(LoginState.automation_amount);
+        setAutoDepth(LoginState.automation_depth);
+        setAutomation(LoginState.automation_started);
+        setAttackLevel(LoginState.attack_level);
+        setDefenceLevel(LoginState.defence_level);
     }
 
     const disconnectBackend = () => {
@@ -103,6 +149,20 @@ const App: Component = () => {
         }
     }
 
+    const upgradeAttackLevel = async () => {
+        if (socket) {
+            const event: ClientMessages = "UpgradeAttackLevel";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const upgradeDefenceLevel = async () => {
+        if (socket) {
+            const event: ClientMessages = "UpgradeDefenceLevel";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     const sign_up = async () => {
         setBad_request_bool(false);
         let auth = btoa(`${email_field.value}:${password_field.value}`);
@@ -115,7 +175,6 @@ const App: Component = () => {
         if (response.ok) {
             setLoggedIn(true);
             setAuth(true);
-            await connectBackend();
         } else if (response.status == 400) {
             setBad_request_bool(true);
             console.log('Bad Request');
@@ -168,39 +227,80 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
-    return (
+    const startTimer = async () => {
+        var reverse_counter = 9;
+        var combatTimer = setInterval(function(){
+            document.getElementById("progressBar").value = 9 - --reverse_counter;
+            if (reverse_counter <= 0)
+                clearInterval(combatTimer);
 
+            document.getElementById("counting").innerHTML = reverse_counter;
+        },1000);
+    }
+
+    const attack = async () => {
+        const response = await fetch("http://localhost:3001/combat", {
+            method: "GET",
+            credentials: "include",
+        });
+        if (response.status == 200){ //200 == StatusCode OK
+            console.log("Start timer");
+            //Start timer
+            await startTimer();
+        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
+            console.log("No match");
+        }
+    }
+
+    return (
         <div class={styles.App}>
             <div class={styles.container}>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
                         <Show when={!loggedIn()}
-                              fallback={<button class={styles.button} onClick= {() => {sign_out(); setShow(false); setInnerShow(false)}}>Ausloggen</button>}>
+                              fallback={<button class={styles.button} onClick={() => {
+                                  sign_out();
+                                  setShow(false);
+                                  setInnerShow(false)
+                              }}>Ausloggen</button>}>
                             <button onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
                             <Show when={show()}
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                     <h3>SignUp</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                    <input type="text" ref={email_field!} style="width: 300px;"
+                                           placeholder="Ihre E-mail.."/>
+                                    <input type="password" ref={password_field!} style="width: 300px;"
+                                           placeholder="Ihr Passwort.."/>
                                     <input type="submit" value="Sign Up" onClick={sign_up}/>
                                     <div class={styles.switch}>
                                         <p>Already signed up?</p>
-                                        <button class={styles.buttonswitch} onClick= {() => {setShow(false); setInnerShow(true)}}>Login</button>
+                                        <button class={styles.buttonswitch} onClick={() => {
+                                            setShow(false);
+                                            setInnerShow(true)
+                                        }}>Login
+                                        </button>
                                     </div>
                                 </div>
                             </Show>
+
                             <Show when={innershow()}
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                     <h3>Login</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;" placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;" placeholder="Ihr Passwort.."/>
+                                    <input type="text" ref={email_field!} style="width: 300px;"
+                                           placeholder="Ihre E-mail.."/>
+                                    <input type="password" ref={password_field!} style="width: 300px;"
+                                           placeholder="Ihr Passwort.."/>
                                     <input type="submit" value="Log In" onClick={login}/>
                                     <div class={styles.switch}>
                                         <p>Not registered?</p>
-                                        <button class={styles.buttonswitch} onClick={() => {setShow(true); setInnerShow(false)}} >Sign Up</button>
+                                        <button class={styles.buttonswitch} onClick={() => {
+                                            setShow(true);
+                                            setInnerShow(false)
+                                        }}>Sign Up
+                                        </button>
                                     </div>
                                 </div>
                             </Show>
@@ -217,19 +317,15 @@ const App: Component = () => {
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
-
-                    <button class={styles.button} onClick={mine}>Erz abbauen</button>
-
                     <Show when={showPVP()}
                           fallback={<button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
                             <h3>PvP Verbesserungen</h3>
                             <br/>
-                            <button class={styles.button}>Angriff verbessern</button>
-                            <button class={styles.button}>Verteidigung verbessern</button>
+                            <button class={styles.button} onClick={upgradeAttackLevel}>Angriff: {attackLevel()}</button>
+                            <button class={styles.button} onClick={upgradeDefenceLevel}>Verteidigung: {defenceLevel()}</button>
                         </div>
                     </Show>
-
 
                     <Show when={showMining()}
                           fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
@@ -251,18 +347,23 @@ const App: Component = () => {
                             </Show>
                         </div>
                     </Show>
-                    <button class={styles.button_pvp_attack}></button>
+
+                    <Show when={showLoot()} >
+                        <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
+                            <label> Der Angriff war erfolgreich! </label>
+                            <label> Deine Beute: {loot()}</label>
+                        </div>
+                    </Show>
+
+                    <button class={styles.button_pvp_attack} onClick={attack}></button>
                     <button class={styles.button_rank}></button>
                     <button class={styles.button_shop}></button>
 
+                    <progress value={"0"} max={"9"} id = "progressBar"></progress>
 
                 </div>
-
                 <div id={"popup"}>
-
                 </div>
-
-
             </div>
         </div>
     );

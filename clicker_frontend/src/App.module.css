@@ -25,11 +25,12 @@
     display: flex;
     padding: 10px;
     justify-content: space-between;
-    z-index: 2;
+    z-index: 10;
 }
 
 .main {
     grid-column: 2 / 4;
+    z-index: 20;
     /*max-height: 88vh;*/
 }
 
@@ -175,10 +176,26 @@ input[type=submit]:hover {
 
 .label_header {
     position: absolute;
-    color: black;
+    color: white;
     font-family: Public Pixel Font, monospace;
-    font-size: 1.5vw;
-    font-weight: bold;
+    font-size: 1.6vw;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.label_board {
+    top: 40%;
+    position: absolute;
+    background-image: url("src/assets/board_wood_large.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 35%;
+    height: 7%;
+    justify-content: center;
+    align-items: center;
+    -webkit-box-shadow: 1px 1px 5px #000;
+
 }
 
 .icon_upgrade {
@@ -205,7 +222,7 @@ input[type=submit]:hover {
     .main {
         grid-column: 1;
         grid-row: 2;
-        z-index: 0;
+        z-index: 20;
     }
 
     .board {
@@ -250,20 +267,30 @@ input[type=submit]:hover {
 
 .button_close {
     position: absolute;
-    top: 80%;
+    top: 92%;
     background-image: url("src/assets/board_wood_small.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    height: 40%;
-    width: 55%;
+    height: 5%;
+    width: 10%;
     border: none;
     transition-duration: .4s;
+    justify-content: center;
+    align-items: center;
+    -webkit-box-shadow: 1px 1px 5px #000;
+}
+
+.label_close {
+    color: rgb(114, 23, 42);
+    font-size: 1.3vw;
+    bottom: 7.5%;
+    left: 26%;
 }
 
 .button_close:hover {
-    transform: scale(.8);
+    transform: scale(.9);
     cursor: pointer;
 }
 
@@ -288,7 +315,7 @@ input[type=submit]:hover {
         transform: translateY(-3%);
     }
     100% {
-        transform: translateY(-0.5%);
+        transform: translateY(-0.25%);
     }
 }
 
@@ -304,7 +331,7 @@ input[type=submit]:hover {
 
 @keyframes slideOut {
     0% {
-        transform: translateY(-0.5%);
+        transform: translateY(-0.25%);
     }
     50% {
         transform: translateY(-3%);
@@ -319,4 +346,58 @@ input[type=submit]:hover {
 
 .hide {
     display: none;
+}
+
+.gear_normal {
+    position: absolute;
+    background-image: url("./assets/gear.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 12vw;
+    width: 12vw;
+    border: none;
+    top: -2%;
+    z-index: 2;
+}
+
+.gear_left {
+    right: 19%;
+}
+
+.gear_right {
+    right: -6%;
+}
+
+.gear_rotate_clockwise {
+    animation-name: rotateClockwise;
+    animation-delay: 0s;
+    animation-duration: 1.9s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes rotateClockwise {
+    from {
+        transform: rotate(0);
+    }
+    to {
+        transform: rotate(140deg);
+    }
+}
+
+.gear_rotate_counterClockwise {
+    animation-name: rotateCounterClockwise;
+    animation-delay: 0s;
+    animation-duration: 2.2s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes rotateCounterClockwise {
+    from {
+        transform: rotate(140deg);
+    }
+    to {
+        transform: rotate(0);
+    }
 }

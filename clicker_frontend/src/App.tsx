@@ -190,6 +190,26 @@ const App: Component = () => {
         variable!.classList.add(styles.slideOut);
     }
 
+    const rotateClockwise = () => {
+        let left = document.querySelector("." + styles.gear_left);
+        left!.classList.remove(styles.gear_rotate_counterClockwise);
+        left!.classList.add(styles.gear_rotate_clockwise);
+
+        let right = document.querySelector("." + styles.gear_right);
+        right!.classList.remove(styles.gear_rotate_clockwise);
+        right!.classList.add(styles.gear_rotate_counterClockwise);
+    }
+
+    const rotateCounterClockwise = () => {
+        let left = document.querySelector("." + styles.gear_left);
+        left!.classList.remove(styles.gear_rotate_clockwise);
+        left!.classList.add(styles.gear_rotate_counterClockwise);
+
+        let right = document.querySelector("." + styles.gear_right);
+        right!.classList.remove(styles.gear_rotate_counterClockwise);
+        right!.classList.add(styles.gear_rotate_clockwise);
+    }
+
     return (
 
         <div class={styles.App}>
@@ -247,24 +267,26 @@ const App: Component = () => {
                 </div>
                 <div class={styles.board}>
                     <div class={styles.val_board}>
-                    <div class={styles.board_img_container}>
-                        <img src={board} class={styles.board_img} alt={"Value board"}/>
-                        <div class={styles.label_header + " " + displayModule.label_ore}>
-                            <label>{ore()}</label>
+                        <div class={styles.board_img_container}>
+                            <img src={board} class={styles.board_img} alt={"Value board"}/>
+                            <div class={styles.label_header + " " + displayModule.label_ore}>
+                                <label>{ore()}</label>
+                            </div>
+                            <div class={styles.label_header + " " + displayModule.label_depth}>
+                                <label>{depth()}</label>
+                            </div>
+                            <div class={styles.label_header + " " + displayModule.label_diamond}>
+                                <label>soon</label>
+                            </div>
                         </div>
-                        <div class={styles.label_header + " " + displayModule.label_depth}>
-                            <label>{depth()}</label>
-                        </div>
-                        <div class={styles.label_header + " " + displayModule.label_diamond}>
-                            <label>soon</label>
-                        </div>
-                    </div>
                     </div>
                 </div>
                 <div class={styles.main} onClick={mine}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
+                    <a class={styles.gear_normal + " " + styles.gear_left}></a>
+                    <a class={styles.gear_normal + " " + styles.gear_right}></a>
                     <Show when={showPVP()}
                           fallback={
                               <>
@@ -272,6 +294,7 @@ const App: Component = () => {
                                       <button onClick={(e) => {
                                           setShowPVP(true);
                                           hide();
+                                          rotateClockwise();
                                       }} class={styles.button + " " + pvpModule.pvp}></button>
                                   </div>
                               </>
@@ -284,11 +307,14 @@ const App: Component = () => {
                                     window.setTimeout(function () {
                                         setShowPVP(false);
                                         unHide();
-                                    }, 1300)
-                                }}>X
+                                    }, 1300);
+                                    rotateCounterClockwise();
+                                }}>
+                                    <label class={styles.label_header + " " + styles.label_close}>X</label>
                                 </button>
-                                <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
-
+                                <a class={styles.label_board}>
+                                    <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
+                                </a>
                                 <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 <button class={styles.button + " " + pvpModule.upgrade_attack}></button>
                                 <label class={styles.label_header + " " + pvpModule.label_attack_level}>0</label>
@@ -309,7 +335,8 @@ const App: Component = () => {
                                   <div class={styles.buttonitem}>
                                       <button onClick={(e) => {
                                           setShowMining(true);
-                                          hide()
+                                          hide();
+                                          rotateClockwise();
                                       }} class={styles.button + " " + mineModule.mine}></button>
                                   </div>
                               </>
@@ -321,11 +348,14 @@ const App: Component = () => {
                                 window.setTimeout(function () {
                                     setShowMining(false);
                                     unHide();
-                                }, 1300)
-                            }}>X
+                                }, 1300);
+                                rotateCounterClockwise();
+                            }}>
+                                <label class={styles.label_header + " " + styles.label_close}>X</label>
                             </button>
-                            <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
-
+                            <a class={styles.label_board}>
+                                <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
+                            </a>
                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <button class={styles.button + " " + mineModule.upgrade_speed}
                                     onClick={upgradeShovelDepth}></button>

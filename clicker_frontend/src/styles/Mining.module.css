@@ -5,7 +5,9 @@
 }
 
 .label_mine {
-    top: 41%;
+    font-size: 1.25vw;
+    top: 7%;
+    left: 8%;
 }
 
 .icon_upgrade_speed {
@@ -21,8 +23,8 @@
 }
 
 .label_speed_level {
-    top: 48.75%;
-    right: 30%;
+    top: 49.5%;
+    right: 24%;
 }
 
 .icon_upgrade_amount {
@@ -38,8 +40,8 @@
 }
 
 .label_amount_level {
-    top: 66.25%;
-    right: 30%;
+    top: 66.75%;
+    right: 24%;
 }
 
 .automate {

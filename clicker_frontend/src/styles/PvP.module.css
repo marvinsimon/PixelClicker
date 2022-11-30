@@ -5,7 +5,8 @@
 }
 
 .label_pvp {
-    top: 41%;
+    top: 6.5%;
+    left: 25%;
 }
 
 .icon_upgrade_attack {
@@ -21,8 +22,8 @@
 }
 
 .label_attack_level {
-    top: 48.75%;
-    right: 30%;
+    top: 49.5%;
+    right: 24%;
 }
 
 .icon_upgrade_defence {
@@ -38,8 +39,8 @@
 }
 
 .label_defence_level {
-    top: 66.25%;
-    right: 30%;
+    top: 66.75%;
+    right: 24%;
 }
 
 .icon_pvp_attack {

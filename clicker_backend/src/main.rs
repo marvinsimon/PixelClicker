@@ -130,11 +130,19 @@ async fn login(
             session.set(PLAYER_AUTH, record.id).await;
             let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
             let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
+            let prev_ore = game_state.ore;
+            let prev_depth = game_state.depth;
             if elapsed_time > SECONDS_DAY {
                 game_state.tick(SECONDS_DAY);
             } else {
-                game_state.tick(elapsed_time * 100);
+                game_state.tick(elapsed_time * 10);
             }
+            let ore_diff = game_state.ore - prev_ore;
+            let depth_diff = game_state.depth - prev_depth;
+            println!("STATE DIFF\n\
+            ore: {}\n\
+            depth: {}", ore_diff, depth_diff);
+            write_state_dif_to_database(record.id, ore_diff, depth_diff, &pool).await;
             save_game_state_to_database(record.id, &game_state, &pool).await;
             save_score_to_database(record.id, &game_state, &pool).await;
             set_player_as_online(record.id, &pool).await;
@@ -147,6 +155,7 @@ async fn login(
         }
     }
 }
+
 
 async fn sign_up(
     AuthBasic((email, password)): AuthBasic,
@@ -264,6 +273,20 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                         .await
                         .is_err() {
                         break;
+                    }
+                    if game_state.automation_started {
+                        if let Ok(r) = sqlx::query!(
+                            "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
+                           id,
+                            ).fetch_one(&pool)
+                            .await {
+                            let event = ServerMessages::MinedOffline { ore: r.offline_ore as u64, depth: r.offline_depth as u64 };
+                            if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                                .await
+                                .is_err() {
+                                break;
+                            }
+                        }
                     }
                 }
                 logged_in = true;
@@ -388,6 +411,18 @@ async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
     if (sqlx::query!(
         "UPDATE player SET timestamp = $1 WHERE id = $2;",
         Utc::now().timestamp(),
+        id,
+    ).execute(pool)
+        .await).is_ok() {}
+}
+
+async fn write_state_dif_to_database(id: i64, ore: f64, depth: f64, pool: &PgPool) {
+    let i_ore = ore as i64;
+    let i_depth = depth as i64;
+    if (sqlx::query!(
+        "UPDATE player SET offline_ore = $1, offline_depth = $2 WHERE id = $3;",
+        i_ore,
+        i_depth,
         id,
     ).execute(pool)
         .await).is_ok() {}

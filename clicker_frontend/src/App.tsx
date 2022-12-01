@@ -33,7 +33,9 @@ const App: Component = () => {
     const [showPVP, setShowPVP] = createSignal(false);
     const [showLoot, setShowLoot] = createSignal(false);
     const [loot, setLoot] = createSignal(0);
-
+    const [showOfflineResources, setShowOfflineResources] = createSignal(false);
+    const [totalDepth, setTotalDepth] = createSignal(0);
+    const [totalAmount, setTotalAmount] = createSignal(0);
 
     let socket: WebSocket | undefined;
 
@@ -75,6 +77,12 @@ const App: Component = () => {
                 console.log("Still logged in")
                 setAuth(true);
                 setLoggedIn(true);
+            } else if ("MinedOffline" in event) {
+                console.log("Got offline resources")
+                setTotalDepth(event.MinedOffline.depth);
+                setTotalAmount(event.MinedOffline.ore);
+
+                setShowOfflineResources(true);
             }
         }
         socket.onopen = () => {
@@ -351,7 +359,15 @@ const App: Component = () => {
                     <Show when={showLoot()} >
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label> Der Angriff war erfolgreich! </label>
-                            <label> Deine Beute: {loot()}</label>
+                            <label> Deine Beute: {loot()} Erz</label>
+                        </div>
+                    </Show>
+
+                    <Show when={showOfflineResources()} >
+                        <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
+                            <label> Willkommen zurück! </label>
+                            <label> Abgebautes Erz: {totalAmount()}</label>
+                            <label> Zurückgelegte Grabtiefe: {totalDepth()}</label>
                         </div>
                     </Show>
 

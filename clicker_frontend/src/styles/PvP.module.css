@@ -1,0 +1,50 @@
+.pvp {
+}
+
+.label_pvp {
+    top: 6.5%;
+    left: 25%;
+}
+
+.icon_upgrade_attack {
+    top: 42%;
+    left: 40%;
+}
+
+.upgrade_attack {
+    top: 40.25%;
+    height: 24%;
+    width: 70%;
+    left: -0.5%;
+    font-size: 4rem;
+}
+
+.label_attack_level {
+    top: 49%;
+    right: 24%;
+}
+
+.icon_upgrade_defence {
+    top: 59.5%;
+    left: 40%;
+}
+
+.upgrade_defence {
+    top: 57.75%;
+    height: 24%;
+    width: 70%;
+    left: -0.5%;
+    font-size: 4rem;
+}
+
+.label_defence_level {
+    top: 66.25%;
+    right: 24%;
+}
+
+.pvp_attack {
+    top: 74%;
+    background-image: url("src/assets/attack_button.png");
+    height: 26%;
+    width: 122%;
+}

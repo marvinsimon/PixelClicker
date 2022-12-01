@@ -1,0 +1,94 @@
+.mine {
+}
+
+.label_mine {
+    font-size: 1.25vw;
+    top: 7%;
+    left: 8%;
+}
+
+.icon_upgrade_speed {
+    top: 42%;
+    left: 40%;
+}
+
+.upgrade_speed {
+    top: 40.25%;
+    height: 24%;
+    width: 70%;
+    left: -0.5%;
+    font-size: 3rem;
+}
+
+.label_speed_level {
+    top: 49.5%;
+    right: 24%;
+}
+
+.icon_upgrade_amount {
+    top: 59.5%;
+    left: 40%;
+}
+
+.upgrade_amount {
+    top: 57.75%;
+    height: 24%;
+    width: 70%;
+    left: -0.5%;
+    font-size: 2.8rem;
+}
+
+.label_amount_level {
+    top: 66.75%;
+    right: 24%;
+}
+
+.automate {
+    top: 75%;
+    height: 24%;
+    width: 100%;
+    font-size: 3rem;
+}
+
+.label_automate {
+    top: 85%;
+    font-size: 1.1vw;
+}
+
+.upgrade_automate_speed {
+    height: 42%;
+    width: 70%;
+    top: 27%;
+    left: -0.5%;
+}
+
+.icon_upgrade_automate_speed {
+    top: 30.5%;
+    left: 40%;
+    height: 34.75%;
+    width: 20%;
+}
+
+.label_speed_automate_level {
+    top: 42.5%;
+    right: 24%;
+}
+
+.upgrade_automate_amount {
+    height: 42%;
+    width: 70%;
+    top: 57.5%;
+    left: -0.5%;
+}
+
+.icon_upgrade_automate_amount {
+    top: 60.5%;
+    left: 40%;
+    height: 34.75%;
+    width: 20%;
+}
+
+.label_amount_automate_level {
+    top: 72.5%;
+    right: 24%;
+}

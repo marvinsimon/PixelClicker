@@ -12,7 +12,7 @@
 }
 
 .container {
-    background: #76623f;
+    background: linear-gradient(to top, black 0%, #3f3f3f 60%);
     background-size: cover;
     display: grid;
     grid-template-columns: repeat(4, minmax(200px, 1fr));
@@ -20,23 +20,27 @@
     grid-template-areas:
         "hd   hd   hd   hd"
         "left main main right";
+
 }
 
 .header {
     grid-area: hd;
-    background: #76533a;
+    background: linear-gradient(to top, #3f3f3f 40%, lightgrey 200%);
     display: flex;
     padding: 10px;
     justify-content: space-between;
     z-index: 30;
+
 }
 
 .main {
+    border-top: solid 30px black;
     grid-area: main;
     z-index: 20;
 }
 
 .controls {
+    border-top: solid 30px black;
     grid-area: right;
     display: grid;
     grid-template-rows: auto;
@@ -52,6 +56,7 @@
 }
 
 .board {
+    border-top: solid 30px black;
     grid-area: left;
 }
 

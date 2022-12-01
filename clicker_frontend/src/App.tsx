@@ -8,6 +8,7 @@ import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import board_right from "./assets/Brett2.png";
+import small_board from "./assets/small_brett.png";
 import game from "./assets/Playground.png";
 
 const App: Component = () => {
@@ -479,10 +480,16 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={board_right} class={styles.board_img_automate} alt={"Automate Board"}/>
+                                        <img src={small_board} class={styles.board_img_automate} alt={"Automate Board"}/>
                                         <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>{autoDepth()}</button>
-                                        <br/>
+                                        <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
+                                        <label
+                                            class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
+
                                         <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>{autoAmount()}</button>
+                                        <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
+                                        <label
+                                            class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>
                                     </div>
                                 </div>
                             </Show>

@@ -56,13 +56,39 @@
 }
 
 .upgrade_automate_speed {
-    height: 24%;
+    height: 42%;
     width: 70%;
-    top: 40.25%;
+    top: 27%;
+    left: -0.5%;
+}
+
+.icon_upgrade_automate_speed {
+    top: 30.5%;
+    left: 40%;
+    height: 34.75%;
+    width: 20%;
+}
+
+.label_speed_automate_level {
+    top: 42.5%;
+    right: 24%;
 }
 
 .upgrade_automate_amount {
-    height: 24%;
+    height: 42%;
     width: 70%;
     top: 57.5%;
+    left: -0.5%;
+}
+
+.icon_upgrade_automate_amount {
+    top: 60.5%;
+    left: 40%;
+    height: 34.75%;
+    width: 20%;
+}
+
+.label_amount_automate_level {
+    top: 72.5%;
+    right: 24%;
 }

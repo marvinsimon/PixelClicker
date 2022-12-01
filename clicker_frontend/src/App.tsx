@@ -81,6 +81,8 @@ const App: Component = () => {
                 console.log("Still logged in")
                 setAuth(true);
                 setLoggedIn(true);
+            } else if ("AutomationStarted" in event) {
+                setAutomation(event.AutomationStarted.success);
             }
         }
         socket.onopen = () => {
@@ -135,7 +137,6 @@ const App: Component = () => {
 
     const automate = async () => {
         if (socket) {
-            setAutomation(true);
             const event: ClientMessages = "StartAutomation";
             await socket.send(JSON.stringify(event));
         }
@@ -481,12 +482,12 @@ const App: Component = () => {
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
                                         <img src={small_board} class={styles.board_img_automate} alt={"Automate Board"}/>
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>{autoDepth()}</button>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>Depth</button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
 
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>{autoAmount()}</button>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>Amount</button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>

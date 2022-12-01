@@ -126,8 +126,8 @@
 
     color: #282c34;
     border-radius: 5px;
-    background: url("assets/rsz_2background_wood_oak.png");
     padding: 10px;
+    background-color: #beb5b0;
 }
 
 .buttonswitch {
@@ -197,7 +197,7 @@ input[type=submit]:hover {
 .progressBar {
     position: absolute;
     top: 83%;
-    background-image: url("/src/assets/test.png");
+    background-image: url("src/assets/test.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: transparent;

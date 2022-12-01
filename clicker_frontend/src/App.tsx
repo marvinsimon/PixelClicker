@@ -313,12 +313,14 @@ const App: Component = () => {
                                 <input type="submit" value="Log In" onClick={login}/>
                                 <div class={styles.switch}>
                                     <p>Not registered?</p>
+                                </div>
+                                <div class={styles.switch}>
                                     <button class={styles.buttonswitch} onClick={() => {
                                         setShow(false);
                                         setInnerShow(true)
                                     }}>Sign Up
                                     </button>
-                                </div>
+                            </div>
                             </div>
                         </Show>
 
@@ -333,6 +335,8 @@ const App: Component = () => {
                                 <input type="submit" value="Sign Up" onClick={sign_up}/>
                                 <div class={styles.switch}>
                                     <p>Already signed up?</p>
+                                </div>
+                                <div class={styles.switch}>
                                     <button class={styles.buttonswitch} onClick={() => {
                                         setShow(true);
                                         setInnerShow(false)

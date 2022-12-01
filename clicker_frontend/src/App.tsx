@@ -259,24 +259,24 @@ const App: Component = () => {
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <nav>
                         <Show when={!loggedIn()}
-                              fallback={<button class={styles.button} onClick={() => {
+                              fallback={<button id={"button_sign_out"} class={styles.button} onClick={() => {
                                   sign_out();
                                   setShow(false);
                                   setInnerShow(false)
                               }}>Ausloggen</button>}>
-                            <button onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
+                            <button id={"button_sign_up"} onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
                             <Show when={show()}
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                     <h3>SignUp</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;"
+                                    <input id={"input_signup_email"} type="text" ref={email_field!} style="width: 300px;"
                                            placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;"
+                                    <input id={"input_signup_password"} type="password" ref={password_field!} style="width: 300px;"
                                            placeholder="Ihr Passwort.."/>
-                                    <input type="submit" value="Sign Up" onClick={sign_up}/>
+                                    <input id={"button_signup_submit"} type="submit" value="Sign Up" onClick={sign_up}/>
                                     <div class={styles.switch}>
                                         <p>Already signed up?</p>
-                                        <button class={styles.buttonswitch} onClick={() => {
+                                        <button id={"button_switch_signin"} class={styles.buttonswitch} onClick={() => {
                                             setShow(false);
                                             setInnerShow(true)
                                         }}>Login
@@ -289,14 +289,14 @@ const App: Component = () => {
                                   fallback={""}>
                                 <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                     <h3>Login</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;"
+                                    <input id={"input_signin_email"} type="text" ref={email_field!} style="width: 300px;"
                                            placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;"
+                                    <input id={"input_signin_password"} type="password" ref={password_field!} style="width: 300px;"
                                            placeholder="Ihr Passwort.."/>
-                                    <input type="submit" value="Log In" onClick={login}/>
+                                    <input id={"button_signin_submit"} type="submit" value="Log In" onClick={login}/>
                                     <div class={styles.switch}>
                                         <p>Not registered?</p>
-                                        <button class={styles.buttonswitch} onClick={() => {
+                                        <button id={"button_switch_signup"} class={styles.buttonswitch} onClick={() => {
                                             setShow(true);
                                             setInnerShow(false)
                                         }}>Sign Up
@@ -309,40 +309,40 @@ const App: Component = () => {
                 </div>
                 <div class={styles.board}>
                     <img src={board} class={styles.board_img} alt={"Value board"}/>
-                    <label class={styles.label_info}>{ore()}</label>
-                    <label class={styles.label_info}>{depth()}</label>
-                    <label class={styles.label_info}>coming soon</label>
+                    <label id={"label_ore"} class={styles.label_info}>{ore()}</label>
+                    <label id={"label_depth"} class={styles.label_info}>{depth()}</label>
+                    <label id={"label_diamond"} class={styles.label_info}>coming soon</label>
                 </div>
                 <div class={styles.main} onClick={mine}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
                     <Show when={showPVP()}
-                          fallback={<button onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
+                          fallback={<button id={"button_pvp"} onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
                             <h3>PvP Verbesserungen</h3>
                             <br/>
-                            <button class={styles.button} onClick={upgradeAttackLevel}>Angriff: {attackLevel()}</button>
-                            <button class={styles.button} onClick={upgradeDefenceLevel}>Verteidigung: {defenceLevel()}</button>
+                            <button id={"button_upgrade_attack"} class={styles.button} onClick={upgradeAttackLevel}>Angriff: {attackLevel()}</button>
+                            <button id={"button_upgrade_defence"} class={styles.button} onClick={upgradeDefenceLevel}>Verteidigung: {defenceLevel()}</button>
                         </div>
                     </Show>
 
                     <Show when={showMining()}
-                          fallback={<button onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
+                          fallback={<button id={"button_mining"} onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
                         <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
                             <h3>Mining Verbesserungen</h3>
                             <br/>
-                            <button class={styles.button}
+                            <button id={"button_upgrade_shovel_depth"} class={styles.button}
                                     onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                            <button class={styles.button}
+                            <button id={"button_upgrade_shovel_amount"} class={styles.button}
                                     onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
                             <br/>
                             <Show when={automation_on()}
-                                  fallback={<button class={styles.button} onClick={automate}>Automatisierung</button>}>
-                                <button class={styles.button} onClick={upgradeAutoDepth}>Automat
+                                  fallback={<button id={"button_automate"} class={styles.button} onClick={automate}>Automatisierung</button>}>
+                                <button id={"button_upgrade_auto_depth"} class={styles.button} onClick={upgradeAutoDepth}>Automat
                                     Tiefe: {autoDepth()}</button>
                                 <br/>
-                                <button class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
+                                <button id={"button_upgrade_auto_amount"} class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
                                     Menge: {autoAmount()}</button>
                             </Show>
                         </div>
@@ -350,14 +350,14 @@ const App: Component = () => {
 
                     <Show when={showLoot()} >
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
-                            <label> Der Angriff war erfolgreich! </label>
-                            <label> Deine Beute: {loot()}</label>
+                            <label id={"label_attack_succesfull"}> Der Angriff war erfolgreich! </label>
+                            <label id={"label_attack_loot"}> Deine Beute: {loot()}</label>
                         </div>
                     </Show>
 
-                    <button class={styles.button_pvp_attack} onClick={attack}></button>
-                    <button class={styles.button_rank}></button>
-                    <button class={styles.button_shop}></button>
+                    <button id={"button_attack"} class={styles.button_pvp_attack} onClick={attack}></button>
+                    <button id={"button_rank"} class={styles.button_rank}></button>
+                    <button id={"button_shop"} class={styles.button_shop}></button>
 
                     <progress value={"0"} max={"9"} id = "progressBar"></progress>
 

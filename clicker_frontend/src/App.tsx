@@ -310,7 +310,7 @@ const App: Component = () => {
                                        placeholder="email.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
-                                <input type="submit" value="Log In" onClick={sign_up}/>
+                                <input type="submit" value="Log In" onClick={login}/>
                                 <div class={styles.switch}>
                                     <p>Not registered?</p>
                                     <button class={styles.buttonswitch} onClick={() => {
@@ -330,7 +330,7 @@ const App: Component = () => {
                                        placeholder="email.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
-                                <input type="submit" value="Sign Up" onClick={login}/>
+                                <input type="submit" value="Sign Up" onClick={sign_up}/>
                                 <div class={styles.switch}>
                                     <p>Already signed up?</p>
                                     <button class={styles.buttonswitch} onClick={() => {

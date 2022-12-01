@@ -359,7 +359,7 @@ const App: Component = () => {
                     <Show when={showLoot()} >
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label> Der Angriff war erfolgreich! </label>
-                            <label> Deine Beute: {loot()}</label>
+                            <label> Deine Beute: {loot()} Erz</label>
                         </div>
                     </Show>
 
@@ -367,7 +367,7 @@ const App: Component = () => {
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
                             <label> Willkommen zurück! </label>
                             <label> Abgebautes Erz: {totalAmount()}</label>
-                            <label> Grabtiefe: {totalDepth()}</label>
+                            <label> Zurückgelegte Grabtiefe: {totalDepth()}</label>
                         </div>
                     </Show>
 

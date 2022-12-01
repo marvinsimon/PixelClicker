@@ -37,6 +37,7 @@ const App: Component = () => {
     const [popup, setPopup] = createSignal(false);
     const [showLoot, setShowLoot] = createSignal(false);
     const [loot, setLoot] = createSignal(0);
+    const [attacked, setAttacked] = createSignal(false);
 
 
     let socket: WebSocket | undefined;
@@ -270,6 +271,7 @@ const App: Component = () => {
             document.querySelector<HTMLProgressElement>("#progressBar")!.value = 9 - --reverse_counter;
             if (reverse_counter <= 0)
                 clearInterval(combatTimer);
+            setAttacked(false);
         }, 1000);
     }
 
@@ -279,6 +281,7 @@ const App: Component = () => {
             credentials: "include",
         });
         if (response.status == 200) { //200 == StatusCode OK
+            setAttacked(true);
             console.log("Start timer");
             //Start timer
             await startTimer();
@@ -292,55 +295,53 @@ const App: Component = () => {
             <div class={styles.container}>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
-                    <nav>
-                        <Show when={!loggedIn()}
-                              fallback={<button class={styles.User_symbol} onClick={() => {
-                                  sign_out();
-                                  setShow(false);
-                                  setInnerShow(false)
-                              }}>Ausloggen</button>}>
-                            <button onClick={(e) => setShow(true)} class={styles.button_sign_up}></button>
-                            <Show when={show()}
-                                  fallback={""}>
-                                <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                    <h3>SignUp</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;"
-                                           placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;"
-                                           placeholder="Ihr Passwort.."/>
-                                    <input type="submit" value="Sign Up" onClick={sign_up}/>
-                                    <div class={styles.switch}>
-                                        <p>Already signed up?</p>
-                                        <button class={styles.buttonswitch} onClick={() => {
-                                            setShow(false);
-                                            setInnerShow(true)
-                                        }}>Login
-                                        </button>
-                                    </div>
+                    <Show when={!loggedIn()}
+                          fallback={<button class={styles.User_symbol} onClick={() => {
+                              sign_out();
+                              setShow(false);
+                              setInnerShow(false)
+                          }}>Ausloggen</button>}>
+                        <button onClick={(e) => setShow(true)} class={styles.button_sign_up}>Login</button>
+                        <Show when={show()}
+                              fallback={""}>
+                            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                <h3>Login</h3>
+                                <input type="text" ref={email_field!} style="width: 300px;"
+                                       placeholder="email.."/>
+                                <input type="password" ref={password_field!} style="width: 300px;"
+                                       placeholder="password.."/>
+                                <input type="submit" value="Log In" onClick={sign_up}/>
+                                <div class={styles.switch}>
+                                    <p>Not registered?</p>
+                                    <button class={styles.buttonswitch} onClick={() => {
+                                        setShow(false);
+                                        setInnerShow(true)
+                                    }}>Sign Up
+                                    </button>
                                 </div>
-                            </Show>
-
-                            <Show when={innershow()}
-                                  fallback={""}>
-                                <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
-                                    <h3>Login</h3>
-                                    <input type="text" ref={email_field!} style="width: 300px;"
-                                           placeholder="Ihre E-mail.."/>
-                                    <input type="password" ref={password_field!} style="width: 300px;"
-                                           placeholder="Ihr Passwort.."/>
-                                    <input type="submit" value="Log In" onClick={login}/>
-                                    <div class={styles.switch}>
-                                        <p>Not registered?</p>
-                                        <button class={styles.buttonswitch} onClick={() => {
-                                            setShow(true);
-                                            setInnerShow(false)
-                                        }}>Sign Up
-                                        </button>
-                                    </div>
-                                </div>
-                            </Show>
+                            </div>
                         </Show>
-                    </nav>
+
+                        <Show when={innershow()}
+                              fallback={""}>
+                            <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
+                                <h3>Sign Up</h3>
+                                <input type="text" ref={email_field!} style="width: 300px;"
+                                       placeholder="email.."/>
+                                <input type="password" ref={password_field!} style="width: 300px;"
+                                       placeholder="password.."/>
+                                <input type="submit" value="Sign Up" onClick={login}/>
+                                <div class={styles.switch}>
+                                    <p>Already signed up?</p>
+                                    <button class={styles.buttonswitch} onClick={() => {
+                                        setShow(true);
+                                        setInnerShow(false)
+                                    }}>Login
+                                    </button>
+                                </div>
+                            </div>
+                        </Show>
+                    </Show>
                 </div>
                 <div class={styles.board}>
                     <div class={styles.val_board}>
@@ -393,20 +394,29 @@ const App: Component = () => {
                                 <a class={styles.label_board}>
                                     <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
                                 </a>
-                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 <button class={styles.button + " " + pvpModule.upgrade_attack}
-                                        onClick={upgradeAttackLevel}></button>
+                                        onClick={upgradeAttackLevel}>ANG
+                                </button>
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_attack_level}>{attackLevel()}</label>
 
-                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
                                 <button class={styles.button + " " + pvpModule.upgrade_defence}
-                                        onClick={upgradeDefenceLevel}></button>
+                                        onClick={upgradeDefenceLevel}>DEF
+                                </button>
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_defence_level}>{defenceLevel()}</label>
 
-                                <a class={styles.icon_upgrade + " " + pvpModule.icon_pvp_attack}></a>
-                                <button class={styles.button + " " + pvpModule.pvp_attack} onClick={attack}></button>
+                                <Show when={attacked()}
+                                      fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
+                                                        onClick={attack}></button>}>
+                                    <progress value={"0"} max={"9"} id="progressBar" class={styles.progressBar}
+                                              onClick={() => {
+                                                  attack();
+                                                  setAttacked(false)
+                                              }}></progress>
+                                </Show>
                             </div>
                         </div>
                     </Show>
@@ -439,21 +449,23 @@ const App: Component = () => {
                             <a class={styles.label_board}>
                                 <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
                             </a>
-                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <button class={styles.button + " " + mineModule.upgrade_speed}
-                                    onClick={upgradeShovelDepth}></button>
+                                    onClick={upgradeShovelDepth}>Depth
+                            </button>
+                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <label
                                 class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
 
-                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             <button class={styles.button + " " + mineModule.upgrade_amount}
-                                    onClick={upgradeShovelAmount}></button>
+                                    onClick={upgradeShovelAmount}>Amount
+                            </button>
+                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             <label
                                 class={styles.label_header + " " + mineModule.label_amount_level}>{shovelAmount()}</label>
 
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button + " " + mineModule.automate}
-                                                    onClick={automate}></button>}>
+                                                    onClick={automate}>Automate</button>}>
                                 <button class={styles.button} onClick={upgradeAutoDepth}>{autoDepth()}</button>
                                 <br/>
                                 <button class={styles.button} onClick={upgradeAutoAmount}>{autoAmount()}</button>
@@ -473,11 +485,6 @@ const App: Component = () => {
                             <label> Deine Beute: {loot()}</label>
                         </div>
                     </Show>
-
-                    <progress value={"0"} max={"9"} id="progressBar"></progress>
-
-                </div>
-                <div id={"popup"}>
                 </div>
             </div>
         </div>

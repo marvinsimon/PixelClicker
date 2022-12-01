@@ -9,14 +9,15 @@
 
 .icon_upgrade_speed {
     top: 42%;
-    left: 22%;
+    left: 40%;
 }
 
 .upgrade_speed {
-    top: 43.75%;
-    background-image: url("src/assets/Button_Mine.png");
-    height: 17%;
-    width: 80%;
+    top: 40.25%;
+    height: 24%;
+    width: 70%;
+    left: -0.5%;
+    font-size: 3rem;
 }
 
 .label_speed_level {
@@ -26,14 +27,15 @@
 
 .icon_upgrade_amount {
     top: 59.5%;
-    left: 22%;
+    left: 40%;
 }
 
 .upgrade_amount {
-    top: 61%;
-    background-image: url("src/assets/Button_Mine.png");
-    height: 17%;
-    width: 80%;
+    top: 57.75%;
+    height: 24%;
+    width: 70%;
+    left: -0.5%;
+    font-size: 2.8rem;
 }
 
 .label_amount_level {
@@ -42,8 +44,8 @@
 }
 
 .automate {
-    top: 79.5%;
-    background-image: url("src/assets/Button_Mine.png");
-    height: 15%;
-    width: 75%;
+    top: 75%;
+    height: 24%;
+    width: 100%;
+    font-size: 3rem;
 }

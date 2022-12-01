@@ -3,6 +3,7 @@
     padding: 0;
     margin: 0;
     font-family: Public Pixel Font, monospace;
+    overflow: hidden;
 }
 
 @font-face {
@@ -13,15 +14,16 @@
 .container {
     background: #76623f;
     background-size: cover;
-    height: 100vh;
     display: grid;
-    /*grid-template-columns: repeat(4, 1fr);*/
     grid-template-columns: repeat(4, minmax(200px, 1fr));
-    grid-template-rows: 100px 88vh;
+    grid-template-rows: 5vw 100vh;
+    grid-template-areas:
+        "hd   hd   hd   hd"
+        "left main main right";
 }
 
 .header {
-    grid-column: 1 / 5;
+    grid-area: hd;
     background: #76533a;
     display: flex;
     padding: 10px;
@@ -30,16 +32,15 @@
 }
 
 .main {
-    grid-column: 2 / 4;
+    grid-area: main;
     z-index: 20;
-    /*max-height: 88vh;*/
 }
 
 .controls {
-    grid-column: 4 / 5;
+    grid-area: right;
     display: grid;
     grid-template-rows: auto;
-
+    max-height: 80vh;
 }
 
 .buttonitem {
@@ -51,7 +52,7 @@
 }
 
 .board {
-    grid-column: 1 / 2;
+    grid-area: left;
 }
 
 .board_img_container {
@@ -71,12 +72,13 @@
 }
 
 .button_sign_up {
-    background: url("assets/rsz_button_signup.png") no-repeat;
-    height: 30px;
-    width: 130px;
+    background: url("assets/stone_button_dark_test.png") no-repeat;
+    background-size: 100% 100%;
+    height: 80%;
+    width: 8%;
     border: none;
     transition-duration: .4s;
-    margin-top: 20%;
+    font-size: 1rem;
 }
 
 .button_sign_up:hover {
@@ -181,15 +183,26 @@ input[type=submit]:hover {
     transform: scale(.3);
     border: none;
     transition-duration: .4s;
-    background-image: url("src/assets/stone_button_dark.png");
-    height: 300%;
-    width: 150%;
+    background-image: url("src/assets/stone_button_dark_test.png");
+    height: 125%;
+    width: 125%;
     font-size: 3rem;
 }
 
 .button:hover {
     transform: scale(.28);
     cursor: pointer;
+}
+
+.progressBar {
+    position: absolute;
+    top: 83%;
+    background-image: url("/src/assets/test.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    border: none;
+    height: 8%;
 }
 
 .label_header {
@@ -234,7 +247,7 @@ input[type=submit]:hover {
     .container {
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 100px 1fr;
+        grid-template-rows: 100px 100vh;
     }
 
     .main {
@@ -246,7 +259,7 @@ input[type=submit]:hover {
     .board {
         grid-column: 1;
         grid-row: 2;
-        z-index: 10;
+        z-index: 30;
     }
 
     .board_img {
@@ -266,7 +279,6 @@ input[type=submit]:hover {
 
 .board_right {
     z-index: 1;
-    top: 0;
     height: 100%;
     width: 100%;
     display: none;
@@ -330,10 +342,10 @@ input[type=submit]:hover {
     0% {
         transform: translateY(-100%);
     }
-    50% {
+    60% {
         transform: translateY(0%);
     }
-    70% {
+    80% {
         transform: translateY(-3%);
     }
     100% {
@@ -355,10 +367,10 @@ input[type=submit]:hover {
     0% {
         transform: translateY(-0.25%);
     }
-    50% {
+    20% {
         transform: translateY(-3%);
     }
-    70% {
+    40% {
         transform: translateY(0%);
     }
     100% {
@@ -396,8 +408,8 @@ input[type=submit]:hover {
 .gear_rotate_clockwise {
     animation-name: rotateClockwise;
     animation-delay: 0s;
-    animation-duration: 1.9s;
-    animation-fill-mode: forwards;
+    animation-duration: 1.8s;
+    animation-fill-mode: both;
 }
 
 @keyframes rotateClockwise {
@@ -405,20 +417,20 @@ input[type=submit]:hover {
         transform: rotate(0);
     }
     to {
-        transform: rotate(140deg);
+        transform: rotate(200deg);
     }
 }
 
 .gear_rotate_counterClockwise {
     animation-name: rotateCounterClockwise;
     animation-delay: 0s;
-    animation-duration: 2.2s;
-    animation-fill-mode: forwards;
+    animation-duration: 1.8s;
+    animation-fill-mode: both;
 }
 
 @keyframes rotateCounterClockwise {
     from {
-        transform: rotate(140deg);
+        transform: rotate(200deg);
     }
     to {
         transform: rotate(0);

@@ -267,7 +267,7 @@ const App: Component = () => {
                             <button id={"button_sign_up"} onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
                             <Show when={show()}
                                   fallback={""}>
-                                <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                <div id={"popup_signup"} class={styles.modal} use:clickOutside={() => setShow(false)}>
                                     <h3>SignUp</h3>
                                     <input id={"input_signup_email"} type="text" ref={email_field!} style="width: 300px;"
                                            placeholder="Ihre E-mail.."/>
@@ -287,7 +287,7 @@ const App: Component = () => {
 
                             <Show when={innershow()}
                                   fallback={""}>
-                                <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
+                                <div id={"popup_signin"} class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                     <h3>Login</h3>
                                     <input id={"input_signin_email"} type="text" ref={email_field!} style="width: 300px;"
                                            placeholder="Ihre E-mail.."/>
@@ -313,13 +313,13 @@ const App: Component = () => {
                     <label id={"label_depth"} class={styles.label_info}>{depth()}</label>
                     <label id={"label_diamond"} class={styles.label_info}>coming soon</label>
                 </div>
-                <div class={styles.main} onClick={mine}>
+                <div id={"mining_screen"} class={styles.main} onClick={mine}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
                     <Show when={showPVP()}
                           fallback={<button id={"button_pvp"} onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
-                        <div class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
+                        <div id={"popup_pvp"} class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
                             <h3>PvP Verbesserungen</h3>
                             <br/>
                             <button id={"button_upgrade_attack"} class={styles.button} onClick={upgradeAttackLevel}>Angriff: {attackLevel()}</button>
@@ -329,7 +329,7 @@ const App: Component = () => {
 
                     <Show when={showMining()}
                           fallback={<button id={"button_mining"} onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
-                        <div class={styles.modal} use:clickOutside={() => setShowMining(false)}>
+                        <div id={"popup_mining"} class={styles.modal} use:clickOutside={() => setShowMining(false)}>
                             <h3>Mining Verbesserungen</h3>
                             <br/>
                             <button id={"button_upgrade_shovel_depth"} class={styles.button}
@@ -349,7 +349,7 @@ const App: Component = () => {
                     </Show>
 
                     <Show when={showLoot()} >
-                        <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
+                        <div id={"popup_loot"} class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label id={"label_attack_succesfull"}> Der Angriff war erfolgreich! </label>
                             <label id={"label_attack_loot"}> Deine Beute: {loot()}</label>
                         </div>

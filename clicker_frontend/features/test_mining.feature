@@ -12,4 +12,4 @@ Feature: Test Mining Functionalities
   Scenario: Upgrading the Shovel Depth
     Given I am on the Clicker Royale main page
     When I have at least 50 ore and click on the Schaufelgeschwindigkeit Button
-    Then It's level should increase to 2
+    Then It's level should increase to 2 and the depth should increase by 2 on click

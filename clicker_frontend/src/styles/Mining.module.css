@@ -55,6 +55,25 @@
     font-size: 1.1vw;
 }
 
+.auto_label_board {
+    top: 26.5%;
+    position: absolute;
+    background-image: url("src/assets/wood_label_new.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 35%;
+    height: 12%;
+    -webkit-box-shadow: 1px 3px 4px #000;
+}
+
+.label_auto {
+    font-size: 1vw;
+    top: 20%;
+    left: 6%;
+}
+
 .upgrade_automate_speed {
     height: 42%;
     width: 70%;

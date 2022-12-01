@@ -285,9 +285,12 @@ const App: Component = () => {
         let reverse_counter = 9;
         const combatTimer = setInterval(function () {
             document.querySelector<HTMLProgressElement>("#progressBar")!.value = 9 - --reverse_counter;
-            if (reverse_counter <= 0)
+            if (reverse_counter <= 0) {
                 clearInterval(combatTimer);
-            setAttacked(false);
+                window.setTimeout(() => {
+                    setAttacked(false);
+                }, 500);
+            }
         }, 1000);
     }
 
@@ -316,12 +319,14 @@ const App: Component = () => {
                               sign_out();
                               setShow(false);
                               setInnerShow(false)
-                          }}>Ausloggen</button>}>
+                          }}></button>}>
                         <button onClick={(e) => setShow(true)} class={styles.button_sign_up}>Login</button>
                         <Show when={show()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                <h3>Login</h3>
+                                <div class={styles.popup_h}>
+                                    <h3>Login</h3>
+                                </div>
                                 <input type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
@@ -336,14 +341,16 @@ const App: Component = () => {
                                         setInnerShow(true)
                                     }}>Sign Up
                                     </button>
-                            </div>
+                                </div>
                             </div>
                         </Show>
 
                         <Show when={innershow()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
-                                <h3>Sign Up</h3>
+                                <div class={styles.popup_h}>
+                                    <h3>Sign Up</h3>
+                                </div>
                                 <input type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
@@ -362,6 +369,8 @@ const App: Component = () => {
                             </div>
                         </Show>
                     </Show>
+                </div>
+                <div class={styles.woodBar}>
                 </div>
                 <div class={styles.board}>
                     <div class={styles.val_board}>
@@ -431,11 +440,8 @@ const App: Component = () => {
                                 <Show when={attacked()}
                                       fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
                                                         onClick={attack}></button>}>
-                                    <progress value={"0"} max={"9"} id="progressBar" class={styles.progressBar}
-                                              onClick={() => {
-                                                  attack();
-                                                  setAttacked(false)
-                                              }}></progress>
+                                    <progress value={"0"} max={"9"} id="progressBar"
+                                              class={styles.progressBar}></progress>
                                 </Show>
                             </div>
                         </div>
@@ -493,13 +499,22 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={small_board} class={styles.board_img_automate} alt={"Automate Board"}/>
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>Depth</button>
+                                        <img src={small_board} class={styles.board_img_automate}
+                                             alt={"Automate Board"}/>
+                                        <a class={mineModule.auto_label_board}>
+                                            <label
+                                                class={styles.label_header + " " + mineModule.label_auto}>Automate</label>
+                                        </a>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed}
+                                                onClick={upgradeAutoDepth}>Depth
+                                        </button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
 
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>Amount</button>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount}
+                                                onClick={upgradeAutoAmount}>Amount
+                                        </button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>
@@ -522,7 +537,7 @@ const App: Component = () => {
                         </div>
                     </Show>
 
-                    <Show when={showOfflineResources()} >
+                    <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
                             <label> Willkommen zurück! </label>
                             <label> Abgebautes Erz: {totalAmount()}</label>

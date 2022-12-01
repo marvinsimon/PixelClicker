@@ -246,6 +246,12 @@ const App: Component = () => {
         variable!.classList.add(styles.slideOut);
     }
 
+    const slideOutAutomate = () => {
+        let variable = document.querySelector("." + styles.slideIn_automate);
+        variable!.classList.remove(styles.slideIn_automate);
+        variable!.classList.add(styles.slideOut_automate);
+    }
+
     const rotateClockwise = () => {
         let left = document.querySelector("." + styles.gear_left);
         left!.classList.remove(styles.gear_rotate_counterClockwise);
@@ -429,6 +435,7 @@ const App: Component = () => {
                                           setShowMining(true);
                                           hide();
                                           rotateClockwise();
+                                          console.log("Automation: " + automation_on());
                                       }} class={styles.button}>Mining
                                       </button>
                                   </div>
@@ -437,6 +444,9 @@ const App: Component = () => {
                         <div class={styles.slideIn}>
                             <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
+                                if (automation_on()) {
+                                    slideOutAutomate();
+                                }
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
@@ -466,9 +476,15 @@ const App: Component = () => {
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button + " " + mineModule.automate}
                                                     onClick={automate}>Automate</button>}>
-                                <button class={styles.button} onClick={upgradeAutoDepth}>{autoDepth()}</button>
-                                <br/>
-                                <button class={styles.button} onClick={upgradeAutoAmount}>{autoAmount()}</button>
+                                <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
+                                <div class={styles.slideIn_automate}>
+                                    <div class={styles.image_container_automate}>
+                                        <img src={board_right} class={styles.board_img_automate} alt={"Automate Board"}/>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>{autoDepth()}</button>
+                                        <br/>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>{autoAmount()}</button>
+                                    </div>
+                                </div>
                             </Show>
                         </div>
                     </Show>

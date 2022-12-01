@@ -277,16 +277,6 @@ input[type=submit]:hover {
     }
 }
 
-.board_right {
-    z-index: 1;
-    height: 100%;
-    width: 100%;
-    display: none;
-    overflow: hidden;
-    transform: translateY(-100%);
-    position: relative;
-}
-
 .board_img_right {
     height: 100%;
     width: 75%;
@@ -336,6 +326,8 @@ input[type=submit]:hover {
     animation-fill-mode: forwards;
     display: flex;
     justify-content: center;
+    z-index: 3;
+    overflow: visible;
 }
 
 @keyframes slideIn {
@@ -346,10 +338,10 @@ input[type=submit]:hover {
         transform: translateY(0%);
     }
     80% {
-        transform: translateY(-3%);
+        transform: translateY(-2%);
     }
     100% {
-        transform: translateY(-0.25%);
+        transform: translateY(-0%);
     }
 }
 
@@ -361,14 +353,16 @@ input[type=submit]:hover {
     animation-fill-mode: forwards;
     display: flex;
     justify-content: center;
+    z-index: 3;
+    overflow: visible;
 }
 
 @keyframes slideOut {
     0% {
-        transform: translateY(-0.25%);
+        transform: translateY(0%);
     }
     20% {
-        transform: translateY(-3%);
+        transform: translateY(-2%);
     }
     40% {
         transform: translateY(0%);
@@ -394,7 +388,7 @@ input[type=submit]:hover {
     width: 12vw;
     border: none;
     top: -2%;
-    z-index: 2;
+    z-index: 4;
 }
 
 .gear_left {
@@ -434,5 +428,69 @@ input[type=submit]:hover {
     }
     to {
         transform: rotate(0);
+    }
+}
+
+.board_img_automate {
+    height: 100%;
+    width: 75%;
+}
+
+.image_container_automate {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slideIn_automate {
+    position: absolute;
+    animation-name: slideInAutomate;
+    animation-delay: 0s;
+    animation-duration: 1.2s;
+    animation-fill-mode: forwards;
+    display: flex;
+    justify-content: center;
+    z-index: -2;
+}
+
+@keyframes slideInAutomate {
+    0% {
+        transform: translateY(0%);
+    }
+    60% {
+        transform: translateY(73%);
+    }
+    80% {
+        transform: translateY(71%);
+    }
+    100% {
+        transform: translateY(73%);
+    }
+}
+
+.slideOut_automate {
+    position: absolute;
+    animation-name: slideOutAutomate;
+    animation-delay: 0s;
+    animation-duration: 1.2s;
+    animation-fill-mode: forwards;
+    display: flex;
+    justify-content: center;
+    z-index: -2;
+}
+
+@keyframes slideOutAutomate {
+    0% {
+        transform: translateY(73%);
+    }
+    20% {
+        transform: translateY(71%);
+    }
+    40% {
+        transform: translateY(73%);
+    }
+    100% {
+        transform: translateY(0%);
     }
 }

@@ -49,3 +49,20 @@
     width: 100%;
     font-size: 3rem;
 }
+
+.label_automate {
+    top: 85%;
+    font-size: 1.1vw;
+}
+
+.upgrade_automate_speed {
+    height: 24%;
+    width: 70%;
+    top: 40.25%;
+}
+
+.upgrade_automate_amount {
+    height: 24%;
+    width: 70%;
+    top: 57.5%;
+}

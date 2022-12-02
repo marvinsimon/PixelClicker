@@ -95,7 +95,9 @@ const App: Component = () => {
         }
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
-            socket?.send(JSON.stringify(event));
+            window.setTimeout(() => {
+                socket?.send(JSON.stringify(event));
+            }, 1000);
         }
     }
 
@@ -118,7 +120,21 @@ const App: Component = () => {
         setDefenceLevel(LoginState.defence_level);
     }
 
+    const resetScreen = () => {
+        if(showMining() || showPVP()) {
+            slideOutAutomate();
+            slideOut();
+            window.setTimeout(function () {
+                setShowMining(false);
+                setShowPVP(false);
+                unHide();
+            }, 1300);
+            rotateCounterClockwise();
+        }
+    }
+
     const disconnectBackend = () => {
+        resetScreen();
         socket?.close();
     }
 
@@ -252,14 +268,18 @@ const App: Component = () => {
 
     const slideOut = () => {
         let variable = document.querySelector("." + styles.slideIn);
-        variable!.classList.remove(styles.slideIn);
-        variable!.classList.add(styles.slideOut);
+        if(variable) {
+            variable.classList.remove(styles.slideIn);
+            variable.classList.add(styles.slideOut);
+        }
     }
 
     const slideOutAutomate = () => {
         let variable = document.querySelector("." + styles.slideIn_automate);
-        variable!.classList.remove(styles.slideIn_automate);
-        variable!.classList.add(styles.slideOut_automate);
+        if(variable) {
+            variable.classList.remove(styles.slideIn_automate);
+            variable.classList.add(styles.slideOut_automate);
+        }
     }
 
     const rotateClockwise = () => {

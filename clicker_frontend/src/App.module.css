@@ -380,6 +380,11 @@ input[type=submit]:hover {
     .label_header {
         font-size: 32px;
     }
+
+    .modal {
+        position: absolute;
+        left: 1000px;
+    }
 }
 
 @media (min-width: 2550px) {

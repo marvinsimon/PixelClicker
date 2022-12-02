@@ -277,6 +277,117 @@ input[type=submit]:hover {
     transition-duration: .4s;
 }
 
+@media (min-width: 2000px) {
+    .container {
+        background: linear-gradient(to top, black 0%, #3f3f3f 60%);
+        background-size: cover;
+        display: grid;
+        grid-template-columns: 500px 500px 500px 500px 40px 1fr;
+        grid-template-rows: 100px 40px 100vh;
+        grid-template-areas:
+        "hd   hd   hd   hd    vBar heil"
+        "bar  bar  bar  bar   vBar heil"
+        "left main main right vBar heil";
+
+    }
+
+    .heil {
+        background: linear-gradient(to top, black 0%, #3f3f3f 60%);
+        z-index: 100;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .heil_img {
+        background-image: url("assets/heilenberg_edit.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        height: 954px;
+        width: 633px;
+        position: absolute;
+        right: -23.7%;
+        bottom: 0;
+    }
+
+    .gear_rotate_counterClockwise{
+        max-width: 240px;
+        max-height: 240px;
+    }
+
+    .gear_rotate_clockwise {
+        max-width: 307px;
+        max-height: 307px;
+    }
+
+    .gear_normal {
+        max-width: 240px;
+        max-height: 240px;
+    }
+
+    .gear_left {
+        position: absolute;
+        left: 1380px;
+    }
+
+    .gear_right {
+        position: absolute;
+        left: 1880px;
+    }
+
+    .header {
+        max-height: 100px;
+    }
+
+    .woodBar {
+        max-height: 40px;
+    }
+
+    .vBar {
+        grid-area: vBar;
+        z-index: 40;
+        display: flex;
+        background-image: url("assets/vBar.png");
+        background-size: contain;
+    }
+
+    .main {
+        max-width: 1000px;
+    }
+
+    .controls {
+        max-width: 500px;
+    }
+
+    .slideIn {
+        max-width: 500px;
+    }
+
+    .slideOut {
+        max-width: 500px;
+    }
+
+    .slideIn_automate {
+        max-width: 500px;
+    }
+
+    .slideOut_automate {
+        max-width: 500px;
+    }
+
+    .label_header {
+        font-size: 32px;
+    }
+}
+
+@media (min-width: 2550px) {
+    .heil_img {
+        left: 0;
+    }
+}
+
 @media (max-width: 800px) {
     .container {
         display: grid;

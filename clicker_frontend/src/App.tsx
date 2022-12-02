@@ -312,6 +312,10 @@ const App: Component = () => {
     return (
         <div class={styles.App}>
             <div class={styles.container}>
+                <div class={styles.vBar}></div>
+                <div class={styles.heil}>
+                    <div class={styles.heil_img}></div>
+                </div>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <Show when={!loggedIn()}

@@ -22,31 +22,42 @@ Then('the sign up pop up should be visible', async function () {
 });
 
 When('I create a account', {timeout: 10000}, async function() {
+    await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));
     const input_password = await driver.findElement(By.id('input_signup_password'));
     const button = await driver.findElement(By.id('button_signup_submit'));
-    input_email.sendKeys('dummy');
+    input_email.sendKeys('signup_dummy');
     input_password.sendKeys('test');
     await driver.sleep(500);
     button.click();
     await driver.sleep(1000);
-    const mining_screen = await driver.findElement(By.id('mining_screen'));
-    for (let i = 0; i < 5; i++) {
-        mining_screen.click();
-    }
 });
 
 Then('I want to be logged in after creating it', async function() {
     await driver.sleep(500);
     const element = await driver.findElement(By.id('button_sign_out'));
     expect(await element.isDisplayed()).to.equal(true);
+    await driver.findElement(By.id('button_sign_out')).click();
 });
 
-Given('I am not logged in', async function () {
+Given('I am not logged in but have a account', {timeout: 10000}, async function () {
+    await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
-    const signout = await driver.findElement(By.id('button_sign_out'));
-    signout.click();
+    const input_email = await driver.findElement(By.id('input_signup_email'));
+    const input_password = await driver.findElement(By.id('input_signup_password'));
+    const button = await driver.findElement(By.id('button_signup_submit'));
+    input_email.sendKeys('signin_dummy');
+    input_password.sendKeys('test');
+    await driver.sleep(500);
+    button.click();
+    await driver.sleep(500);
+    const mining_screen = await driver.findElement(By.id('mining_screen'));
+    for (let i = 0; i < 5; i++) {
+        await mining_screen.click();
+    }
+    await driver.sleep(2000);
+    await driver.findElement(By.id('button_sign_out')).click();
 });
 
 When('I log in to my account', {timeout: 10000}, async function() {
@@ -60,15 +71,14 @@ When('I log in to my account', {timeout: 10000}, async function() {
     const input_email = await driver.findElement(By.id('input_signin_email'));
     const input_password = await driver.findElement(By.id('input_signin_password'));
     const button = await driver.findElement(By.id('button_signin_submit'));
-    input_email.sendKeys('dummy');
+    input_email.sendKeys('signin_dummy');
     input_password.sendKeys('test');
     await driver.sleep(500);
     button.click();
-
 });
 
 Then('I want my save game to be loaded automatically', async function() {
-    await driver.sleep(500);
+    await driver.sleep(1000);
     expect(await driver.findElement(By.id('label_ore')).getText() > 0).to.equal(true);
     expect(await driver.findElement(By.id('label_depth')).getText() > 0).to.equal(true);
 });

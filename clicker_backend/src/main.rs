@@ -119,7 +119,7 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, timestamp FROM player WHERE email = $1 AND password = $2;",
+        "SELECT id, game_state, timestamp, is_online FROM player WHERE email = $1 AND password = $2;",
         email,
         password
     )
@@ -127,26 +127,26 @@ async fn login(
         .await
     {
         Ok(Some(record)) => {
-            session.set(PLAYER_AUTH, record.id).await;
-            let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
-            let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
-            let prev_ore = game_state.ore;
-            let prev_depth = game_state.depth;
-            if elapsed_time > SECONDS_DAY {
-                game_state.tick(SECONDS_DAY);
-            } else {
-                game_state.tick(elapsed_time * 10);
+            if !record.is_online {
+                session.set(PLAYER_AUTH, record.id).await;
+                let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
+                let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
+                let prev_ore = game_state.ore;
+                let prev_depth = game_state.depth;
+                if elapsed_time > SECONDS_DAY {
+                    game_state.tick(SECONDS_DAY);
+                } else {
+                    game_state.tick(elapsed_time * 10);
+                }
+                let ore_diff = game_state.ore - prev_ore;
+                let depth_diff = game_state.depth - prev_depth;
+                write_state_dif_to_database(record.id, ore_diff, depth_diff, &pool).await;
+                save_game_state_to_database(record.id, &game_state, &pool).await;
+                save_score_to_database(record.id, &game_state, &pool).await;
+                set_player_as_online(record.id, &pool).await;
+                return StatusCode::OK;
             }
-            let ore_diff = game_state.ore - prev_ore;
-            let depth_diff = game_state.depth - prev_depth;
-            println!("STATE DIFF\n\
-            ore: {}\n\
-            depth: {}", ore_diff, depth_diff);
-            write_state_dif_to_database(record.id, ore_diff, depth_diff, &pool).await;
-            save_game_state_to_database(record.id, &game_state, &pool).await;
-            save_score_to_database(record.id, &game_state, &pool).await;
-            set_player_as_online(record.id, &pool).await;
-            StatusCode::OK
+            StatusCode::BAD_REQUEST
         }
         Ok(None) => StatusCode::UNAUTHORIZED,
         Err(err) => {

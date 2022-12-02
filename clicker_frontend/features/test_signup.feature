@@ -5,6 +5,10 @@ Feature: Test Sign Up
     Then the sign up pop up should be visible
 
   Scenario:
-    Given I visit Clicker Royale website
-    When I create an account
-    Then i want to be logged in after creation
+    When I create a account
+    Then I want to be logged in after creating it
+
+  Scenario:
+    Given I am not logged in
+    When I log in to my account
+    Then I want my save game to be loaded automatically

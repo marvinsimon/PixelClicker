@@ -7,7 +7,7 @@ Feature: Test Mining Functionalities
   Scenario: Opening the Mining screen
     Given I am on the Clicker Royale main page
     When I click on the Mining Button
-    Then The Mining Meu Popup should show
+    Then The Mining Menu Popup should show
 
   Scenario: Upgrading the Shovel Depth
     Given I am on the Clicker Royale main page

@@ -33,7 +33,7 @@ When('I click on the Mining Button', async function () {
    await pvp_button.click();
 });
 
-Then('The Mining Meu Popup should show', async function () {
+Then('The Mining Menu Popup should show', async function () {
     expect(await driver.findElement(By.id('popup_mining')).isDisplayed()).to.equal(true);
 });
 

@@ -1,8 +1,8 @@
 Feature: Test Sign Up
   Scenario: Test if sign up popup
     Given I visit Clicker Royale website
-    When I click the sign up button
-    Then the sign up pop up should be visible
+    When I click the log in button
+    Then the log in pop up should be visible
 
   Scenario: Create a account
     Given I visit Clicker Royale website

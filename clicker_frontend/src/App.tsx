@@ -351,16 +351,16 @@ const App: Component = () => {
                                 <div class={styles.popup_h} id={"popup_sign_in"}>
                                     <h3>Login</h3>
                                 </div>
-                                <input id={"input_signup_email"} type="text" ref={email_field!} style="width: 300px;"
+                                <input id={"input_signin_email"} type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
-                                <input id={"input_signup_password"} type="password" ref={password_field!} style="width: 300px;"
+                                <input id={"input_signin_password"} type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
-                                <input id={"button_signup_submit"} type="submit" value="Log In" onClick={login}/>
+                                <input id={"button_signin_submit"} type="submit" value="Log In" onClick={login}/>
                                 <div class={styles.switch}>
                                     <p>Not registered?</p>
                                 </div>
                                 <div class={styles.switch}>
-                                    <button id={"button_switch_signin"} class={styles.buttonswitch} onClick={() => {
+                                    <button id={"button_switch_signup"} class={styles.buttonswitch} onClick={() => {
                                         setShow(false);
                                         setInnerShow(true)
                                     }}>Sign Up
@@ -375,11 +375,11 @@ const App: Component = () => {
                                 <div class={styles.popup_h}>
                                     <h3>Sign Up</h3>
                                 </div>
-                                <input id={"input_signin_email"} type="text" ref={email_field!} style="width: 300px;"
+                                <input id={"input_signup_email"} type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
-                                <input id={"input_signin_password"} type="password" ref={password_field!} style="width: 300px;"
+                                <input id={"input_signup_password"} type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
-                                <input id={"button_signin_submit"} type="submit" value="Sign Up" onClick={sign_up}/>
+                                <input id={"button_signup_submit"} type="submit" value="Sign Up" onClick={sign_up}/>
                                 <div class={styles.switch}>
                                     <p>Already signed up?</p>
                                 </div>
@@ -404,7 +404,7 @@ const App: Component = () => {
                                 <label id={"label_ore"}>{ore()}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_depth}>
-                                <label id={"lalbel_depth"}>{depth()}</label>
+                                <label id={"label_depth"}>{depth()}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_diamond}>
                                 <label>soon</label>

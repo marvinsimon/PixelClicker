@@ -38,7 +38,7 @@ Then('the attack level should increase to 2', async function() {
 
 Given('I have a account and there is another player that can be attacked', {timeout: 20000}, async function() {
     await driver.findElement(By.id('button_sign_up')).click();
-    await driver.findElement(By.id('button_switch_signin')).click();
+    await driver.findElement(By.id('button_switch_signup')).click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));
     const input_password = await driver.findElement(By.id('input_signup_password'));
@@ -56,9 +56,9 @@ Given('I have a account and there is another player that can be attacked', {time
 
     await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
-    const email = await driver.findElement(By.id('input_signup_email'));
-    const password = await driver.findElement(By.id('input_signup_password'));
-    const submit = await driver.findElement(By.id('button_signup_submit'));
+    const email = await driver.findElement(By.id('input_signin_email'));
+    const password = await driver.findElement(By.id('input_signin_password'));
+    const submit = await driver.findElement(By.id('button_signin_submit'));
     email.sendKeys('self');
     password.sendKeys('test');
     await driver.sleep(500);

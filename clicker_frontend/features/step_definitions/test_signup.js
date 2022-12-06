@@ -11,20 +11,20 @@ Given('I visit Clicker Royale website', function () {
     return driver.get('http://127.0.0.1:3000/').await;
 });
 
-When('I click the sign up button', {timeout: 10000}, async function () {
+When('I click the log in button', {timeout: 10000}, async function () {
     const element = await driver.findElement(By.id('button_sign_up'));
     element.click();
 });
 
-Then('the sign up pop up should be visible', async function () {
-    const element = await driver.findElement(By.id('input_signup_email'));
+Then('the log in pop up should be visible', async function () {
+    const element = await driver.findElement(By.id('popup_sign_in'));
     expect(await element.isDisplayed()).to.equal(true);
 });
 
 When('I create a account', {timeout: 10000}, async function() {
     await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
-    const button_switch = await driver.findElement(By.id('button_switch_signin'));
+    const button_switch = await driver.findElement(By.id('button_switch_signup'));
     button_switch.click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));
@@ -47,7 +47,7 @@ Then('I want to be logged in after creating it', async function() {
 Given('I am not logged in but have a account', {timeout: 10000}, async function () {
     await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
-    const button_switch = await driver.findElement(By.id('button_switch_signin'));
+    const button_switch = await driver.findElement(By.id('button_switch_signup'));
     button_switch.click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));

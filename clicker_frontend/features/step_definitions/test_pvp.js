@@ -76,7 +76,7 @@ When('I click the attack button to attack somebody', {timeout: 20000}, async fun
     await driver.findElement(By.id('button_pvp')).click();
     await driver.sleep(2000);
     await driver.findElement(By.id('button_attack')).click();
-    await driver.sleep(10000);
+    await driver.sleep(15000);
 })
 
 Then('I want to see and receive my loot at the end of the attack', async function() {

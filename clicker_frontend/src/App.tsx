@@ -556,16 +556,16 @@ const App: Component = () => {
 
                     <Show when={showLoot()}>
                         <div id={"popup_loot"} class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
-                            <label> Der Angriff war erfolgreich! </label>
-                            <label> Deine Beute: {loot()} Erz</label>
+                            <label> Your attack was successful! </label>
+                            <label> You looted {loot()} ore</label>
                         </div>
                     </Show>
 
                     <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
-                            <label> Willkommen zurück! </label>
-                            <label> Abgebautes Erz: {totalAmount()}</label>
-                            <label> Zurückgelegte Grabtiefe: {totalDepth()}</label>
+                            <label> Welcome Back! </label>
+                            <label> Mined Ore: {totalAmount()}</label>
+                            <label> Covered Dapth: {totalDepth()}</label>
                         </div>
                     </Show>
                 </div>

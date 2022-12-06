@@ -24,6 +24,9 @@ Then('the sign up pop up should be visible', async function () {
 When('I create a account', {timeout: 10000}, async function() {
     await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
+    const button_switch = await driver.findElement(By.id('button_switch_signin'));
+    button_switch.click();
+    await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));
     const input_password = await driver.findElement(By.id('input_signup_password'));
     const button = await driver.findElement(By.id('button_signup_submit'));
@@ -43,6 +46,9 @@ Then('I want to be logged in after creating it', async function() {
 
 Given('I am not logged in but have a account', {timeout: 10000}, async function () {
     await driver.findElement(By.id('button_sign_up')).click();
+    await driver.sleep(500);
+    const button_switch = await driver.findElement(By.id('button_switch_signin'));
+    button_switch.click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));
     const input_password = await driver.findElement(By.id('input_signup_password'));
@@ -64,9 +70,6 @@ When('I log in to my account', {timeout: 10000}, async function() {
     await driver.sleep(500);
     const element = await driver.findElement(By.id('button_sign_up'));
     element.click();
-    await driver.sleep(500);
-    const button_switch = await driver.findElement(By.id('button_switch_signin'));
-    button_switch.click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signin_email'));
     const input_password = await driver.findElement(By.id('input_signin_password'));

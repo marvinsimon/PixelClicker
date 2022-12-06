@@ -33,11 +33,12 @@ When('I have at least 50 ore and click on the Angriff button', {timeout: 25000},
 });
 
 Then('the attack level should increase to 2', async function() {
-    expect(await driver.findElement(By.id("button_upgrade_attack")).getText()).to.equal("Angriff: 2");
+    expect(await driver.findElement(By.id("label_attack_level")).getText()).to.equal("2");
 });
 
 Given('I have a account and there is another player that can be attacked', {timeout: 20000}, async function() {
     await driver.findElement(By.id('button_sign_up')).click();
+    await driver.findElement(By.id('button_switch_signin')).click();
     await driver.sleep(500);
     const input_email = await driver.findElement(By.id('input_signup_email'));
     const input_password = await driver.findElement(By.id('input_signup_password'));
@@ -68,6 +69,8 @@ Given('I have a account and there is another player that can be attacked', {time
 
 When('I click the attack button to attack somebody', {timeout: 20000}, async function() {
     ore_pre = await driver.findElement(By.id('label_ore')).getText();
+    await driver.findElement(By.id('button_pvp')).click();
+    await driver.sleep(2000);
     await driver.findElement(By.id('button_attack')).click();
     await driver.sleep(15000);
 })

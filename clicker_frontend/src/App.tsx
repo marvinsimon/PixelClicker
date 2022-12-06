@@ -339,28 +339,28 @@ const App: Component = () => {
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <Show when={!loggedIn()}
-                          fallback={<button class={styles.User_symbol} onClick={() => {
+                          fallback={<button id={"button_sign_out"} class={styles.User_symbol} onClick={() => {
                               sign_out();
                               setShow(false);
                               setInnerShow(false)
                           }}></button>}>
-                        <button onClick={(e) => setShow(true)} class={styles.button_sign_up}>Login</button>
+                        <button id={"button_sign_up"} onClick={(e) => setShow(true)} class={styles.button_sign_up}>Login</button>
                         <Show when={show()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                <div class={styles.popup_h}>
+                                <div class={styles.popup_h} id={"popup_sign_in"}>
                                     <h3>Login</h3>
                                 </div>
-                                <input type="text" ref={email_field!} style="width: 300px;"
+                                <input id={"input_signup_email"} type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
-                                <input type="password" ref={password_field!} style="width: 300px;"
+                                <input id={"input_signup_password"} type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
-                                <input type="submit" value="Log In" onClick={login}/>
+                                <input id={"button_signup_submit"} type="submit" value="Log In" onClick={login}/>
                                 <div class={styles.switch}>
                                     <p>Not registered?</p>
                                 </div>
                                 <div class={styles.switch}>
-                                    <button class={styles.buttonswitch} onClick={() => {
+                                    <button id={"button_switch_signin"} class={styles.buttonswitch} onClick={() => {
                                         setShow(false);
                                         setInnerShow(true)
                                     }}>Sign Up
@@ -375,11 +375,11 @@ const App: Component = () => {
                                 <div class={styles.popup_h}>
                                     <h3>Sign Up</h3>
                                 </div>
-                                <input type="text" ref={email_field!} style="width: 300px;"
+                                <input id={"input_signin_email"} type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
-                                <input type="password" ref={password_field!} style="width: 300px;"
+                                <input id={"input_signin_password"} type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
-                                <input type="submit" value="Sign Up" onClick={sign_up}/>
+                                <input id={"button_signin_submit"} type="submit" value="Sign Up" onClick={sign_up}/>
                                 <div class={styles.switch}>
                                     <p>Already signed up?</p>
                                 </div>
@@ -401,10 +401,10 @@ const App: Component = () => {
                         <div class={styles.board_img_container}>
                             <img src={board} class={styles.board_img} alt={"Value board"}/>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
-                                <label>{ore()}</label>
+                                <label id={"label_ore"}>{ore()}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_depth}>
-                                <label>{depth()}</label>
+                                <label id={"lalbel_depth"}>{depth()}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_diamond}>
                                 <label>soon</label>
@@ -412,7 +412,7 @@ const App: Component = () => {
                         </div>
                     </div>
                 </div>
-                <div class={styles.main} onClick={mine}>
+                <div class={styles.main} id={"mining_screen"} onClick={mine}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
@@ -422,7 +422,7 @@ const App: Component = () => {
                           fallback={
                               <>
                                   <div class={styles.buttonitem}>
-                                      <button onClick={(e) => {
+                                      <button id={"button_pvp"} onClick={(e) => {
                                           setShowPVP(true);
                                           hide();
                                           rotateClockwise();
@@ -431,7 +431,7 @@ const App: Component = () => {
                                   </div>
                               </>
                           }>
-                        <div class={styles.slideIn}>
+                        <div class={styles.slideIn} id={"popup_pvp"}>
                             <div class={styles.image_container}>
                                 <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
                                 <button class={styles.button_close} onClick={() => {
@@ -447,12 +447,12 @@ const App: Component = () => {
                                 <a class={styles.label_board}>
                                     <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
                                 </a>
-                                <button class={styles.button + " " + pvpModule.upgrade_attack}
+                                <button class={styles.button + " " + pvpModule.upgrade_attack} id={"button_upgrade_attack"}
                                         onClick={upgradeAttackLevel}>ANG
                                 </button>
                                 <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 <label
-                                    class={styles.label_header + " " + pvpModule.label_attack_level}>{attackLevel()}</label>
+                                    class={styles.label_header + " " + pvpModule.label_attack_level} id={"label_attack_level"}>{attackLevel()}</label>
 
                                 <button class={styles.button + " " + pvpModule.upgrade_defence}
                                         onClick={upgradeDefenceLevel}>DEF
@@ -475,7 +475,7 @@ const App: Component = () => {
                           fallback={
                               <>
                                   <div class={styles.buttonitem}>
-                                      <button onClick={(e) => {
+                                      <button id={"button_mining"} onClick={(e) => {
                                           setShowMining(true);
                                           hide();
                                           rotateClockwise();
@@ -485,7 +485,7 @@ const App: Component = () => {
                                   </div>
                               </>
                           }>
-                        <div class={styles.slideIn}>
+                        <div class={styles.slideIn} id={"mining_screen"}>
                             <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {
@@ -498,19 +498,19 @@ const App: Component = () => {
                                 }, 1300);
                                 rotateCounterClockwise();
                             }}>
-                                <label class={styles.label_header + " " + styles.label_close}>X</label>
+                                <label id={"button_close_mining"} class={styles.label_header + " " + styles.label_close}>X</label>
                             </button>
                             <a class={styles.label_board}>
                                 <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
                             </a>
-                            <button class={styles.button + " " + mineModule.upgrade_speed}
+                            <button class={styles.button + " " + mineModule.upgrade_speed} id={"button_upgrade_shovel_depth"}
                                     onClick={upgradeShovelDepth}>Depth
                             </button>
                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <label
                                 class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
 
-                            <button class={styles.button + " " + mineModule.upgrade_amount}
+                            <button class={styles.button + " " + mineModule.upgrade_amount} id={"button_upgrade_shovel_amount"}
                                     onClick={upgradeShovelAmount}>Amount
                             </button>
                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
@@ -555,7 +555,7 @@ const App: Component = () => {
                     </div>
 
                     <Show when={showLoot()}>
-                        <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
+                        <div id={"popup_loot"} class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label> Der Angriff war erfolgreich! </label>
                             <label> Deine Beute: {loot()} Erz</label>
                         </div>

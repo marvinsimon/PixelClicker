@@ -44,13 +44,15 @@ When('I have at least 50 ore and click on the Schaufelgeschwindigkeit Button', a
         await mining_screen.click();
     }
     await driver.findElement(By.id("button_mining")).click();
+    await driver.sleep(2000);
     await driver.findElement(By.id("button_upgrade_shovel_depth")).click();
 });
 
 Then("It's level should increase to 2 and the depth should increase by 2 on click", async function () {
     expect(await driver.findElement(By.id("button_upgrade_shovel_depth")).getText()).to.equal("Schaufelgeschwindigkeitslevel: 2");
-    const actions = driver.actions({async: true});
-    await actions.move({x:0, y:0}).click().perform();
+    await driver.sleep(500);
+    await driver.findElement(By.id('button_close_mining')).click();
+    await driver.sleep(500);
     await driver.findElement(By.id('mining_screen')).click();
     expect(await driver.findElement(By.id("label_depth")).getText()).to.equal("52");
 });

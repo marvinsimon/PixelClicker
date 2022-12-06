@@ -508,7 +508,7 @@ const App: Component = () => {
                             </button>
                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <label
-                                class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
+                                class={styles.label_header + " " + mineModule.label_speed_level} id={"label_shovel_depth_level"}>{shovelDepth()}</label>
 
                             <button class={styles.button + " " + mineModule.upgrade_amount} id={"button_upgrade_shovel_amount"}
                                     onClick={upgradeShovelAmount}>Amount

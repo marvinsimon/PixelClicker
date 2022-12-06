@@ -264,7 +264,12 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut logged_in = false;
     let mut interval = Instant::now();
 
-    create_dummy_players(&pool).await;
+    if let Ok(None) = sqlx::query!(
+        "SELECT * FROM player;"
+    ).fetch_optional(&pool)
+        .await {
+            create_dummy_players(&pool).await;
+    }
 
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {

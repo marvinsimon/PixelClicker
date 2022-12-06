@@ -29,7 +29,9 @@ When('I have at least 50 ore and click on the Angriff button', {timeout: 25000},
         await mining_screen.click();
     }
     await driver.findElement(By.id("button_pvp")).click();
+    await driver.sleep(1000);
     await driver.findElement(By.id("button_upgrade_attack")).click();
+    await driver.sleep(1000);
 });
 
 Then('the attack level should increase to 2', async function() {
@@ -78,4 +80,8 @@ When('I click the attack button to attack somebody', {timeout: 20000}, async fun
 Then('I want to see and receive my loot at the end of the attack', async function() {
     expect(await driver.findElement(By.id('popup_loot')).isDisplayed()).to.equal(true);
     expect(await driver.findElement(By.id('label_ore')).getText() >= ore_pre).to.equal(true);
+});
+
+AfterAll(async function() {
+    await driver.quit();
 });

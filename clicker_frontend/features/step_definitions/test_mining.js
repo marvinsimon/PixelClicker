@@ -1,8 +1,6 @@
 const {Given, When, Then, AfterAll} = require('@cucumber/cucumber');
-const {Builder, By, ActionChains} = require("selenium-webdriver");
+const {Builder, By} = require("selenium-webdriver");
 const { expect } = require('chai');
-const {driverLocation} = require("selenium-webdriver/common/seleniumManager");
-
 
 const driver = new Builder()
     .forBrowser('chrome')
@@ -49,12 +47,13 @@ When('I have at least 50 ore and click on the Schaufelgeschwindigkeit Button', a
 });
 
 Then("It's level should increase to 2 and the depth should increase by 2 on click", async function () {
-    expect(await driver.findElement(By.id("button_upgrade_shovel_depth")).getText()).to.equal("Schaufelgeschwindigkeitslevel: 2");
+    expect(await driver.findElement(By.id("label_shovel_depth_level")).getText()).to.equal("2");
     await driver.sleep(500);
     await driver.findElement(By.id('button_close_mining')).click();
-    await driver.sleep(500);
     await driver.findElement(By.id('mining_screen')).click();
-    expect(await driver.findElement(By.id("label_depth")).getText()).to.equal("52");
+    await driver.sleep(500);
+    const labelText = await driver.findElement(By.id("label_depth")).getText();
+    expect(labelText).to.equal("52");
 });
 
 AfterAll(async function() {

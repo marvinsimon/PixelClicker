@@ -1,5 +1,5 @@
 var assert = require('assert');
-const {Given, When, Then} = require('@cucumber/cucumber');
+const {Given, When, Then, AfterAll} = require('@cucumber/cucumber');
 const {Builder} = require("selenium-webdriver");
 
 const driver = new Builder()
@@ -16,3 +16,7 @@ Then('I see title Test Cookbook', function () {
         return title;
     });
 });
+
+AfterAll(async function () {
+    await driver.quit();
+})

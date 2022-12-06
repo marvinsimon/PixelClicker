@@ -1,11 +1,15 @@
 import type {Component} from "solid-js";
 import {createSignal, onCleanup, Show} from "solid-js";
 import styles from "./App.module.css";
-import {ClientMessages, I32, ServerMessages, U64} from "./game_messages";
+import pvpModule from "./styles/PvP.module.css";
+import mineModule from "./styles/Mining.module.css";
+import displayModule from "./styles/Display.module.css";
+import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
+import board_right from "./assets/Brett2.png";
+import small_board from "./assets/small_brett.png";
 import game from "./assets/Playground.png";
-import {Portal} from "solid-js/web";
 
 const App: Component = () => {
 
@@ -31,9 +35,13 @@ const App: Component = () => {
     const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
     const [showPVP, setShowPVP] = createSignal(false);
+    const [popup, setPopup] = createSignal(false);
     const [showLoot, setShowLoot] = createSignal(false);
     const [loot, setLoot] = createSignal(0);
-
+    const [attacked, setAttacked] = createSignal(false);
+    const [showOfflineResources, setShowOfflineResources] = createSignal(false);
+    const [totalDepth, setTotalDepth] = createSignal(0);
+    const [totalAmount, setTotalAmount] = createSignal(0);
 
     let socket: WebSocket | undefined;
 
@@ -75,11 +83,21 @@ const App: Component = () => {
                 console.log("Still logged in")
                 setAuth(true);
                 setLoggedIn(true);
+            } else if ("AutomationStarted" in event) {
+                setAutomation(event.AutomationStarted.success);
+            } else if ("MinedOffline" in event) {
+                console.log("Got offline resources")
+                setTotalDepth(event.MinedOffline.depth);
+                setTotalAmount(event.MinedOffline.ore);
+
+                setShowOfflineResources(true);
             }
         }
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
-            socket?.send(JSON.stringify(event));
+            window.setTimeout(() => {
+                socket?.send(JSON.stringify(event));
+            }, 1000);
         }
     }
 
@@ -87,12 +105,12 @@ const App: Component = () => {
         await connectBackend();
     }
 
-    function lootArrived(CombatElapsed: {loot: U64}) {
+    function lootArrived(CombatElapsed: { loot: number }) {
         setShowLoot(true);
         setLoot(CombatElapsed.loot);
     }
 
-    const setLoginStates = (LoginState: { shovel_amount: I32; shovel_depth: I32; automation_depth: I32; automation_amount: I32; attack_level: I32; defence_level: I32; automation_started: boolean }) => {
+    const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean }) => {
         setShovelDepth(LoginState.shovel_depth);
         setShovelAmount(LoginState.shovel_amount);
         setAutoAmount(LoginState.automation_amount);
@@ -102,7 +120,21 @@ const App: Component = () => {
         setDefenceLevel(LoginState.defence_level);
     }
 
+    const resetScreen = () => {
+        if(showMining() || showPVP()) {
+            slideOutAutomate();
+            slideOut();
+            window.setTimeout(function () {
+                setShowMining(false);
+                setShowPVP(false);
+                unHide();
+            }, 1300);
+            rotateCounterClockwise();
+        }
+    }
+
     const disconnectBackend = () => {
+        resetScreen();
         socket?.close();
     }
 
@@ -129,7 +161,6 @@ const App: Component = () => {
 
     const automate = async () => {
         if (socket) {
-            setAutomation(true);
             const event: ClientMessages = "StartAutomation";
             await socket.send(JSON.stringify(event));
         }
@@ -227,15 +258,60 @@ const App: Component = () => {
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
-    const startTimer = async () => {
-        var reverse_counter = 9;
-        var combatTimer = setInterval(function(){
-            document.getElementById("progressBar").value = 9 - --reverse_counter;
-            if (reverse_counter <= 0)
-                clearInterval(combatTimer);
+    const hide = () => {
+        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
+    }
 
-            document.getElementById("counting").innerHTML = reverse_counter;
-        },1000);
+    const unHide = () => {
+        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
+    }
+
+    const slideOut = () => {
+        let variable = document.querySelector("." + styles.slideIn);
+        if(variable) {
+            variable.classList.remove(styles.slideIn);
+            variable.classList.add(styles.slideOut);
+        }
+    }
+
+    const slideOutAutomate = () => {
+        let variable = document.querySelector("." + styles.slideIn_automate);
+        if(variable) {
+            variable.classList.remove(styles.slideIn_automate);
+            variable.classList.add(styles.slideOut_automate);
+        }
+    }
+
+    const rotateClockwise = () => {
+        let left = document.querySelector("." + styles.gear_left);
+        left!.classList.remove(styles.gear_rotate_counterClockwise);
+        left!.classList.add(styles.gear_rotate_clockwise);
+
+        let right = document.querySelector("." + styles.gear_right);
+        right!.classList.remove(styles.gear_rotate_clockwise);
+        right!.classList.add(styles.gear_rotate_counterClockwise);
+    }
+
+    const rotateCounterClockwise = () => {
+        let left = document.querySelector("." + styles.gear_left);
+        left!.classList.remove(styles.gear_rotate_clockwise);
+        left!.classList.add(styles.gear_rotate_counterClockwise);
+
+        let right = document.querySelector("." + styles.gear_right);
+        right!.classList.remove(styles.gear_rotate_counterClockwise);
+        right!.classList.add(styles.gear_rotate_clockwise);
+    }
+    const startTimer = async () => {
+        let reverse_counter = 9;
+        const combatTimer = setInterval(function () {
+            document.querySelector<HTMLProgressElement>("#progressBar")!.value = 9 - --reverse_counter;
+            if (reverse_counter <= 0) {
+                clearInterval(combatTimer);
+                window.setTimeout(() => {
+                    setAttacked(false);
+                }, 500);
+            }
+        }, 1000);
     }
 
     const attack = async () => {
@@ -243,7 +319,8 @@ const App: Component = () => {
             method: "GET",
             credentials: "include",
         });
-        if (response.status == 200){ //200 == StatusCode OK
+        if (response.status == 200) { //200 == StatusCode OK
+            setAttacked(true);
             console.log("Start timer");
             //Start timer
             await startTimer();
@@ -255,118 +332,247 @@ const App: Component = () => {
     return (
         <div class={styles.App}>
             <div class={styles.container}>
+                <div class={styles.vBar}></div>
+                <div class={styles.heil}>
+                    <div class={styles.heil_img}></div>
+                </div>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
-                    <nav>
-                        <Show when={!loggedIn()}
-                              fallback={<button id={"button_sign_out"} class={styles.button} onClick={() => {
-                                  sign_out();
-                                  setShow(false);
-                                  setInnerShow(false)
-                              }}>Ausloggen</button>}>
-                            <button id={"button_sign_up"} onClick={(e) => setShow(true)} class={styles.button}>SignUp</button>
-                            <Show when={show()}
-                                  fallback={""}>
-                                <div id={"popup_signup"} class={styles.modal} use:clickOutside={() => setShow(false)}>
-                                    <h3>SignUp</h3>
-                                    <input id={"input_signup_email"} type="text" ref={email_field!} style="width: 300px;"
-                                           placeholder="Ihre E-mail.."/>
-                                    <input id={"input_signup_password"} type="password" ref={password_field!} style="width: 300px;"
-                                           placeholder="Ihr Passwort.."/>
-                                    <input id={"button_signup_submit"} type="submit" value="Sign Up" onClick={sign_up}/>
-                                    <div class={styles.switch}>
-                                        <p>Already signed up?</p>
-                                        <button id={"button_switch_signin"} class={styles.buttonswitch} onClick={() => {
-                                            setShow(false);
-                                            setInnerShow(true)
-                                        }}>Login
-                                        </button>
-                                    </div>
-                                </div>
-                            </Show>
-
-                            <Show when={innershow()}
-                                  fallback={""}>
-                                <div id={"popup_signin"} class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
+                    <Show when={!loggedIn()}
+                          fallback={<button class={styles.User_symbol} onClick={() => {
+                              sign_out();
+                              setShow(false);
+                              setInnerShow(false)
+                          }}></button>}>
+                        <button onClick={(e) => setShow(true)} class={styles.button_sign_up}>Login</button>
+                        <Show when={show()}
+                              fallback={""}>
+                            <div class={styles.modal} use:clickOutside={() => setShow(false)}>
+                                <div class={styles.popup_h}>
                                     <h3>Login</h3>
-                                    <input id={"input_signin_email"} type="text" ref={email_field!} style="width: 300px;"
-                                           placeholder="Ihre E-mail.."/>
-                                    <input id={"input_signin_password"} type="password" ref={password_field!} style="width: 300px;"
-                                           placeholder="Ihr Passwort.."/>
-                                    <input id={"button_signin_submit"} type="submit" value="Log In" onClick={login}/>
-                                    <div class={styles.switch}>
-                                        <p>Not registered?</p>
-                                        <button id={"button_switch_signup"} class={styles.buttonswitch} onClick={() => {
-                                            setShow(true);
-                                            setInnerShow(false)
-                                        }}>Sign Up
-                                        </button>
-                                    </div>
                                 </div>
-                            </Show>
+                                <input type="text" ref={email_field!} style="width: 300px;"
+                                       placeholder="email.."/>
+                                <input type="password" ref={password_field!} style="width: 300px;"
+                                       placeholder="password.."/>
+                                <input type="submit" value="Log In" onClick={login}/>
+                                <div class={styles.switch}>
+                                    <p>Not registered?</p>
+                                </div>
+                                <div class={styles.switch}>
+                                    <button class={styles.buttonswitch} onClick={() => {
+                                        setShow(false);
+                                        setInnerShow(true)
+                                    }}>Sign Up
+                                    </button>
+                                </div>
+                            </div>
                         </Show>
-                    </nav>
+
+                        <Show when={innershow()}
+                              fallback={""}>
+                            <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
+                                <div class={styles.popup_h}>
+                                    <h3>Sign Up</h3>
+                                </div>
+                                <input type="text" ref={email_field!} style="width: 300px;"
+                                       placeholder="email.."/>
+                                <input type="password" ref={password_field!} style="width: 300px;"
+                                       placeholder="password.."/>
+                                <input type="submit" value="Sign Up" onClick={sign_up}/>
+                                <div class={styles.switch}>
+                                    <p>Already signed up?</p>
+                                </div>
+                                <div class={styles.switch}>
+                                    <button class={styles.buttonswitch} onClick={() => {
+                                        setShow(true);
+                                        setInnerShow(false)
+                                    }}>Login
+                                    </button>
+                                </div>
+                            </div>
+                        </Show>
+                    </Show>
+                </div>
+                <div class={styles.woodBar}>
                 </div>
                 <div class={styles.board}>
-                    <img src={board} class={styles.board_img} alt={"Value board"}/>
-                    <label id={"label_ore"} class={styles.label_info}>{ore()}</label>
-                    <label id={"label_depth"} class={styles.label_info}>{depth()}</label>
-                    <label id={"label_diamond"} class={styles.label_info}>coming soon</label>
+                    <div class={styles.val_board}>
+                        <div class={styles.board_img_container}>
+                            <img src={board} class={styles.board_img} alt={"Value board"}/>
+                            <div class={styles.label_header + " " + displayModule.label_ore}>
+                                <label>{ore()}</label>
+                            </div>
+                            <div class={styles.label_header + " " + displayModule.label_depth}>
+                                <label>{depth()}</label>
+                            </div>
+                            <div class={styles.label_header + " " + displayModule.label_diamond}>
+                                <label>soon</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id={"mining_screen"} class={styles.main} onClick={mine}>
+                <div class={styles.main} onClick={mine}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                 </div>
                 <div class={styles.controls}>
+                    <a class={styles.gear_normal + " " + styles.gear_left}/>
+                    <a class={styles.gear_normal + " " + styles.gear_right}></a>
                     <Show when={showPVP()}
-                          fallback={<button id={"button_pvp"} onClick={(e) => setShowPVP(true)} class={styles.button_pvp}></button>}>
-                        <div id={"popup_pvp"} class={styles.modal} use:clickOutside={() => setShowPVP(false)}>
-                            <h3>PvP Verbesserungen</h3>
-                            <br/>
-                            <button id={"button_upgrade_attack"} class={styles.button} onClick={upgradeAttackLevel}>Angriff: {attackLevel()}</button>
-                            <button id={"button_upgrade_defence"} class={styles.button} onClick={upgradeDefenceLevel}>Verteidigung: {defenceLevel()}</button>
+                          fallback={
+                              <>
+                                  <div class={styles.buttonitem}>
+                                      <button onClick={(e) => {
+                                          setShowPVP(true);
+                                          hide();
+                                          rotateClockwise();
+                                      }} class={styles.button}>PVP
+                                      </button>
+                                  </div>
+                              </>
+                          }>
+                        <div class={styles.slideIn}>
+                            <div class={styles.image_container}>
+                                <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                                <button class={styles.button_close} onClick={() => {
+                                    slideOut();
+                                    window.setTimeout(function () {
+                                        setShowPVP(false);
+                                        unHide();
+                                    }, 1300);
+                                    rotateCounterClockwise();
+                                }}>
+                                    <label class={styles.label_header + " " + styles.label_close}>X</label>
+                                </button>
+                                <a class={styles.label_board}>
+                                    <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
+                                </a>
+                                <button class={styles.button + " " + pvpModule.upgrade_attack}
+                                        onClick={upgradeAttackLevel}>ANG
+                                </button>
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
+                                <label
+                                    class={styles.label_header + " " + pvpModule.label_attack_level}>{attackLevel()}</label>
+
+                                <button class={styles.button + " " + pvpModule.upgrade_defence}
+                                        onClick={upgradeDefenceLevel}>DEF
+                                </button>
+                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
+                                <label
+                                    class={styles.label_header + " " + pvpModule.label_defence_level}>{defenceLevel()}</label>
+
+                                <Show when={attacked()}
+                                      fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
+                                                        onClick={attack}></button>}>
+                                    <progress value={"0"} max={"9"} id="progressBar"
+                                              class={styles.progressBar}></progress>
+                                </Show>
+                            </div>
                         </div>
                     </Show>
 
                     <Show when={showMining()}
-                          fallback={<button id={"button_mining"} onClick={(e) => setShowMining(true)} class={styles.button_mine}></button>}>
-                        <div id={"popup_mining"} class={styles.modal} use:clickOutside={() => setShowMining(false)}>
-                            <h3>Mining Verbesserungen</h3>
-                            <br/>
-                            <button id={"button_upgrade_shovel_depth"} class={styles.button}
-                                    onClick={upgradeShovelDepth}>Schaufelgeschwindigkeitslevel: {shovelDepth()} </button>
-                            <button id={"button_upgrade_shovel_amount"} class={styles.button}
-                                    onClick={upgradeShovelAmount}>Schaufelmengenlevel: {shovelAmount()} </button>
-                            <br/>
+                          fallback={
+                              <>
+                                  <div class={styles.buttonitem}>
+                                      <button onClick={(e) => {
+                                          setShowMining(true);
+                                          hide();
+                                          rotateClockwise();
+                                          console.log("Automation: " + automation_on());
+                                      }} class={styles.button}>Mining
+                                      </button>
+                                  </div>
+                              </>
+                          }>
+                        <div class={styles.slideIn}>
+                            <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                            <button class={styles.button_close} onClick={() => {
+                                if (automation_on()) {
+                                    slideOutAutomate();
+                                }
+                                slideOut();
+                                window.setTimeout(function () {
+                                    setShowMining(false);
+                                    unHide();
+                                }, 1300);
+                                rotateCounterClockwise();
+                            }}>
+                                <label class={styles.label_header + " " + styles.label_close}>X</label>
+                            </button>
+                            <a class={styles.label_board}>
+                                <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
+                            </a>
+                            <button class={styles.button + " " + mineModule.upgrade_speed}
+                                    onClick={upgradeShovelDepth}>Depth
+                            </button>
+                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
+                            <label
+                                class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
+
+                            <button class={styles.button + " " + mineModule.upgrade_amount}
+                                    onClick={upgradeShovelAmount}>Amount
+                            </button>
+                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
+                            <label
+                                class={styles.label_header + " " + mineModule.label_amount_level}>{shovelAmount()}</label>
+
                             <Show when={automation_on()}
-                                  fallback={<button id={"button_automate"} class={styles.button} onClick={automate}>Automatisierung</button>}>
-                                <button id={"button_upgrade_auto_depth"} class={styles.button} onClick={upgradeAutoDepth}>Automat
-                                    Tiefe: {autoDepth()}</button>
-                                <br/>
-                                <button id={"button_upgrade_auto_amount"} class={styles.button} onClick={upgradeAutoAmount}>Automat Erz
-                                    Menge: {autoAmount()}</button>
+                                  fallback={<button class={styles.button + " " + mineModule.automate}
+                                                    onClick={automate}>Automate</button>}>
+                                <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
+                                <div class={styles.slideIn_automate}>
+                                    <div class={styles.image_container_automate}>
+                                        <img src={small_board} class={styles.board_img_automate}
+                                             alt={"Automate Board"}/>
+                                        <a class={mineModule.auto_label_board}>
+                                            <label
+                                                class={styles.label_header + " " + mineModule.label_auto}>Automate</label>
+                                        </a>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed}
+                                                onClick={upgradeAutoDepth}>Depth
+                                        </button>
+                                        <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
+                                        <label
+                                            class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
+
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount}
+                                                onClick={upgradeAutoAmount}>Amount
+                                        </button>
+                                        <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
+                                        <label
+                                            class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>
+                                    </div>
+                                </div>
                             </Show>
                         </div>
                     </Show>
+                    <div class={styles.buttonitem}>
+                        <button class={styles.button}>Rank</button>
+                    </div>
+                    <div class={styles.buttonitem}>
+                        <button class={styles.button}>Shop</button>
+                    </div>
 
-                    <Show when={showLoot()} >
-                        <div id={"popup_loot"} class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
-                            <label id={"label_attack_succesfull"}> Der Angriff war erfolgreich! </label>
-                            <label id={"label_attack_loot"}> Deine Beute: {loot()}</label>
+                    <Show when={showLoot()}>
+                        <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
+                            <label> Der Angriff war erfolgreich! </label>
+                            <label> Deine Beute: {loot()} Erz</label>
                         </div>
                     </Show>
 
-                    <button id={"button_attack"} class={styles.button_pvp_attack} onClick={attack}></button>
-                    <button id={"button_rank"} class={styles.button_rank}></button>
-                    <button id={"button_shop"} class={styles.button_shop}></button>
-
-                    <progress value={"0"} max={"9"} id = "progressBar"></progress>
-
-                </div>
-                <div id={"popup"}>
+                    <Show when={showOfflineResources()}>
+                        <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
+                            <label> Willkommen zurück! </label>
+                            <label> Abgebautes Erz: {totalAmount()}</label>
+                            <label> Zurückgelegte Grabtiefe: {totalDepth()}</label>
+                        </div>
+                    </Show>
                 </div>
             </div>
         </div>
-    );
+    )
+        ;
 };
 
 export default App;

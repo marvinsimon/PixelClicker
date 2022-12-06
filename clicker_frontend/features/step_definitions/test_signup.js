@@ -86,6 +86,6 @@ Then('I want my save game to be loaded automatically', async function() {
     expect(await driver.findElement(By.id('label_depth')).getText() > 0).to.equal(true);
 });
 
-AfterAll(async function() {
+/*AfterAll(async function() {
     await driver.quit();
-});
+});*/

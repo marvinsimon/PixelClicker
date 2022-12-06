@@ -462,7 +462,7 @@ const App: Component = () => {
                                     class={styles.label_header + " " + pvpModule.label_defence_level}>{defenceLevel()}</label>
 
                                 <Show when={attacked()}
-                                      fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
+                                      fallback={<button id={"button_attack"} class={styles.button + " " + pvpModule.pvp_attack}
                                                         onClick={attack}></button>}>
                                     <progress value={"0"} max={"9"} id="progressBar"
                                               class={styles.progressBar}></progress>
@@ -485,7 +485,7 @@ const App: Component = () => {
                                   </div>
                               </>
                           }>
-                        <div class={styles.slideIn} id={"mining_screen"}>
+                        <div class={styles.slideIn} id={"popup_mining"}>
                             <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {

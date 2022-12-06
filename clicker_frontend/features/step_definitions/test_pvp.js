@@ -50,7 +50,7 @@ Given('I have a account and there is another player that can be attacked', {time
     await driver.sleep(500);
     button.click();
     const mining_screen = await driver.findElement(By.id('mining_screen'));
-    await driver.sleep(500);
+    await driver.sleep(1000);
     for (let i = 0; i < 10;i++) {
         await mining_screen.click();
     }
@@ -58,9 +58,11 @@ Given('I have a account and there is another player that can be attacked', {time
 
     await driver.findElement(By.id('button_sign_up')).click();
     await driver.sleep(500);
-    const email = await driver.findElement(By.id('input_signin_email'));
-    const password = await driver.findElement(By.id('input_signin_password'));
-    const submit = await driver.findElement(By.id('button_signin_submit'));
+    await driver.findElement(By.id('button_switch_signup')).click();
+    await driver.sleep(500);
+    const email = await driver.findElement(By.id('input_signup_email'));
+    const password = await driver.findElement(By.id('input_signup_password'));
+    const submit = await driver.findElement(By.id('button_signup_submit'));
     email.sendKeys('self');
     password.sendKeys('test');
     await driver.sleep(500);
@@ -74,7 +76,7 @@ When('I click the attack button to attack somebody', {timeout: 20000}, async fun
     await driver.findElement(By.id('button_pvp')).click();
     await driver.sleep(2000);
     await driver.findElement(By.id('button_attack')).click();
-    await driver.sleep(15000);
+    await driver.sleep(10000);
 })
 
 Then('I want to see and receive my loot at the end of the attack', async function() {
@@ -82,6 +84,6 @@ Then('I want to see and receive my loot at the end of the attack', async functio
     expect(await driver.findElement(By.id('label_ore')).getText() >= ore_pre).to.equal(true);
 });
 
-AfterAll(async function() {
+/*AfterAll(async function() {
     await driver.quit();
-});
+});*/

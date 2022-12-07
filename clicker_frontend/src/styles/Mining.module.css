@@ -17,7 +17,7 @@
     height: 24%;
     width: 70%;
     left: -0.5%;
-    font-size: 3rem;
+    font-size: 2.25vw;
 }
 
 .label_speed_level {
@@ -35,7 +35,7 @@
     height: 24%;
     width: 70%;
     left: -0.5%;
-    font-size: 2.8rem;
+    font-size: 2.25vw;
 }
 
 .label_amount_level {
@@ -47,7 +47,7 @@
     top: 75%;
     height: 24%;
     width: 100%;
-    font-size: 3rem;
+    font-size: 2.25vw;
 }
 
 .label_automate {
@@ -110,4 +110,30 @@
 .label_amount_automate_level {
     top: 72.5%;
     right: 24%;
+}
+
+@media (min-width: 2000px) {
+    .label_mine {
+        font-size: 25px;
+    }
+
+    .upgrade_amount {
+        font-size: 45px;
+    }
+
+    .upgrade_speed {
+        font-size: 45px;
+    }
+
+    .upgrade_automate_amount {
+        font-size: 45px;
+    }
+
+    .upgrade_automate_speed {
+        font-size: 45px;
+    }
+
+    .automate {
+        font-size: 45px;
+    }
 }

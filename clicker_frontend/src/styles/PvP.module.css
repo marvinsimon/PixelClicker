@@ -16,7 +16,7 @@
     height: 24%;
     width: 70%;
     left: -0.5%;
-    font-size: 4rem;
+    font-size: 3.25vw;
 }
 
 .label_attack_level {
@@ -34,7 +34,7 @@
     height: 24%;
     width: 70%;
     left: -0.5%;
-    font-size: 4rem;
+    font-size: 3.25vw;
 }
 
 .label_defence_level {
@@ -47,4 +47,14 @@
     background-image: url("src/assets/attack_button.png");
     height: 26%;
     width: 122%;
+}
+
+@media (min-width: 2000px) {
+    .upgrade_attack {
+        font-size: 65px;
+    }
+
+    .upgrade_defence {
+        font-size: 65px;
+    }
 }

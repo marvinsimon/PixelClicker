@@ -10,6 +10,8 @@ import board from "./assets/Brettmiticon.png";
 import board_right from "./assets/Brett2.png";
 import small_board from "./assets/small_brett.png";
 import game from "./assets/Playground.png";
+import buttonSound from "./assets/button_click.mp3";
+import digSound from "./assets/pick2.mp3";
 
 const App: Component = () => {
 
@@ -328,6 +330,18 @@ const App: Component = () => {
             console.log("No match");
         }
     }
+    const buttonClick = new Audio(buttonSound);
+    buttonClick.preload = "none";
+    const playButtonSound = async () => {
+        await buttonClick.play();
+    }
+
+    const dig = new Audio(digSound);
+    dig.preload = "none";
+
+    const playDigSound = async () => {
+        await dig.play();
+    }
 
     return (
         <div class={styles.App}>
@@ -344,7 +358,7 @@ const App: Component = () => {
                               setShow(false);
                               setInnerShow(false)
                           }}></button>}>
-                        <button onClick={(e) => setShow(true)} class={styles.button_sign_up}>Login</button>
+                        <button onClick={(e) => {setShow(true); void playButtonSound()}} class={styles.button_sign_up}>Login</button>
                         <Show when={show()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
@@ -412,8 +426,9 @@ const App: Component = () => {
                         </div>
                     </div>
                 </div>
-                <div class={styles.main} onClick={mine}>
+                <div class={styles.main} onClick={() => {void mine(); void playDigSound()}}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
+                    <div class={styles.miner}></div>
                 </div>
                 <div class={styles.controls}>
                     <a class={styles.gear_normal + " " + styles.gear_left}/>
@@ -423,6 +438,7 @@ const App: Component = () => {
                               <>
                                   <div class={styles.buttonitem}>
                                       <button onClick={(e) => {
+                                          void playButtonSound();
                                           setShowPVP(true);
                                           hide();
                                           rotateClockwise();
@@ -476,6 +492,7 @@ const App: Component = () => {
                               <>
                                   <div class={styles.buttonitem}>
                                       <button onClick={(e) => {
+                                          void playButtonSound();
                                           setShowMining(true);
                                           hide();
                                           rotateClockwise();

@@ -12,7 +12,7 @@
 }
 
 .container {
-    background: linear-gradient(to top, black 0%, #3f3f3f 60%);
+    background-image: linear-gradient(to top, #000000, #0e0a0c, #161316, #1c191f, #202028, #24252f, #272b36, #2a313d, #2f3743, #343c49, #394250, #3e4856);
     background-size: cover;
     display: grid;
     grid-template-columns: repeat(4, minmax(200px, 1fr));
@@ -21,17 +21,16 @@
         "hd   hd   hd   hd"
         "bar  bar  bar  bar"
         "left main main right";
-
 }
 
 .header {
     grid-area: hd;
-    background: linear-gradient(to top, #3f3f3f 40%, lightgrey 200%);
+    background-color: #3e4856;
     display: flex;
     padding: 10px;
     justify-content: space-between;
+    align-items: center;
     z-index: 30;
-
 }
 
 .woodBar {
@@ -45,13 +44,17 @@
 .main {
     grid-area: main;
     z-index: 20;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
 }
 
 .controls {
     grid-area: right;
     display: grid;
     grid-template-rows: auto;
-    max-height: 80vh;
+    max-height: 45vw;
 }
 
 .buttonitem {
@@ -80,6 +83,9 @@
 }
 
 .header_logo {
+    width: 5vw;
+    height: auto;
+    max-width: 100px;
 }
 
 .button_sign_up {
@@ -89,13 +95,18 @@
     width: 8%;
     border: none;
     transition-duration: .4s;
-    font-size: 1rem;
-    margin-top: 0.4%;
+    font-size: 1vw;
 }
 
 .button_sign_up:hover {
-    transform: scale(.95);
+    transform: scale(1.05);
     cursor: pointer;
+}
+
+.button_sign_up:active {
+    color: white;
+    transition-duration: 0s;
+    transform: scale(0.95);
 }
 
 .User_symbol {
@@ -109,8 +120,13 @@
 }
 
 .User_symbol:hover {
-    transform: scale(.95);
+    transform: scale(1.05);
     cursor: pointer;
+}
+
+.User_symbol:active {
+    transition-duration: 0s;
+    transform: scale(0.95);
 }
 
 .game {
@@ -118,6 +134,7 @@
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
+    cursor: url("assets/pickaxe_small.png"), pointer;
 }
 
 .modal {
@@ -194,6 +211,10 @@ input[type=submit]:hover {
     background-color: #45a049;
 }
 
+input[type=submit]:active {
+
+}
+
 .button {
     position: absolute;
     background-color: transparent;
@@ -206,12 +227,18 @@ input[type=submit]:hover {
     background-image: url("src/assets/stone_button_dark_test.png");
     height: 125%;
     width: 125%;
-    font-size: 3rem;
+    font-size: 3.25vw;
 }
 
 .button:hover {
-    transform: scale(.28);
+    transform: scale(.32);
     cursor: pointer;
+}
+
+.button:active {
+    color: white;
+    transition-duration: 0s;
+    transform: scale(.28);
 }
 
 .progressBar {
@@ -246,6 +273,15 @@ input[type=submit]:hover {
     color: white;
     font-family: Public Pixel Font, monospace;
     font-size: 1.6vw;
+    text-shadow:
+            -1px -1px 0 #000,
+            0   -1px 0 #000,
+            1px -1px 0 #000,
+            1px  0   0 #000,
+            1px  1px 0 #000,
+            0    1px 0 #000,
+            -1px  1px 0 #000,
+            -1px  0   0 #000;
 }
 
 .label_board {
@@ -260,7 +296,7 @@ input[type=submit]:hover {
     height: 7%;
     justify-content: center;
     align-items: center;
-    -webkit-box-shadow: 1px 3px 4px #000;
+    /*-webkit-box-shadow: 1px 3px 4px #000;*/
 }
 
 .icon_upgrade {
@@ -277,9 +313,40 @@ input[type=submit]:hover {
     transition-duration: .4s;
 }
 
+.button_close {
+    position: absolute;
+    top: 93.3%;
+    background-image: url("src/assets/wood_label_close.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 6%;
+    width: 10%;
+    border: none;
+    transition-duration: .4s;
+    align-items: center;
+    /*-webkit-box-shadow: 1px 3px 4px #000;*/
+    display: flex;
+}
+
+.label_close {
+    font-size: 1.3vw;
+    left: 26%;
+}
+
+.button_close:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.button_close:active {
+    transition-duration: 0s;
+    transform: scale(0.9);
+}
+
 @media (min-width: 2000px) {
     .container {
-        background: linear-gradient(to top, black 0%, #3f3f3f 60%);
         background-size: cover;
         display: grid;
         grid-template-columns: 500px 500px 500px 500px 40px 1fr;
@@ -292,7 +359,7 @@ input[type=submit]:hover {
     }
 
     .heil {
-        background: linear-gradient(to top, black 0%, #3f3f3f 60%);
+        background-image: linear-gradient(to top, #000000, #0e0a0c, #161316, #1c191f, #202028, #24252f, #272b36, #2a313d, #2f3743, #343c49, #394250, #3e4856);
         z-index: 100;
         height: 100vh;
         display: flex;
@@ -359,6 +426,7 @@ input[type=submit]:hover {
 
     .controls {
         max-width: 500px;
+        max-height: 899px;
     }
 
     .slideIn {
@@ -385,6 +453,18 @@ input[type=submit]:hover {
         position: absolute;
         left: 1000px;
     }
+
+    .button {
+        font-size: 65px;
+    }
+
+    .button_sign_up {
+        font-size: 20px;
+    }
+
+    .label_close {
+        font-size: 26px;
+    }
 }
 
 @media (min-width: 2550px) {
@@ -398,6 +478,14 @@ input[type=submit]:hover {
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: 100px 25px 100vh;
+    }
+
+    .header_logo {
+        min-width: 100px;
+    }
+
+    .woodBar {
+        background-size: cover;
     }
 
     .main {
@@ -437,33 +525,6 @@ input[type=submit]:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.button_close {
-    position: absolute;
-    top: 93.3%;
-    background-image: url("src/assets/wood_label_close.png");
-    background-color: transparent;
-    background-position: center center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    height: 6%;
-    width: 10%;
-    border: none;
-    transition-duration: .4s;
-    align-items: center;
-    -webkit-box-shadow: 1px 3px 4px #000;
-    display: flex;
-}
-
-.label_close {
-    font-size: 1.3vw;
-    left: 26%;
-}
-
-.button_close:hover {
-    transform: scale(.9);
-    cursor: pointer;
 }
 
 .slideIn {
@@ -642,4 +703,16 @@ input[type=submit]:hover {
     100% {
         transform: translateY(50%);
     }
+}
+
+.miner {
+    background-image: url("assets/miner_masculine_1.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    position: relative;
+    height: 6vw;
+    width: 5vw;
+    left: -48%;
+    z-index: 100;
+    top: -6%;
 }

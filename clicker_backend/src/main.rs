@@ -11,7 +11,7 @@ use axum::{
 
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
-user regex::Regex;
+use regex::Regex;
 
 use sqlx::{PgPool, Pool};
 use sqlx::types::chrono::Utc;
@@ -176,36 +176,37 @@ async fn sign_up(
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
             if email_regex.is_match(email) {
-            match sqlx::query!(
+                match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
                 password,
                 game_state_value
             )
-                .fetch_one(&pool)
-                .await
-            {
-                Ok(r) => {
-                    session.set(PLAYER_AUTH, r.id).await;
-                    save_score_to_database(r.id, &game_state, &pool).await;
-                    set_player_as_online(r.id, &pool).await;
-                    StatusCode::OK
-                }
-                Err(err) => {
-                    println!("{}", err);
-                    StatusCode::INTERNAL_SERVER_ERROR
+                    .fetch_one(&pool)
+                    .await
+                {
+                    Ok(r) => {
+                        session.set(PLAYER_AUTH, r.id).await;
+                        save_score_to_database(r.id, &game_state, &pool).await;
+                        set_player_as_online(r.id, &pool).await;
+                        StatusCode::OK
+                    }
+                    Err(err) => {
+                        println!("{}", err);
+                        StatusCode::INTERNAL_SERVER_ERROR
+                    }
                 }
             }
+            StatusCode::BAD_REQUEST
         }
-        StatusCode::BAD_REQUEST
-    }
-        }
+
         Err(err) => {
             println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
     }
 }
+
 
 async fn logout(
     session: AxumSession<AxumPgPool>,

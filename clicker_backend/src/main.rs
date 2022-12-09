@@ -175,7 +175,7 @@ async fn sign_up(
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
-            if email_regex.is_match(email) {}
+            if email_regex.is_match(email) {
             match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
@@ -198,6 +198,7 @@ async fn sign_up(
             }
         }
         StatusCode::BAD_REQUEST
+    }
         }
         Err(err) => {
             println!("{}", err);

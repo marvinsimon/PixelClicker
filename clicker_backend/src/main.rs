@@ -11,6 +11,7 @@ use axum::{
 
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
+user regex::Regex;
 
 use sqlx::{PgPool, Pool};
 use sqlx::types::chrono::Utc;
@@ -119,7 +120,7 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, timestamp FROM player WHERE email = $1 AND password = $2;",
+        "SELECT id, game_state, timestamp FROM player WHERE (email = $1 OR username = $1) AND password = $2;",
         email,
         password
     )
@@ -171,8 +172,10 @@ async fn sign_up(
     {
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
+            let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
+            if email_regex.is_match(email) {}
             match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
@@ -193,6 +196,8 @@ async fn sign_up(
                     StatusCode::INTERNAL_SERVER_ERROR
                 }
             }
+        }
+        StatusCode::BAD_REQUEST
         }
         Err(err) => {
             println!("{}", err);
@@ -288,6 +293,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                             }
                         }
                     }
+                } else {
+                    //ask for username
                 }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {

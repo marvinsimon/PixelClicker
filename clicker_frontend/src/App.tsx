@@ -323,7 +323,7 @@ const App: Component = () => {
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                 <h3>Login</h3>
                                 <input type="text" ref={email_field!} style="width: 300px;"
-                                       placeholder="email.."/>
+                                       placeholder="email or username.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Log In" onClick={login}/>

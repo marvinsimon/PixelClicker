@@ -172,11 +172,11 @@ async fn sign_up(
     {
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
-            let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})").unwrap();
+            let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
-            if email_regex.is_match(email) {
-                match sqlx::query!(
+            if email_regex.is_match(&email) {
+                return match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
                 password,
@@ -230,14 +230,14 @@ async fn attack(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
-        match sqlx::query!(
+        return match sqlx::query!(
         "SELECT id FROM PVP WHERE id_att = $1;",
         id
     )
             .fetch_optional(&pool)
             .await {
             Ok(Some(_)) => {
-                return StatusCode::BAD_REQUEST;
+                StatusCode::BAD_REQUEST
             }
             Ok(None) => {
                 let defender_id = search_for_enemy(id, &pool).await;
@@ -255,11 +255,11 @@ async fn attack(
                 } else {
                     calculate_combat(id, defender_id, &pool).await;
                 }
-                return StatusCode::OK;
+                StatusCode::OK
             }
             Err(err) => {
                 println!("{}", err);
-                return StatusCode::INTERNAL_SERVER_ERROR;
+                StatusCode::INTERNAL_SERVER_ERROR
             }
         }
     }

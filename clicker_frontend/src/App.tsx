@@ -126,6 +126,7 @@ const App: Component = () => {
         let upgrade_shovel_amount_icon = document.querySelector("." + mineModule.icon_upgrade_amount);
         let upgrade_auto_depth_icon = document.querySelector("." + mineModule.icon_upgrade_automate_speed);
         let upgrade_auto_amount_icon = document.querySelector("." + mineModule.icon_upgrade_automate_amount);
+        let automate = document.querySelector("." + mineModule.icon_automate);
         if (upgrade_attack_icon != null) {
             if (ore() >= attackPrice()) {
                 upgrade_attack_icon!.classList.remove(styles.hide);
@@ -166,6 +167,13 @@ const App: Component = () => {
                 upgrade_auto_amount_icon!.classList.remove(styles.hide);
             } else {
                 upgrade_auto_amount_icon!.classList.add(styles.hide);
+            }
+        }
+        if (automate != null) {
+            if (ore() >= 200) {
+                automate!.classList.remove(styles.hide);
+            } else {
+                automate!.classList.add(styles.hide);
             }
         }
     }, 30)
@@ -650,11 +658,17 @@ const App: Component = () => {
                                 class={styles.label_header + " " + mineModule.label_amount_level}>{formatNumbers(shovelAmountPrice())}</label>
 
                             <Show when={automation_on()}
-                                  fallback={<button class={styles.button + " " + mineModule.automate}
-                                                    onClick={() => {
-                                                        void automate();
-                                                        subtractCost("200")
-                                                    }}>Automate</button>}>
+                                  fallback={<>
+                                      <button class={styles.button + " " + mineModule.automate}
+                                              onClick={() => {
+                                                  void automate();
+                                                  subtractCost("200")
+                                              }}>Automate
+                                          <a class={styles.icon_upgrade + " " + mineModule.icon_automate}></a>
+                                      </button>
+                                      <label
+                                          class={styles.label_header + " " + mineModule.label_automate_cost}>200</label>
+                                  </>}>
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>

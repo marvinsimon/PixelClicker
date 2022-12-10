@@ -70,6 +70,20 @@
     height: 24%;
     width: 100%;
     font-size: 3.2vw;
+    left: -11.5%;
+    overflow: visible;
+}
+
+.icon_automate {
+    top: -116%;
+    left: 66%;
+    width: 58%;
+    height: 277%;
+}
+
+.label_automate_cost {
+    top: 84%;
+    right: 24%;
 }
 
 .label_automate {

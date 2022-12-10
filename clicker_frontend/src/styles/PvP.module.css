@@ -2,21 +2,33 @@
 }
 
 .label_pvp {
-    top: 6.5%;
-    left: 25%;
+    top: -0.5%;
+    left: 28%;
+    font-size: 1.8vw;
 }
 
 .icon_upgrade_attack {
-    top: 42%;
-    left: 40%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
 }
 
 .upgrade_attack {
     top: 40.25%;
     height: 24%;
-    width: 70%;
-    left: -0.5%;
+    width: 77%;
+    left: -3.5%;
     font-size: 3.25vw;
+    overflow: visible;
+}
+
+.upgrade_attack:hover span {
+    display: none;
+}
+
+.upgrade_attack:hover:before {
+    content: attr(attLvl);
 }
 
 .label_attack_level {
@@ -25,16 +37,27 @@
 }
 
 .icon_upgrade_defence {
-    top: 59.5%;
-    left: 40%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
 }
 
 .upgrade_defence {
     top: 57.75%;
     height: 24%;
-    width: 70%;
-    left: -0.5%;
+    width: 77%;
+    left: -3.5%;
     font-size: 3.25vw;
+    overflow: visible;
+}
+
+.upgrade_defence:hover span {
+    display: none;
+}
+
+.upgrade_defence:hover:before {
+    content: attr(defLvl);
 }
 
 .label_defence_level {
@@ -50,6 +73,10 @@
 }
 
 @media (min-width: 2000px) {
+    .label_pvp {
+        font-size: 36px;
+    }
+
     .upgrade_attack {
         font-size: 65px;
     }

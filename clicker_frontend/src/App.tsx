@@ -44,6 +44,12 @@ const App: Component = () => {
     const [showOfflineResources, setShowOfflineResources] = createSignal(false);
     const [totalDepth, setTotalDepth] = createSignal(0);
     const [totalAmount, setTotalAmount] = createSignal(0);
+    const [attackPrice, setAttackPrice] = createSignal(50);
+    const [defencePrice, setDefencePrice] = createSignal(50);
+    const [shovelDepthPrice, setShovelDepthPrice] = createSignal(50);
+    const [shovelAmountPrice, setShovelAmountPrice] = createSignal(50);
+    const [autoDepthPrice, setAutoDepthPrice] = createSignal(50);
+    const [autoAmountPrice, setAutoAmountPrice] = createSignal(50);
 
     let socket: WebSocket | undefined;
 
@@ -60,21 +66,27 @@ const App: Component = () => {
             } else if ("ShovelDepthUpgraded" in event) {
                 console.log(event.ShovelDepthUpgraded);
                 setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
             } else if ("ShovelAmountUpgraded" in event) {
                 console.log(event.ShovelAmountUpgraded);
                 setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
             } else if ("AutomationDepthUpgraded" in event) {
                 console.log(event.AutomationDepthUpgraded);
                 setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
             } else if ("AutomationAmountUpgraded" in event) {
                 console.log(event.AutomationAmountUpgraded);
                 setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
             } else if ("AttackLevelUpgraded" in event) {
                 console.log(event.AttackLevelUpgraded);
                 setAttackLevel(event.AttackLevelUpgraded.new_level);
+                setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
             } else if ("DefenceLevelUpgraded" in event) {
                 console.log(event.DefenceLevelUpgraded);
                 setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
             } else if ("LoginState" in event) {
                 console.log(event.LoginState);
                 setLoginStates(event.LoginState);
@@ -107,6 +119,70 @@ const App: Component = () => {
         await connectBackend();
     }
 
+    window.setInterval(function () {
+        let upgrade_attack_icon = document.querySelector("." + pvpModule.icon_upgrade_attack);
+        let upgrade_defence_icon = document.querySelector("." + pvpModule.icon_upgrade_defence);
+        let upgrade_shovel_depth_icon = document.querySelector("." + mineModule.icon_upgrade_speed);
+        let upgrade_shovel_amount_icon = document.querySelector("." + mineModule.icon_upgrade_amount);
+        let upgrade_auto_depth_icon = document.querySelector("." + mineModule.icon_upgrade_automate_speed);
+        let upgrade_auto_amount_icon = document.querySelector("." + mineModule.icon_upgrade_automate_amount);
+        if (upgrade_attack_icon != null) {
+            if (ore() >= attackPrice()) {
+                upgrade_attack_icon!.classList.remove(styles.hide);
+            } else {
+                upgrade_attack_icon!.classList.add(styles.hide);
+            }
+        }
+        if (upgrade_defence_icon != null) {
+            if (ore() >= defencePrice()) {
+                upgrade_defence_icon!.classList.remove(styles.hide);
+            } else {
+                upgrade_defence_icon!.classList.add(styles.hide);
+            }
+        }
+        if (upgrade_shovel_depth_icon != null) {
+            if (ore() >= shovelDepthPrice()) {
+                upgrade_shovel_depth_icon!.classList.remove(styles.hide);
+            } else {
+                upgrade_shovel_depth_icon!.classList.add(styles.hide);
+            }
+        }
+        if (upgrade_shovel_amount_icon != null) {
+            if (ore() >= shovelAmountPrice()) {
+                upgrade_shovel_amount_icon!.classList.remove(styles.hide);
+            } else {
+                upgrade_shovel_amount_icon!.classList.add(styles.hide);
+            }
+        }
+        if (upgrade_auto_depth_icon != null) {
+            if (ore() >= autoDepthPrice()) {
+                upgrade_auto_depth_icon!.classList.remove(styles.hide);
+            } else {
+                upgrade_auto_depth_icon!.classList.add(styles.hide);
+            }
+        }
+        if (upgrade_auto_amount_icon != null) {
+            if (ore() >= autoAmountPrice()) {
+                upgrade_auto_amount_icon!.classList.remove(styles.hide);
+            } else {
+                upgrade_auto_amount_icon!.classList.add(styles.hide);
+            }
+        }
+    }, 30)
+
+    function formatNumbers(formatNumber: number) {
+        if (formatNumber < 1000) {
+            return formatNumber.toString();
+        } else {
+            return Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 1, maximumFractionDigits: 1,
+                //@ts-ignore
+                notation: 'compact',
+                compactDisplay: 'short'
+            }).format(formatNumber);
+        }
+    }
+
     function lootArrived(CombatElapsed: { loot: number }) {
         setShowLoot(true);
         setLoot(CombatElapsed.loot);
@@ -123,7 +199,7 @@ const App: Component = () => {
     }
 
     const resetScreen = () => {
-        if(showMining() || showPVP()) {
+        if (showMining() || showPVP()) {
             slideOutAutomate();
             slideOut();
             window.setTimeout(function () {
@@ -270,7 +346,7 @@ const App: Component = () => {
 
     const slideOut = () => {
         let variable = document.querySelector("." + styles.slideIn);
-        if(variable) {
+        if (variable) {
             variable.classList.remove(styles.slideIn);
             variable.classList.add(styles.slideOut);
         }
@@ -278,7 +354,7 @@ const App: Component = () => {
 
     const slideOutAutomate = () => {
         let variable = document.querySelector("." + styles.slideIn_automate);
-        if(variable) {
+        if (variable) {
             variable.classList.remove(styles.slideIn_automate);
             variable.classList.add(styles.slideOut_automate);
         }
@@ -332,6 +408,7 @@ const App: Component = () => {
     }
     const buttonClick = new Audio(buttonSound);
     buttonClick.preload = "none";
+
     const playButtonSound = async () => {
         await buttonClick.play();
     }
@@ -358,7 +435,11 @@ const App: Component = () => {
                               setShow(false);
                               setInnerShow(false)
                           }}></button>}>
-                        <button onClick={(e) => {setShow(true); void playButtonSound()}} class={styles.button_sign_up}>Login</button>
+                        <button onClick={(e) => {
+                            setShow(true);
+                            void playButtonSound()
+                        }} class={styles.button_sign_up}>Login
+                        </button>
                         <Show when={show()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
@@ -415,10 +496,10 @@ const App: Component = () => {
                         <div class={styles.board_img_container}>
                             <img src={board} class={styles.board_img} alt={"Value board"}/>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
-                                <label>{ore()}</label>
+                                <label>{formatNumbers(ore())}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_depth}>
-                                <label>{depth()}</label>
+                                <label>{formatNumbers(depth())}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_diamond}>
                                 <label>soon</label>
@@ -426,7 +507,10 @@ const App: Component = () => {
                         </div>
                     </div>
                 </div>
-                <div class={styles.main} onClick={() => {void mine(); void playDigSound()}}>
+                <div class={styles.main} onClick={() => {
+                    void mine();
+                    void playDigSound()
+                }}>
                     <img src={game} class={styles.game} alt={"Game ground"}/>
                     <div class={styles.miner}></div>
                 </div>
@@ -463,19 +547,21 @@ const App: Component = () => {
                                 <a class={styles.label_board}>
                                     <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
                                 </a>
-                                <button class={styles.button + " " + pvpModule.upgrade_attack}
-                                        onClick={upgradeAttackLevel}>ANG
+                                <button attLvl={'Lv' + attackLevel()}
+                                        class={styles.button + " " + pvpModule.upgrade_attack}
+                                        onClick={upgradeAttackLevel}><span>ANG</span>
+                                    <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 </button>
-                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 <label
-                                    class={styles.label_header + " " + pvpModule.label_attack_level}>{attackLevel()}</label>
+                                    class={styles.label_header + " " + pvpModule.label_attack_level}>{formatNumbers(attackPrice())}</label>
 
-                                <button class={styles.button + " " + pvpModule.upgrade_defence}
-                                        onClick={upgradeDefenceLevel}>DEF
+                                <button defLvl={'Lv' + defenceLevel()}
+                                        class={styles.button + " " + pvpModule.upgrade_defence}
+                                        onClick={upgradeDefenceLevel}><span>DEF</span>
+                                    <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
                                 </button>
-                                <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
                                 <label
-                                    class={styles.label_header + " " + pvpModule.label_defence_level}>{defenceLevel()}</label>
+                                    class={styles.label_header + " " + pvpModule.label_defence_level}>{formatNumbers(defencePrice())}</label>
 
                                 <Show when={attacked()}
                                       fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
@@ -520,19 +606,21 @@ const App: Component = () => {
                             <a class={styles.label_board}>
                                 <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
                             </a>
-                            <button class={styles.button + " " + mineModule.upgrade_speed}
-                                    onClick={upgradeShovelDepth}>Depth
+                            <button shovelSpeedLvl={'Lv' + shovelDepth()}
+                                    class={styles.button + " " + mineModule.upgrade_speed}
+                                    onClick={upgradeShovelDepth}><span>Depth</span>
+                                <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             </button>
-                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             <label
-                                class={styles.label_header + " " + mineModule.label_speed_level}>{shovelDepth()}</label>
+                                class={styles.label_header + " " + mineModule.label_speed_level}>{formatNumbers(shovelDepthPrice())}</label>
 
-                            <button class={styles.button + " " + mineModule.upgrade_amount}
-                                    onClick={upgradeShovelAmount}>Amount
+                            <button shovelAmountLvl={'Lv' + shovelAmount()}
+                                    class={styles.button + " " + mineModule.upgrade_amount}
+                                    onClick={upgradeShovelAmount}><span>Amount</span>
+                                <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             </button>
-                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             <label
-                                class={styles.label_header + " " + mineModule.label_amount_level}>{shovelAmount()}</label>
+                                class={styles.label_header + " " + mineModule.label_amount_level}>{formatNumbers(shovelAmountPrice())}</label>
 
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button + " " + mineModule.automate}
@@ -546,19 +634,21 @@ const App: Component = () => {
                                             <label
                                                 class={styles.label_header + " " + mineModule.label_auto}>Automate</label>
                                         </a>
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed}
-                                                onClick={upgradeAutoDepth}>Depth
+                                        <button autoDepthLvl={'Lv' + autoDepth()}
+                                                class={styles.button + " " + mineModule.upgrade_automate_speed}
+                                                onClick={upgradeAutoDepth}><span>Depth</span>
+                                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         </button>
-                                        <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         <label
-                                            class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
+                                            class={styles.label_header + " " + mineModule.label_speed_automate_level}>{formatNumbers(autoDepthPrice())}</label>
 
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount}
-                                                onClick={upgradeAutoAmount}>Amount
+                                        <button autoAmountLvl={'Lv' + autoAmount()}
+                                                class={styles.button + " " + mineModule.upgrade_automate_amount}
+                                                onClick={upgradeAutoAmount}><span>Amount</span>
+                                            <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         </button>
-                                        <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         <label
-                                            class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>
+                                            class={styles.label_header + " " + mineModule.label_amount_automate_level}>{formatNumbers(autoAmountPrice())}</label>
                                     </div>
                                 </div>
                             </Show>
@@ -574,15 +664,15 @@ const App: Component = () => {
                     <Show when={showLoot()}>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label> Der Angriff war erfolgreich! </label>
-                            <label> Deine Beute: {loot()} Erz</label>
+                            <label> Deine Beute: {formatNumbers(loot())} Erz</label>
                         </div>
                     </Show>
 
                     <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
                             <label> Willkommen zurück! </label>
-                            <label> Abgebautes Erz: {totalAmount()}</label>
-                            <label> Zurückgelegte Grabtiefe: {totalDepth()}</label>
+                            <label> Abgebautes Erz: {formatNumbers(totalAmount())}</label>
+                            <label> Zurückgelegte Grabtiefe: {formatNumbers(totalDepth())}</label>
                         </div>
                     </Show>
                 </div>

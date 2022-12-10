@@ -2,13 +2,13 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
-    font-family: Public Pixel Font, monospace;
+    font-family: Retro Pixel Font, monospace;
     overflow: hidden;
 }
 
 @font-face {
-    font-family: 'Public Pixel Font';
-    src: url("./assets/PublicPixel.ttf");
+    font-family: 'Retro Pixel Font';
+    src: url("./assets/Retro Gaming.ttf");
 }
 
 .container {
@@ -95,7 +95,7 @@
     width: 8%;
     border: none;
     transition-duration: .4s;
-    font-size: 1vw;
+    font-size: 1.3vw;
 }
 
 .button_sign_up:hover {
@@ -135,6 +135,7 @@
     border: #282c34 2px solid;
     border-radius: 3px;
     cursor: url("assets/pickaxe_small.png"), pointer;
+    position: absolute;
 }
 
 .modal {
@@ -271,7 +272,7 @@ input[type=submit]:active {
 .label_header {
     position: absolute;
     color: white;
-    font-family: Public Pixel Font, monospace;
+    font-family: Retro Pixel Font, monospace;
     font-size: 1.6vw;
     text-shadow:
             -1px -1px 0 #000,
@@ -331,7 +332,7 @@ input[type=submit]:active {
 }
 
 .label_close {
-    font-size: 1.3vw;
+    font-size: 1.5vw;
     left: 26%;
 }
 
@@ -459,11 +460,11 @@ input[type=submit]:active {
     }
 
     .button_sign_up {
-        font-size: 20px;
+        font-size: 26px;
     }
 
     .label_close {
-        font-size: 26px;
+        font-size: 30px;
     }
 }
 
@@ -712,7 +713,7 @@ input[type=submit]:active {
     position: relative;
     height: 6vw;
     width: 5vw;
-    left: -48%;
+    left: 2%;
     z-index: 100;
     top: -6%;
 }

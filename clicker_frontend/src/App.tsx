@@ -420,6 +420,20 @@ const App: Component = () => {
         await dig.play();
     }
 
+    const [costNumber, setCostNumber] = createSignal("");
+
+    function subtractCost(cost: string) {
+        setCostNumber("-" + cost);
+        let c = document.querySelector("." + styles.cost);
+        c!.classList.add(styles.costFadeOut);
+        c!.classList.remove(styles.cost);
+        window.setTimeout(() => {
+            let c = document.querySelector("." + styles.costFadeOut);
+            c!.classList.add(styles.cost);
+            c!.classList.remove(styles.costFadeOut);
+        }, 3000)
+    }
+
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -495,6 +509,7 @@ const App: Component = () => {
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
                             <img src={board} class={styles.board_img} alt={"Value board"}/>
+                            <div class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
                             </div>
@@ -549,15 +564,21 @@ const App: Component = () => {
                                 </a>
                                 <button attLvl={'Lv' + attackLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_attack}
-                                        onClick={upgradeAttackLevel}><span>ANG</span>
+                                        onClick={() => {
+                                            void upgradeAttackLevel();
+                                            subtractCost(formatNumbers(attackPrice()))
+                                        }}><span>ANG</span>
                                     <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 </button>
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_attack_level}>{formatNumbers(attackPrice())}</label>
-
+                                <a class={styles.ore + " " + pvpModule.attack_ore}></a>
                                 <button defLvl={'Lv' + defenceLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_defence}
-                                        onClick={upgradeDefenceLevel}><span>DEF</span>
+                                        onClick={() => {
+                                            void upgradeDefenceLevel();
+                                            subtractCost(formatNumbers(defencePrice()))
+                                        }}><span>DEF</span>
                                     <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
                                 </button>
                                 <label
@@ -608,7 +629,10 @@ const App: Component = () => {
                             </a>
                             <button shovelSpeedLvl={'Lv' + shovelDepth()}
                                     class={styles.button + " " + mineModule.upgrade_speed}
-                                    onClick={upgradeShovelDepth}><span>Depth</span>
+                                    onClick={() => {
+                                        void upgradeShovelDepth();
+                                        subtractCost(formatNumbers(shovelDepthPrice()))
+                                    }}><span>Depth</span>
                                 <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             </button>
                             <label
@@ -616,7 +640,10 @@ const App: Component = () => {
 
                             <button shovelAmountLvl={'Lv' + shovelAmount()}
                                     class={styles.button + " " + mineModule.upgrade_amount}
-                                    onClick={upgradeShovelAmount}><span>Amount</span>
+                                    onClick={() => {
+                                        void upgradeShovelAmount();
+                                        subtractCost(formatNumbers(shovelAmountPrice()))
+                                    }}><span>Amount</span>
                                 <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             </button>
                             <label
@@ -624,7 +651,10 @@ const App: Component = () => {
 
                             <Show when={automation_on()}
                                   fallback={<button class={styles.button + " " + mineModule.automate}
-                                                    onClick={automate}>Automate</button>}>
+                                                    onClick={() => {
+                                                        void automate();
+                                                        subtractCost("200")
+                                                    }}>Automate</button>}>
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
@@ -636,7 +666,10 @@ const App: Component = () => {
                                         </a>
                                         <button autoDepthLvl={'Lv' + autoDepth()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_speed}
-                                                onClick={upgradeAutoDepth}><span>Depth</span>
+                                                onClick={() => {
+                                                    void upgradeAutoDepth();
+                                                    subtractCost(formatNumbers(autoDepthPrice()))
+                                                }}><span>Depth</span>
                                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         </button>
                                         <label
@@ -644,7 +677,10 @@ const App: Component = () => {
 
                                         <button autoAmountLvl={'Lv' + autoAmount()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_amount}
-                                                onClick={upgradeAutoAmount}><span>Amount</span>
+                                                onClick={() => {
+                                                    void upgradeAutoAmount();
+                                                    subtractCost(formatNumbers(autoAmountPrice()))
+                                                }}><span>Amount</span>
                                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         </button>
                                         <label

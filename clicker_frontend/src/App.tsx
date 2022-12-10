@@ -192,8 +192,11 @@ const App: Component = () => {
     }
 
     function lootArrived(CombatElapsed: { loot: number }) {
-        setShowLoot(true);
-        setLoot(CombatElapsed.loot);
+        window.setTimeout(() => {
+            setShowLoot(true);
+            setLoot(CombatElapsed.loot);
+        }, 700)
+
     }
 
     const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean }) => {
@@ -388,14 +391,22 @@ const App: Component = () => {
         right!.classList.add(styles.gear_rotate_clockwise);
     }
     const startTimer = async () => {
-        let reverse_counter = 9;
-        const combatTimer = setInterval(function () {
-            document.querySelector<HTMLProgressElement>("#progressBar")!.value = 9 - --reverse_counter;
-            if (reverse_counter <= 0) {
-                clearInterval(combatTimer);
-                window.setTimeout(() => {
-                    setAttacked(false);
-                }, 500);
+        let seconds: string | number = 9;
+        let minutes: string | number = 1;
+        let timeLeft = minutes * seconds;
+        let combatTime = setInterval(function () {
+            minutes = parseInt(String(timeLeft / 60), 10);
+            seconds = parseInt(String(timeLeft % 60), 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            // @ts-ignore
+            document.getElementById("timer").innerHTML = minutes + ":" + seconds;
+
+            if (--timeLeft < 0) {
+                clearInterval(combatTime);
+                setAttacked(false);
             }
         }, 1000);
     }
@@ -591,12 +602,14 @@ const App: Component = () => {
                                 </button>
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_defence_level}>{formatNumbers(defencePrice())}</label>
-
                                 <Show when={attacked()}
                                       fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
                                                         onClick={attack}></button>}>
-                                    <progress value={"0"} max={"9"} id="progressBar"
-                                              class={styles.progressBar}></progress>
+                                    <div class={pvpModule.pvp_clock}>
+                                        <div class={pvpModule.firstHand}></div>
+                                        <div class={pvpModule.secondHand}></div>
+                                    </div>
+                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>00:10</span>
                                 </Show>
                             </div>
                         </div>

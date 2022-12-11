@@ -739,26 +739,26 @@ const App: Component = () => {
 
                     <Show when={showLoot()}>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
-                            <label style="font-size:20px"> Success! </label>
-                            <label> Your Loot:</label>
+                            <label style="font-size:30px"> Success! </label>
+                            <label style="font-size:20px"> Your Loot:</label>
                             <div class={styles.grid_loot}>
                                 <div class={styles.grid_loot_icon}></div>
-                                <label class={styles.grid_loot_label}>{formatNumbers(loot())}</label>
+                                <label class={styles.grid_loot_label} style="font-size:20px">{formatNumbers(loot())}</label>
                             </div>
                         </div>
                     </Show>
 
                     <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
-                            <label style="font-size:20px"> Welcome back!</label>
-                            <label>Your Offline Loot:</label>
+                            <label style="font-size:30px"> Welcome back!</label>
+                            <label style="font-size:20px">Your Offline Loot:</label>
                             <div class={styles.grid_ore}>
                                 <div class={styles.grid_ore_icon}></div>
-                                <label class={styles.grid_ore_label}>{formatNumbers(totalAmount())}</label>
+                                <label class={styles.grid_ore_label} style="font-size:20px">{formatNumbers(totalAmount())}</label>
                             </div>
                             <div class={styles.grid_depth}>
                                 <div class={styles.grid_depth_icon}></div>
-                                <label class={styles.grid_depth_label}>{formatNumbers(totalDepth())}</label>
+                                <label class={styles.grid_depth_label} style="font-size:20px">{formatNumbers(totalDepth())}</label>
                             </div>
                         </div>
                     </Show>

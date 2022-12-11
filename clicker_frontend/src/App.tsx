@@ -46,6 +46,7 @@ const App: Component = () => {
     const [shovelAmountPrice, setShovelAmountPrice] = createSignal(50);
     const [autoDepthPrice, setAutoDepthPrice] = createSignal(50);
     const [autoAmountPrice, setAutoAmountPrice] = createSignal(50);
+    const [costNumber, setCostNumber] = createSignal("");
 
     let socket: WebSocket | undefined;
 
@@ -214,7 +215,7 @@ const App: Component = () => {
                 setShowPVP(false);
                 unHide();
             }, 1300);
-            rotateCounterClockwise();
+            rotateGearOut();
         }
     }
 
@@ -365,7 +366,7 @@ const App: Component = () => {
         }
     }
 
-    const rotateClockwise = () => {
+    const rotateGearIn = () => {
         let left = document.querySelector("." + styles.gear_left);
         left!.classList.remove(styles.gear_rotate_counterClockwise);
         left!.classList.add(styles.gear_rotate_clockwise);
@@ -375,7 +376,7 @@ const App: Component = () => {
         right!.classList.add(styles.gear_rotate_counterClockwise);
     }
 
-    const rotateCounterClockwise = () => {
+    const rotateGearOut = () => {
         let left = document.querySelector("." + styles.gear_left);
         left!.classList.remove(styles.gear_rotate_clockwise);
         left!.classList.add(styles.gear_rotate_counterClockwise);
@@ -433,18 +434,14 @@ const App: Component = () => {
         await dig.play();
     }
 
-    const [costNumber, setCostNumber] = createSignal("");
-
     function subtractCost(cost: string) {
         setCostNumber("-" + cost);
-        let c = document.querySelector("." + styles.cost);
-        c!.classList.add(styles.costFadeOut);
-        c!.classList.remove(styles.cost);
-        window.setTimeout(() => {
-            let c = document.querySelector("." + styles.costFadeOut);
-            c!.classList.add(styles.cost);
-            c!.classList.remove(styles.costFadeOut);
-        }, 3000)
+        let c = document.getElementById("cost");
+        if (c != null) {
+            c.classList.remove(styles.costFadeOut);
+            void c.offsetWidth;
+            c.classList.add(styles.costFadeOut);
+        }
     }
 
     function badStatusPopup() {
@@ -544,7 +541,7 @@ const App: Component = () => {
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
                             <img src={board} class={styles.board_img} alt={"Value board"}/>
-                            <div class={styles.cost}>{costNumber()}</div>
+                            <div id={"cost"} class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
                             </div>
@@ -575,7 +572,7 @@ const App: Component = () => {
                                           void playButtonSound();
                                           setShowPVP(true);
                                           hide();
-                                          rotateClockwise();
+                                          rotateGearIn();
                                       }} class={styles.button}>PVP
                                       </button>
                                   </div>
@@ -590,19 +587,19 @@ const App: Component = () => {
                                         setShowPVP(false);
                                         unHide();
                                     }, 1300);
-                                    rotateCounterClockwise();
+                                    rotateGearOut();
                                 }}>
                                     <label class={styles.label_header + " " + styles.label_close}>X</label>
                                 </button>
                                 <a class={styles.label_board}>
-                                    <label class={styles.label_header + " " + pvpModule.label_pvp}>PvP</label>
+                                    <label class={styles.label_header + " " + pvpModule.label_pvp}>PVP</label>
                                 </a>
                                 <button attLvl={'Lv' + attackLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_attack}
                                         onClick={() => {
                                             void upgradeAttackLevel();
                                             subtractCost(formatNumbers(attackPrice()))
-                                        }}><span>ANG</span>
+                                        }}><span>ATK</span>
                                     <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 </button>
                                 <label
@@ -639,7 +636,7 @@ const App: Component = () => {
                                           void playButtonSound();
                                           setShowMining(true);
                                           hide();
-                                          rotateClockwise();
+                                          rotateGearIn();
                                           console.log("Automation: " + automation_on());
                                       }} class={styles.button}>Mining
                                       </button>
@@ -657,7 +654,7 @@ const App: Component = () => {
                                     setShowMining(false);
                                     unHide();
                                 }, 1300);
-                                rotateCounterClockwise();
+                                rotateGearOut();
                             }}>
                                 <label class={styles.label_header + " " + styles.label_close}>X</label>
                             </button>
@@ -742,16 +739,27 @@ const App: Component = () => {
 
                     <Show when={showLoot()}>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
-                            <label> Der Angriff war erfolgreich! </label>
-                            <label> Deine Beute: {formatNumbers(loot())} Erz</label>
+                            <label style="font-size:20px"> Success! </label>
+                            <label> Your Loot:</label>
+                            <div class={styles.grid_loot}>
+                                <div class={styles.grid_loot_icon}></div>
+                                <label class={styles.grid_loot_label}>{formatNumbers(loot())}</label>
+                            </div>
                         </div>
                     </Show>
 
                     <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
-                            <label> Willkommen zurück! </label>
-                            <label> Abgebautes Erz: {formatNumbers(totalAmount())}</label>
-                            <label> Zurückgelegte Grabtiefe: {formatNumbers(totalDepth())}</label>
+                            <label style="font-size:20px"> Welcome back!</label>
+                            <label>Your Offline Loot:</label>
+                            <div class={styles.grid_ore}>
+                                <div class={styles.grid_ore_icon}></div>
+                                <label class={styles.grid_ore_label}>{formatNumbers(totalAmount())}</label>
+                            </div>
+                            <div class={styles.grid_depth}>
+                                <div class={styles.grid_depth_icon}></div>
+                                <label class={styles.grid_depth_label}>{formatNumbers(totalDepth())}</label>
+                            </div>
                         </div>
                     </Show>
                 </div>

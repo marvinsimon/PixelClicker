@@ -163,7 +163,7 @@
 }
 
 .popup_h {
-    transform: translateY(180%);
+    transform: translateY(150%);
 }
 
 .buttonswitch {
@@ -188,6 +188,7 @@ input[type=text] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    transform: translateY(30%);
 }
 
 input[type=password] {
@@ -196,6 +197,7 @@ input[type=password] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    transform: translateY(30%);
 }
 
 input[type=submit] {
@@ -205,7 +207,7 @@ input[type=submit] {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transform: translateY(-20%);
+    transform: translateY(10%);
 }
 
 input[type=submit]:hover {
@@ -762,6 +764,39 @@ input[type=submit]:active {
     }
     100 % {
         transform: translateY(-40%);
+        opacity: 0;
+    }
+}
+
+.invalid {
+    transform: translateY(-100%);
+    position: relative;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.fadeout {
+    animation-name: fadeOut;
+    animation-delay: 0s;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    transform: translateY(-100%);
+    position: relative;
+    visibility: visible;
+    opacity: 0;
+    color: darkred;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
         opacity: 0;
     }
 }

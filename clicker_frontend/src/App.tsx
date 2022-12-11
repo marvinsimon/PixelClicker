@@ -29,15 +29,11 @@ const App: Component = () => {
     const [automation_on, setAutomation] = createSignal(false);
     const [autoDepth, setAutoDepth] = createSignal(1);
     const [autoAmount, setAutoAmount] = createSignal(1);
-    const [pvp, setPvp] = createSignal(false);
     const [attackLevel, setAttackLevel] = createSignal(1);
     const [defenceLevel, setDefenceLevel] = createSignal(1);
     const [loggedIn, setLoggedIn] = createSignal(false);
-    const [bad_request_bool, setBad_request_bool] = createSignal(false);
-    const [unauthorized, setUnauthorized] = createSignal(false);
     const [showMining, setShowMining] = createSignal(false);
     const [showPVP, setShowPVP] = createSignal(false);
-    const [popup, setPopup] = createSignal(false);
     const [showLoot, setShowLoot] = createSignal(false);
     const [loot, setLoot] = createSignal(0);
     const [attacked, setAttacked] = createSignal(false);
@@ -284,7 +280,6 @@ const App: Component = () => {
     }
 
     const sign_up = async () => {
-        setBad_request_bool(false);
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
@@ -296,7 +291,7 @@ const App: Component = () => {
             setLoggedIn(true);
             setAuth(true);
         } else if (response.status == 400) {
-            setBad_request_bool(true);
+            badStatusPopup();
             console.log('Bad Request');
         }
     }
@@ -304,7 +299,6 @@ const App: Component = () => {
     const login = async () => {
         if (!auth()) {
             disconnectBackend();
-            setUnauthorized(false);
             let auth = btoa(`${email_field.value}:${password_field.value}`);
             const response = await fetch("http://localhost:3001/login", {
                 method: "GET",
@@ -317,7 +311,7 @@ const App: Component = () => {
                 setLoggedIn(true);
                 setAuth(true);
             } else if (response.status == 401) {
-                setUnauthorized(true);
+                badStatusPopup();
                 console.log('Unauthorized');
             }
         }
@@ -453,6 +447,22 @@ const App: Component = () => {
         }, 3000)
     }
 
+    function badStatusPopup() {
+        let inUse = document.getElementById("inUse");
+        let invalid = document.getElementById("invalid");
+
+        if (inUse != null) {
+            inUse.classList.remove(styles.fadeout);
+            void inUse.offsetWidth;
+            inUse.classList.add(styles.fadeout);
+        }
+        if (invalid != null) {
+            invalid.classList.remove(styles.fadeout);
+            void invalid.offsetWidth;
+            invalid.classList.add(styles.fadeout);
+        }
+    }
+
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -484,6 +494,9 @@ const App: Component = () => {
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Log In" onClick={login}/>
+                                <div id={"invalid"} class={styles.invalid}>
+                                    <label>Invalid Credentials</label>
+                                </div>
                                 <div class={styles.switch}>
                                     <p>Not registered?</p>
                                 </div>
@@ -508,6 +521,9 @@ const App: Component = () => {
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Sign Up" onClick={sign_up}/>
+                                <div id={"inUse"} class={styles.invalid}>
+                                    <label>Email already in use</label>
+                                </div>
                                 <div class={styles.switch}>
                                     <p>Already signed up?</p>
                                 </div>

@@ -170,7 +170,7 @@ async fn sign_up(
         .fetch_optional(&pool)
         .await
     {
-        Ok(Some(_)) => StatusCode::BAD_REQUEST,
+        Ok(Some(_)) => StatusCode::BAD_REQUEST
         Ok(None) => {
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
@@ -187,7 +187,7 @@ async fn sign_up(
             {
                 Ok(r) => {
                     session.set(PLAYER_AUTH, r.id).await;
-                    save_score_to_database(r.id, &game_state, &pool).await;
+                    save_score_to_database(r.id, &game_state, &pool).awaiDt;
                     set_player_as_online(r.id, &pool).await;
                     StatusCode::OK
                 }
@@ -197,8 +197,7 @@ async fn sign_up(
                 }
             }
         }
-        StatusCode::BAD_REQUEST
-    }
+        StatusCode::NOT_ACCEPTABLE
         }
         Err(err) => {
             println!("{}", err);
@@ -296,6 +295,12 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                     }
                 } else {
                     //ask for username
+                    let event = ServerMessages::SetUsername {username: get_username(id, &pool)};
+                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                        .await
+                        .is_err() {
+                        break;
+                    }
                 }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
@@ -363,13 +368,29 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     }
 }
 
+async fn get_username(id: i64, pool: &PgPool) -> String {
+    match sqlx::query!(
+        "SELECT username FROM player WHERE id = $1;"
+        id
+    )
+        .fetch_one(pool)
+        .await 
+    {
+        Ok(r) => {
+            r.username
+        }    
+        Err(_) => {}
+    }
+}
+
 async fn test_for_new_registry(id: i64, pool: &PgPool) -> bool {
     match sqlx::query!(
         "SELECT is_new FROM player WHERE id = $1;",
         id
     )
         .fetch_one(pool)
-        .await {
+        .await 
+    {
         Ok(r) => {
             r.is_new
         }

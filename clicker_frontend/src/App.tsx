@@ -51,46 +51,60 @@ const App: Component = () => {
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
-            if ("NewState" in event) {
-                console.log(event.NewState);
-                setOre(event.NewState.ore);
-                setDepth(event.NewState.depth);
-            } else if ("ShovelDepthUpgraded" in event) {
-                console.log(event.ShovelDepthUpgraded);
-                setShovelDepth(event.ShovelDepthUpgraded.new_level);
-            } else if ("ShovelAmountUpgraded" in event) {
-                console.log(event.ShovelAmountUpgraded);
-                setShovelAmount(event.ShovelAmountUpgraded.new_level);
-            } else if ("AutomationDepthUpgraded" in event) {
-                console.log(event.AutomationDepthUpgraded);
-                setAutoDepth(event.AutomationDepthUpgraded.new_level);
-            } else if ("AutomationAmountUpgraded" in event) {
-                console.log(event.AutomationAmountUpgraded);
-                setAutoAmount(event.AutomationAmountUpgraded.new_level);
-            } else if ("AttackLevelUpgraded" in event) {
-                console.log(event.AttackLevelUpgraded);
-                setAttackLevel(event.AttackLevelUpgraded.new_level);
-            } else if ("DefenceLevelUpgraded" in event) {
-                console.log(event.DefenceLevelUpgraded);
-                setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-            } else if ("LoginState" in event) {
-                console.log(event.LoginState);
-                setLoginStates(event.LoginState);
-            } else if ("CombatElapsed" in event) {
-                console.log(event.CombatElapsed);
-                lootArrived(event.CombatElapsed);
-            } else if ("LoggedIn" in event) {
-                console.log("Still logged in")
-                setAuth(true);
-                setLoggedIn(true);
-            } else if ("AutomationStarted" in event) {
-                setAutomation(event.AutomationStarted.success);
-            } else if ("MinedOffline" in event) {
-                console.log("Got offline resources")
-                setTotalDepth(event.MinedOffline.depth);
-                setTotalAmount(event.MinedOffline.ore);
-
-                setShowOfflineResources(true);
+            switch (event.title) {
+                case "NewState":
+                    console.log(event.NewState);
+                    setOre(event.NewState.ore);
+                    setDepth(event.NewState.depth);
+                    break;
+                case "ShovelDepthUpgraded":
+                    console.log(event.ShovelDepthUpgraded);
+                    setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                    break;
+                case "ShovelAmountUpgraded":
+                    console.log(event.ShovelAmountUpgraded);
+                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                    break;
+                case "AutomationStarted":
+                    setAutomation(event.AutomationStarted.success);
+                    break;
+                case "AutomationDepthUpgraded":
+                    console.log(event.AutomationDepthUpgraded);
+                    setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                    break;
+                case "AutomationAmountUpgraded":
+                    console.log(event.AutomationAmountUpgraded);
+                    setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                    break;
+                case "AttackLevelUpgraded":
+                    console.log(event.AttackLevelUpgraded);
+                    setAttackLevel(event.AttackLevelUpgraded.new_level);
+                    break;
+                case "DefenceLevelUpgraded":
+                    console.log(event.DefenceLevelUpgraded);
+                    setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                    break;
+                case "CombatElapsed":
+                    console.log(event.CombatElapsed);
+                    lootArrived(event.CombatElapsed);
+                    break;
+                case "LoginState":
+                    console.log(event.LoginState);
+                    setLoginStates(event.LoginState);
+                    break;
+                case "LoggedIn":
+                    console.log("Still logged in")
+                    setAuth(true);
+                    setLoggedIn(true);
+                    break;
+                case "MinedOffline":
+                    console.log("Got offline resources")
+                    setTotalDepth(event.MinedOffline.depth);
+                    setTotalAmount(event.MinedOffline.ore);
+                    setShowOfflineResources(true);
+                    break;
+                case "SetUsername":
+                    break;
             }
         }
         socket.onopen = () => {
@@ -187,12 +201,18 @@ const App: Component = () => {
             headers: {Authorization: `Basic ${auth}`},
         });
         console.log(`sign_up: ${response.statusText}`);
-        if (response.ok) {
-            setLoggedIn(true);
-            setAuth(true);
-        } else if (response.status == 400) {
-            setBad_request_bool(true);
-            console.log('Bad Request');
+        switch (response.status) {
+            case 200:
+                setLoggedIn(true);
+                setAuth(true);
+                break;
+            case 400:
+                setBad_request_bool(true);
+                console.log('Bad Request');
+                break;
+            case 406:
+                //email did not follow form [abc]@[nop].[xyz]
+                break;
         }
     }
 
@@ -207,13 +227,18 @@ const App: Component = () => {
                 headers: {Authorization: `Basic ${auth}`},
             });
             console.log(`login: ${response.statusText}`);
-            if (response.ok) {
-                await connectBackend();
-                setLoggedIn(true);
-                setAuth(true);
-            } else if (response.status == 401) {
-                setUnauthorized(true);
-                console.log('Unauthorized');
+
+            switch (response.status) {
+                case 200:   
+                    await connectBackend();
+                    setLoggedIn(true);
+                    setAuth(true);
+                    break;
+                case 401:
+                    //credentials did not match any existing user
+                    setUnauthorized(true);
+                    console.log('Unauthorized');
+                    break;
             }
         }
     }
@@ -246,7 +271,7 @@ const App: Component = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
     }
 
-    const unHide = () => {
+    const unhide = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
     }
 
@@ -405,7 +430,7 @@ const App: Component = () => {
                                     slideOut();
                                     window.setTimeout(function () {
                                         setShowPVP(false);
-                                        unHide();
+                                        unhide();
                                     }, 1300);
                                     rotateCounterClockwise();
                                 }}>
@@ -464,7 +489,7 @@ const App: Component = () => {
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
-                                    unHide();
+                                    unhide();
                                 }, 1300);
                                 rotateCounterClockwise();
                             }}>

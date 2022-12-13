@@ -159,7 +159,7 @@ async fn login(
 
 
 async fn sign_up(
-    AuthBasic((email, password)): AuthBasic,
+    AuthBasic((email, password)): AuthBasic, username: String,
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
@@ -170,15 +170,17 @@ async fn sign_up(
         .fetch_optional(&pool)
         .await
     {
-        Ok(Some(_)) => StatusCode::BAD_REQUEST
+        Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
+            println!("{}", username);
             if email_regex.is_match(&email) {
                 return match sqlx::query!(
-                "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
+                "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,
+                username,
                 password,
                 game_state_value
             )
@@ -187,7 +189,7 @@ async fn sign_up(
             {
                 Ok(r) => {
                     session.set(PLAYER_AUTH, r.id).await;
-                    save_score_to_database(r.id, &game_state, &pool).awaiDt;
+                    save_score_to_database(r.id, &game_state, &pool).await;
                     set_player_as_online(r.id, &pool).await;
                     StatusCode::OK
                 }
@@ -260,7 +262,7 @@ async fn attack(
                 println!("{}", err);
                 StatusCode::INTERNAL_SERVER_ERROR
             }
-        }
+        };
     }
     StatusCode::BAD_REQUEST
 }
@@ -296,12 +298,15 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                     }
                 } else {
                     //ask for username
-                    let event = ServerMessages::SetUsername {username: get_username(id, &pool)};
+                    /*
+                    let event = ServerMessages::SetUsername {username: get_username(id, &pool).await};
                     if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
                         .await
                         .is_err() {
                         break;
                     }
+
+                     */
                 }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
@@ -371,7 +376,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
 
 async fn get_username(id: i64, pool: &PgPool) -> String {
     match sqlx::query!(
-        "SELECT username FROM player WHERE id = $1;"
+        "SELECT username FROM player WHERE id = $1;",
         id
     )
         .fetch_one(pool)
@@ -380,7 +385,9 @@ async fn get_username(id: i64, pool: &PgPool) -> String {
         Ok(r) => {
             r.username
         }    
-        Err(_) => {}
+        Err(_) => {
+            return "Error".to_string();
+        }
     }
 }
 

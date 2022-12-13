@@ -15,10 +15,12 @@ const App: Component = () => {
 
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
+    let username_field: HTMLInputElement;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
     const [depth, setDepth] = createSignal(0);
+    const [username, setUsername] = createSignal("")
     //PopUp Variable
     const [show, setShow] = createSignal(false);
     const [innershow, setInnerShow] = createSignal(false);
@@ -51,7 +53,9 @@ const App: Component = () => {
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
-            switch (event.title) {
+            const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
+            let arr = (msg.data as string).match(re);
+            switch (arr![0]) {
                 case "NewState":
                     console.log(event.NewState);
                     setOre(event.NewState.ore);
@@ -104,6 +108,7 @@ const App: Component = () => {
                     setShowOfflineResources(true);
                     break;
                 case "SetUsername":
+                    setUsername(event.SetUsername.username);
                     break;
             }
         }
@@ -195,16 +200,19 @@ const App: Component = () => {
     const sign_up = async () => {
         setBad_request_bool(false);
         let auth = btoa(`${email_field.value}:${password_field.value}`);
+        let username = username_field.value;
+        console.log(username);
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
-            headers: {Authorization: `Basic ${auth}`},
+            headers: {Authorization: `Basic ${auth}`, username: '${username}'}
         });
         console.log(`sign_up: ${response.statusText}`);
         switch (response.status) {
             case 200:
                 setLoggedIn(true);
                 setAuth(true);
+                setUsername(username);
                 break;
             case 400:
                 setBad_request_bool(true);
@@ -229,7 +237,7 @@ const App: Component = () => {
             console.log(`login: ${response.statusText}`);
 
             switch (response.status) {
-                case 200:   
+                case 200:
                     await connectBackend();
                     setLoggedIn(true);
                     setAuth(true);
@@ -254,6 +262,7 @@ const App: Component = () => {
                 disconnectBackend();
                 setLoggedIn(false);
                 setAuth(false);
+                setUsername("")
                 await connectBackend();
             }
         } else {
@@ -336,6 +345,7 @@ const App: Component = () => {
             <div class={styles.container}>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={<button class={styles.User_symbol} onClick={() => {
                               sign_out();
@@ -361,7 +371,7 @@ const App: Component = () => {
                                         setInnerShow(true)
                                     }}>Sign Up
                                     </button>
-                            </div>
+                                </div>
                             </div>
                         </Show>
 
@@ -371,6 +381,8 @@ const App: Component = () => {
                                 <h3>Sign Up</h3>
                                 <input type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
+                                <input type="text" ref={username_field!} style="width: 300px;"
+                                       placeholder="username.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Sign Up" onClick={sign_up}/>
@@ -518,13 +530,18 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={small_board} class={styles.board_img_automate} alt={"Automate Board"}/>
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>Depth</button>
+                                        <img src={small_board} class={styles.board_img_automate}
+                                             alt={"Automate Board"}/>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed}
+                                                onClick={upgradeAutoDepth}>Depth
+                                        </button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
 
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>Amount</button>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount}
+                                                onClick={upgradeAutoAmount}>Amount
+                                        </button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>
@@ -547,7 +564,7 @@ const App: Component = () => {
                         </div>
                     </Show>
 
-                    <Show when={showOfflineResources()} >
+                    <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
                             <label> Willkommen zurück! </label>
                             <label> Abgebautes Erz: {totalAmount()}</label>

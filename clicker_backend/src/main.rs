@@ -127,7 +127,7 @@ async fn login(
         .await
     {
         Ok(Some(record)) => {
-            session.set(PLAYER_AUTH, record.id).await;
+            session.set(PLAYER_AUTH, record.id);
             let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
             let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
             let prev_ore = game_state.ore;
@@ -183,7 +183,7 @@ async fn sign_up(
                 .await
             {
                 Ok(r) => {
-                    session.set(PLAYER_AUTH, r.id).await;
+                    session.set(PLAYER_AUTH, r.id);
                     save_score_to_database(r.id, &game_state, &pool).await;
                     set_player_as_online(r.id, &pool).await;
                     StatusCode::OK
@@ -205,12 +205,12 @@ async fn logout(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) {
-    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
         set_player_as_offline(id, &pool).await;
     }
     println!("Logging out!");
-    session.remove(PLAYER_AUTH).await;
+    session.remove(PLAYER_AUTH);
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
@@ -222,7 +222,7 @@ async fn attack(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
-    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         match sqlx::query!(
         "SELECT id FROM PVP WHERE id_att = $1;",
         id
@@ -264,7 +264,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut logged_in = false;
     let mut interval = Instant::now();
     'outer: loop {
-        if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+        if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
                 if !test_for_new_registry(id, &pool).await {
                     game_state = load_game_state_from_database(id, &pool).await;
@@ -350,7 +350,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             }
         }
     }
-    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }
 }

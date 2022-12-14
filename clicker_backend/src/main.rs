@@ -9,6 +9,14 @@ use axum::{
     Router, routing::get,
 };
 
+use argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+    },
+    Argon2,
+};
+
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
 
@@ -119,14 +127,16 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, timestamp FROM player WHERE email = $1 AND password = $2;",
-        email,
-        password
+        "SELECT id, game_state, password, timestamp FROM player WHERE email = $1;",
+        email
     )
         .fetch_optional(&pool)
         .await
     {
         Ok(Some(record)) => {
+            if !check_password(record.password, password.unwrap().as_bytes()) {
+                return StatusCode::UNAUTHORIZED;
+            }
             session.set(PLAYER_AUTH, record.id);
             let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
             let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
@@ -157,6 +167,21 @@ async fn login(
 }
 
 
+fn hash_password(password: &[u8]) -> String {
+    let argon2 = Argon2::default();
+    let salt = SaltString::generate(OsRng);
+    let password_hash = argon2.hash_password(password, &salt).unwrap().to_string();
+    let parsed_hash = PasswordHash::new(&password_hash).unwrap();
+    assert!(Argon2::default().verify_password(password, &parsed_hash).is_ok());
+    password_hash
+}
+
+fn check_password(password_hash: String, password: &[u8]) -> bool {
+    let parsed_hash = PasswordHash::new(&password_hash).unwrap();
+    Argon2::default().verify_password(password, &parsed_hash).is_ok()
+}
+
+
 async fn sign_up(
     AuthBasic((email, password)): AuthBasic,
     session: AxumSession<AxumPgPool>,
@@ -176,7 +201,7 @@ async fn sign_up(
             match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
-                password,
+                hash_password(password.unwrap().as_bytes()),
                 game_state_value
             )
                 .fetch_one(&pool)

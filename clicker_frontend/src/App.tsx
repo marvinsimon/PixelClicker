@@ -54,8 +54,8 @@ const App: Component = () => {
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
             const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
-            let arr = (msg.data as string).match(re);
-            switch (arr![0]) {
+            let arr = (msg.data as string).match(re)![0];
+            switch (arr) {
                 case "NewState":
                     console.log(event.NewState);
                     setOre(event.NewState.ore);

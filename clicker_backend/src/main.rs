@@ -93,7 +93,7 @@ async fn main() {
         // `GET /` goes to `root`
         .route("/", get(root))
         .route("/game", get(connect_game))
-        .route("/sign_up",  get(sign_up))
+        .route("/sign_up", get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
         .route("/combat", get(attack))
@@ -201,32 +201,30 @@ async fn sign_up(
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
-            let temp: String = username.get("Username").unwrap().to_string();
-            println!("test");
             if email_regex.is_match(&email) {
                 return match sqlx::query!(
                 "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,
-                username.get("Username").unwrap().to_str(),
+                    username.get("Username").unwrap().to_str().unwrap(),
                 hash_password(password.unwrap().as_bytes()),
                 game_state_value
             )
-                .fetch_one(&pool)
-                .await
-            {
-                Ok(r) => {
-                    session.set(PLAYER_AUTH, r.id);
-                    save_score_to_database(r.id, &game_state, &pool).await;
-                    set_player_as_online(r.id, &pool).await;
-                    StatusCode::OK
-                }
-                Err(err) => {
-                    println!("{}", err);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                }
+                    .fetch_one(&pool)
+                    .await
+                {
+                    Ok(r) => {
+                        session.set(PLAYER_AUTH, r.id);
+                        save_score_to_database(r.id, &game_state, &pool).await;
+                        set_player_as_online(r.id, &pool).await;
+                        StatusCode::OK
+                    }
+                    Err(err) => {
+                        println!("{}", err);
+                        StatusCode::INTERNAL_SERVER_ERROR
+                    }
+                };
             }
-        }
-        StatusCode::NOT_ACCEPTABLE
+            StatusCode::NOT_ACCEPTABLE
         }
         Err(err) => {
             println!("{}", err);
@@ -309,6 +307,14 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                         .is_err() {
                         break;
                     }
+                    //ask for username
+                    let event = ServerMessages::SetUsername { username: get_username(id, &pool).await };
+                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                        .await
+                        .is_err() {
+                        break;
+                    }
+                    //send offline mined resources
                     if game_state.automation_started {
                         if let Ok(r) = sqlx::query!(
                             "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
@@ -323,17 +329,6 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                             }
                         }
                     }
-                } else {
-                    //ask for username
-                    /*
-                    let event = ServerMessages::SetUsername {username: get_username(id, &pool).await};
-                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
-                        .await
-                        .is_err() {
-                        break;
-                    }
-
-                     */
                 }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {

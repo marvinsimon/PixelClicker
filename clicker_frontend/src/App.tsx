@@ -205,20 +205,20 @@ const App: Component = () => {
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
-            headers: {Authorization: `Basic ${auth}`, username: '${username}'}
+            headers: {Authorization: `Basic ${auth}`, Username: username}
         });
         console.log(`sign_up: ${response.statusText}`);
         switch (response.status) {
-            case 200:
+            case 200:   //OK
                 setLoggedIn(true);
                 setAuth(true);
                 setUsername(username);
                 break;
-            case 400:
+            case 400:   //Bad_Request
                 setBad_request_bool(true);
                 console.log('Bad Request');
                 break;
-            case 406:
+            case 406:   //Not_Acceptable
                 //email did not follow form [abc]@[nop].[xyz]
                 break;
         }

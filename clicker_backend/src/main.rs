@@ -8,6 +8,7 @@ use axum::{
     response::Response,
     Router, routing::get,
 };
+use axum::http::HeaderMap;
 
 use argon2::{
     password_hash::{
@@ -92,7 +93,7 @@ async fn main() {
         // `GET /` goes to `root`
         .route("/", get(root))
         .route("/game", get(connect_game))
-        .route("/sign_up", get(sign_up))
+        .route("/sign_up",  get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
         .route("/combat", get(attack))
@@ -184,7 +185,7 @@ fn check_password(password_hash: String, password: &[u8]) -> bool {
 
 
 async fn sign_up(
-    AuthBasic((email, password)): AuthBasic, username: String,
+    AuthBasic((email, password)): AuthBasic, username: HeaderMap,
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
@@ -200,12 +201,13 @@ async fn sign_up(
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
-            println!("{}", username);
+            let temp: String = username.get("Username").unwrap().to_string();
+            println!("test");
             if email_regex.is_match(&email) {
                 return match sqlx::query!(
                 "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,
-                username,
+                username.get("Username").unwrap().to_str(),
                 hash_password(password.unwrap().as_bytes()),
                 game_state_value
             )

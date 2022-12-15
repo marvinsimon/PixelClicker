@@ -9,6 +9,14 @@ use axum::{
     Router, routing::get,
 };
 
+use argon2::{
+    password_hash::{
+        rand_core::OsRng,
+        PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
+    },
+    Argon2,
+};
+
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
 
@@ -119,15 +127,17 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, timestamp FROM player WHERE email = $1 AND password = $2;",
-        email,
-        password
+        "SELECT id, game_state, password, timestamp FROM player WHERE email = $1;",
+        email
     )
         .fetch_optional(&pool)
         .await
     {
         Ok(Some(record)) => {
-            session.set(PLAYER_AUTH, record.id).await;
+            if !check_password(record.password, password.unwrap().as_bytes()) {
+                return StatusCode::UNAUTHORIZED;
+            }
+            session.set(PLAYER_AUTH, record.id);
             let mut game_state: GameState = serde_json::from_value(record.game_state).unwrap();
             let elapsed_time = Utc::now().timestamp() - record.timestamp.unwrap();
             let prev_ore = game_state.ore;
@@ -157,6 +167,21 @@ async fn login(
 }
 
 
+fn hash_password(password: &[u8]) -> String {
+    let argon2 = Argon2::default();
+    let salt = SaltString::generate(OsRng);
+    let password_hash = argon2.hash_password(password, &salt).unwrap().to_string();
+    let parsed_hash = PasswordHash::new(&password_hash).unwrap();
+    assert!(Argon2::default().verify_password(password, &parsed_hash).is_ok());
+    password_hash
+}
+
+fn check_password(password_hash: String, password: &[u8]) -> bool {
+    let parsed_hash = PasswordHash::new(&password_hash).unwrap();
+    Argon2::default().verify_password(password, &parsed_hash).is_ok()
+}
+
+
 async fn sign_up(
     AuthBasic((email, password)): AuthBasic,
     session: AxumSession<AxumPgPool>,
@@ -176,14 +201,14 @@ async fn sign_up(
             match sqlx::query!(
                 "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
                 email,
-                password,
+                hash_password(password.unwrap().as_bytes()),
                 game_state_value
             )
                 .fetch_one(&pool)
                 .await
             {
                 Ok(r) => {
-                    session.set(PLAYER_AUTH, r.id).await;
+                    session.set(PLAYER_AUTH, r.id);
                     save_score_to_database(r.id, &game_state, &pool).await;
                     set_player_as_online(r.id, &pool).await;
                     StatusCode::OK
@@ -205,12 +230,12 @@ async fn logout(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) {
-    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
         set_player_as_offline(id, &pool).await;
     }
     println!("Logging out!");
-    session.remove(PLAYER_AUTH).await;
+    session.remove(PLAYER_AUTH);
 }
 
 async fn connect_game(ws: WebSocketUpgrade, Extension(pool): Extension<PgPool>, session: AxumSession<AxumPgPool>) -> Response {
@@ -222,7 +247,7 @@ async fn attack(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
-    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         match sqlx::query!(
         "SELECT id FROM PVP WHERE id_att = $1;",
         id
@@ -264,7 +289,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut logged_in = false;
     let mut interval = Instant::now();
     'outer: loop {
-        if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+        if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
                 if !test_for_new_registry(id, &pool).await {
                     game_state = load_game_state_from_database(id, &pool).await;
@@ -350,7 +375,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             }
         }
     }
-    if let Some(id) = session.get::<i64>(PLAYER_AUTH).await {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }
 }

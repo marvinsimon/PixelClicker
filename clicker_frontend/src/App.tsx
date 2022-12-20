@@ -9,9 +9,10 @@ import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
 import board_right from "./assets/Brett2.png";
 import small_board from "./assets/small_brett.png";
-import game from "./assets/Playground.png";
 import buttonSound from "./assets/button_click.mp3";
 import digSound from "./assets/pick2.mp3";
+import Phaser from "phaser";
+import Example from './game';
 
 const App: Component = () => {
 
@@ -114,6 +115,24 @@ const App: Component = () => {
 
     window.onload = async () => {
         await connectBackend();
+
+        const config: Phaser.Types.Core.GameConfig = {
+            type: Phaser.CANVAS,
+            scale: {
+                mode: Phaser.Scale.RESIZE,
+                //@ts-ignore
+                parent: document.getElementById('main'),
+            },
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 200 }
+                }
+            },
+            scene: [Example]
+        };
+
+        new Phaser.Game(config);
     }
 
     window.setInterval(function () {
@@ -554,12 +573,13 @@ const App: Component = () => {
                         </div>
                     </div>
                 </div>
-                <div class={styles.main} onClick={() => {
+                <div id={'main'} class={styles.main} onClick={() => {
                     void mine();
                     void playDigSound()
                 }}>
-                    <img src={game} class={styles.game} alt={"Game ground"}/>
-                    <div class={styles.miner}></div>
+                    {/*<script src={playground}></script>*/}
+                    {/*<img src={game} class={styles.game} alt={"Game ground"}/>*/}
+                    {/*<div class={styles.miner}></div>*/}
                 </div>
                 <div class={styles.controls}>
                     <a class={styles.gear_normal + " " + styles.gear_left}/>

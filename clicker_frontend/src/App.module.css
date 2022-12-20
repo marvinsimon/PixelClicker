@@ -48,6 +48,7 @@
     position: relative;
     justify-content: center;
     align-items: center;
+    background-color: black;
 }
 
 .controls {

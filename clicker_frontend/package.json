@@ -20,6 +20,7 @@
     "@cucumber/cucumber": "^8.9.0",
     "chromedriver": "^107.0.3",
     "geckodriver": "^3.2.0",
+    "phaser": "^3.55.2",
     "selenium-webdriver": "^4.5.0",
     "solid-js": "^1.5.1"
   }

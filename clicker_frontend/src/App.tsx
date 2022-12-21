@@ -460,6 +460,10 @@ const App: Component = () => {
         }
     }
 
+    const dropdown = async () => {
+        document.querySelector("#myDropdown")!.classList.toggle(styles.show)
+    }
+
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -470,16 +474,22 @@ const App: Component = () => {
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <Show when={!loggedIn()}
-                          fallback={<button class={styles.User_symbol} onClick={() => {
-                              sign_out();
-                              setShow(false);
-                              setInnerShow(false)
-                          }}></button>}>
-                        <button onClick={(e) => {
-                            setShow(true);
-                            void playButtonSound()
-                        }} class={styles.button_sign_up}>Login
-                        </button>
+                          fallback={
+                        <div>
+                            <button class={styles.User_symbol} onClick={() => {
+                                dropdown();
+                            }}></button>
+                            <div id="myDropdown" class={styles.dropdowncntnt}>
+                                <a>Profile</a>
+                                <a>Background</a>
+                                <a onClick={() => {sign_out();setShow(false);setInnerShow(false);}}>Log out</a>
+                            </div>
+                        </div>
+
+
+                    }>
+
+                        <button onClick={(e) => {setShow(true);void playButtonSound()}} class={styles.button_sign_up}>Login</button>
                         <Show when={show()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>

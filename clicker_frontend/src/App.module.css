@@ -8,7 +8,7 @@
 
 @font-face {
     font-family: 'Retro Pixel Font';
-    src: url("./assets/Retro Gaming.ttf");
+    src: url("assets/font/Retro Gaming.ttf");
 }
 
 .container {
@@ -37,7 +37,7 @@
     grid-area: bar;
     z-index: 40;
     display: flex;
-    background-image: url("assets/wood_bar_new.png");
+    background-image: url("src/assets/img/wood_bar_new.png");
     background-size: contain;
 }
 
@@ -45,10 +45,11 @@
     grid-area: main;
     z-index: 20;
     display: flex;
+    flex-direction: column;
     position: relative;
-    justify-content: center;
-    align-items: center;
-    background-color: black;
+    /*justify-content: center;*/
+    /*align-items: center;*/
+    /*background-color: black;*/
 }
 
 .controls {
@@ -90,7 +91,7 @@
 }
 
 .button_sign_up {
-    background: url("assets/stone_button_light.png") no-repeat;
+    background: url("src/assets/img/stone_button_light.png") no-repeat;
     background-size: 100% 100%;
     height: 80%;
     width: 8%;
@@ -111,7 +112,7 @@
 }
 
 .User_symbol {
-    background: url("assets/User_symbol_new.png") no-repeat center center;
+    background: url("src/assets/img/User_symbol_new.png") no-repeat center center;
     background-size: 100% 100%;
     height: 4vw;
     width: 4vw;
@@ -135,7 +136,7 @@
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
-    cursor: url("assets/pickaxe_small.png"), pointer;
+    cursor: url("src/assets/img/pickaxe_small.png"), pointer;
     position: absolute;
 }
 
@@ -153,7 +154,7 @@
     height: 458px;
     width: 393px;
     padding: 10px;
-    background-image: url("/src/assets/PopUp.png");
+    background-image: url("/src/assets/img/PopUp.png");
     background-repeat: no-repeat;
     background-size: 100% 100%;
 }
@@ -223,7 +224,7 @@ input[type=submit]:active {
     transform: scale(.3);
     border: none;
     transition-duration: .4s;
-    background-image: url("src/assets/stone_button_dark_test.png");
+    background-image: url("src/assets/img/stone_button_dark_test.png");
     height: 125%;
     width: 125%;
     font-size: 3.25vw;
@@ -243,7 +244,7 @@ input[type=submit]:active {
 .progressBar {
     position: absolute;
     top: 83%;
-    background-image: url("src/assets/test.png");
+    background-image: url("src/assets/img/test.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -289,7 +290,7 @@ input[type=submit]:active {
 .label_board {
     top: 40%;
     position: absolute;
-    background-image: url("src/assets/wood_label_new.png");
+    background-image: url("src/assets/img/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -303,7 +304,7 @@ input[type=submit]:active {
 
 .icon_upgrade {
     position: absolute;
-    background-image: url("src/assets/Arrow_Symbol.png");
+    background-image: url("src/assets/img/Arrow_Symbol.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -317,7 +318,7 @@ input[type=submit]:active {
 
 .ore {
     position: absolute;
-    background-image: url("src/assets/ore.png");
+    background-image: url("src/assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -330,7 +331,7 @@ input[type=submit]:active {
 .button_close {
     position: absolute;
     top: 93.3%;
-    background-image: url("src/assets/wood_label_close.png");
+    background-image: url("src/assets/img/wood_label_close.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -383,7 +384,7 @@ input[type=submit]:active {
     }
 
     .heil_img {
-        background-image: url("assets/heilenberg_edit.png");
+        background-image: url("src/assets/img/heilenberg_edit.png");
         background-repeat: no-repeat;
         background-size: 100% 100%;
         height: 954px;
@@ -430,7 +431,7 @@ input[type=submit]:active {
         grid-area: vBar;
         z-index: 40;
         display: flex;
-        background-image: url("assets/vBar.png");
+        background-image: url("src/assets/img/vBar.png");
         background-size: contain;
     }
 
@@ -602,7 +603,7 @@ input[type=submit]:active {
 .gear_normal {
     overflow: hidden;
     position: fixed;
-    background-image: url("./assets/cog3.png");
+    background-image: url("assets/img/cog3.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -720,7 +721,7 @@ input[type=submit]:active {
 }
 
 .miner {
-    background-image: url("assets/miner_masculine_1.png");
+    background-image: url("src/assets/img/miner_masculine_1.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     position: relative;
@@ -817,7 +818,7 @@ input[type=submit]:active {
 .grid_ore_icon {
     display: flex;
     position: relative;
-    background-image: url("src/assets/ore.png");
+    background-image: url("src/assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -845,7 +846,7 @@ input[type=submit]:active {
 .grid_depth_icon {
     display: flex;
     position: relative;
-    background-image: url("src/assets/pickaxe.png");
+    background-image: url("src/assets/img/pickaxe.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -873,7 +874,7 @@ input[type=submit]:active {
 .grid_loot_icon {
     display: flex;
     position: relative;
-    background-image: url("src/assets/ore.png");
+    background-image: url("src/assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;

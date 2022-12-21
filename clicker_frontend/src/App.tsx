@@ -5,14 +5,17 @@ import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
-import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
-import board from "./assets/Brettmiticon.png";
-import board_right from "./assets/Brett2.png";
-import small_board from "./assets/small_brett.png";
-import buttonSound from "./assets/button_click.mp3";
-import digSound from "./assets/pick2.mp3";
+import clicker_logo from "./assets/img/ClickerRoyale_Wappen.png";
+import board from "./assets/img/Brettmiticon.png";
+import board_right from "./assets/img/Brett2.png";
+import small_board from "./assets/img/small_brett.png";
+import buttonSound from "./assets/audio/button_click.mp3";
+import digSound from "./assets/audio/pick2.mp3";
 import Phaser from "phaser";
 import Example from './game';
+import Boot from './scenes/boot';
+import Preload from "./scenes/preload";
+import Menu from "./scenes/menu";
 
 const App: Component = () => {
 
@@ -113,26 +116,85 @@ const App: Component = () => {
         }
     }
 
+    // @ts-ignore
     window.onload = async () => {
         await connectBackend();
 
+        // Scenes
+        let scenes = [];
+
+        scenes.push(Boot);
+        scenes.push(Preload);
+        scenes.push(Menu);
+
+        // Game config
         const config: Phaser.Types.Core.GameConfig = {
-            type: Phaser.CANVAS,
-            scale: {
-                mode: Phaser.Scale.RESIZE,
-                //@ts-ignore
-                parent: document.getElementById('main'),
-            },
+            type: Phaser.AUTO,
+            //@ts-ignore
+            parent: document.getElementById('main'),
+            title: 'Clicker Royale',
+            url: 'http://localhost:3000',
+            width: 1000,
+            height: 1300,
             physics: {
                 default: 'arcade',
                 arcade: {
                     gravity: { y: 200 }
                 }
             },
-            scene: [Example]
+            scene: scenes,
+            pixelArt: true,
+            backgroundColor: 0xffffff
         };
 
-        new Phaser.Game(config);
+        // Create game app
+        let game = new Phaser.Game(config);
+
+        // Globals
+        // @ts-ignore
+        game.URL = '';
+        // @ts-ignore
+        game.CONFIG = {
+            width: config.width,
+            height: config.height,
+            // @ts-ignore
+            centerX: Math.round(0.5 * config.width),
+            // @ts-ignore
+            centerY: Math.round(0.5 * config.height),
+            tile: 32,
+        }
+
+        // Sound
+        // @ts-ignore
+        game.sound_on =  true;
+
+        // window.addEventListener('resize', resizeGame);
+        // resizeGame();
+    }
+
+    function resizeGame() {
+        // Width-height-ratio of game resolution
+        let game_ratio = 1000 / 1300;
+
+        //Make div full height of browser and keep the ratio of game resolution
+        let div = document.getElementById('main');
+        if (div != null) {
+            div.style.width = (window.innerHeight * game_ratio) + 'px';
+            div.style.height = window.innerHeight + 'px';
+
+            // Check if device DPI messes up the width-height-ratio
+            let canvas = document.getElementsByTagName('canvas')[0];
+
+            let dpi_w = (parseInt(div.style.width) / canvas.width);
+            let dpi_h = (parseInt(div.style.height) / canvas.height);
+
+            let height = window.innerHeight * (dpi_w / dpi_h);
+            let width = height * game_ratio;
+
+            // Scale canvas
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+        }
     }
 
     window.setInterval(function () {
@@ -577,9 +639,6 @@ const App: Component = () => {
                     void mine();
                     void playDigSound()
                 }}>
-                    {/*<script src={playground}></script>*/}
-                    {/*<img src={game} class={styles.game} alt={"Game ground"}/>*/}
-                    {/*<div class={styles.miner}></div>*/}
                 </div>
                 <div class={styles.controls}>
                     <a class={styles.gear_normal + " " + styles.gear_left}/>

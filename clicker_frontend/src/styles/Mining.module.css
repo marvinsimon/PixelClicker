@@ -94,7 +94,7 @@
 .auto_label_board {
     top: 26.5%;
     position: absolute;
-    background-image: url("src/assets/wood_label_new.png");
+    background-image: url("src/assets/img/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;

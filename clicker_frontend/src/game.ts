@@ -1,6 +1,6 @@
-import miner_sprite from "./assets/miner-animations_test2.png";
-import sky from "./assets/clouds.png";
-import tiles from "./assets/fantasy-tiles.png";
+import miner_sprite from "./assets/img/miner-animations_test2.png";
+import sky from "./assets/img/clouds.png";
+import tiles from "./assets/img/fantasy-tiles.png";
 import Phaser from 'phaser';
 import TileSprite = Phaser.GameObjects.TileSprite;
 

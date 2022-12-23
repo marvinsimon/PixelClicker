@@ -11,11 +11,11 @@ import board_right from "./assets/img/Brett2.png";
 import small_board from "./assets/img/small_brett.png";
 import buttonSound from "./assets/audio/button_click.mp3";
 import digSound from "./assets/audio/pick2.mp3";
-import Phaser from "phaser";
-import Example from './game';
+import Phaser, {Game} from "phaser";
 import Boot from './scenes/boot';
 import Preload from "./scenes/preload";
 import Menu from "./scenes/menu";
+import Play from "./scenes/play";
 
 const App: Component = () => {
 
@@ -64,6 +64,7 @@ const App: Component = () => {
                 console.log(event.NewState);
                 setOre(event.NewState.ore);
                 setDepth(event.NewState.depth);
+                game.depth = depth();
             } else if ("ShovelDepthUpgraded" in event) {
                 console.log(event.ShovelDepthUpgraded);
                 setShovelDepth(event.ShovelDepthUpgraded.new_level);
@@ -116,6 +117,8 @@ const App: Component = () => {
         }
     }
 
+    let game: Phaser.Game;
+
     // @ts-ignore
     window.onload = async () => {
         await connectBackend();
@@ -126,6 +129,7 @@ const App: Component = () => {
         scenes.push(Boot);
         scenes.push(Preload);
         scenes.push(Menu);
+        scenes.push(Play);
 
         // Game config
         const config: Phaser.Types.Core.GameConfig = {
@@ -135,25 +139,21 @@ const App: Component = () => {
             title: 'Clicker Royale',
             url: 'http://localhost:3000',
             width: 1000,
-            height: 1300,
+            height: 830,
             physics: {
                 default: 'arcade',
                 arcade: {
-                    gravity: { y: 200 }
+                    gravity: { y: 2000 }
                 }
             },
             scene: scenes,
             pixelArt: true,
-            backgroundColor: 0xffffff
+            backgroundColor: 0x000000
         };
 
         // Create game app
-        let game = new Phaser.Game(config);
-
+        game = new Phaser.Game(config)
         // Globals
-        // @ts-ignore
-        game.URL = '';
-        // @ts-ignore
         game.CONFIG = {
             width: config.width,
             height: config.height,
@@ -161,11 +161,10 @@ const App: Component = () => {
             centerX: Math.round(0.5 * config.width),
             // @ts-ignore
             centerY: Math.round(0.5 * config.height),
-            tile: 32,
+            tile: 64,
         }
 
         // Sound
-        // @ts-ignore
         game.sound_on =  true;
 
         // window.addEventListener('resize', resizeGame);
@@ -174,7 +173,7 @@ const App: Component = () => {
 
     function resizeGame() {
         // Width-height-ratio of game resolution
-        let game_ratio = 1000 / 1300;
+        let game_ratio = 1000 / 800;
 
         //Make div full height of browser and keep the ratio of game resolution
         let div = document.getElementById('main');

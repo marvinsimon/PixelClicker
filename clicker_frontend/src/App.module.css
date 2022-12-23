@@ -8,7 +8,7 @@
 
 @font-face {
     font-family: 'Retro Pixel Font';
-    src: url("assets/font/Retro Gaming.ttf");
+    src: url("src/assets/fonts/RetroGaming.ttf");
 }
 
 .container {

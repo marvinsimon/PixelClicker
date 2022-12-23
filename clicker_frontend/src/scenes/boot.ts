@@ -1,10 +1,14 @@
 import Phaser from 'phaser';
+
 export default class Boot extends Phaser.Scene {
+    private CONFIG: any;
     constructor() {
-        super({key: 'Boot2', active: true});
+        super({key: 'Boot', active: true});
     }
 
     init() {
+        // @ts-ignore
+        this.CONFIG = this.sys.game.CONFIG;
     }
 
     preload () {

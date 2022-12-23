@@ -21,7 +21,7 @@ use argon2::{
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
 use regex::Regex;
-use censor::*;
+use rustrict::CensorStr;
 
 use sqlx::{PgPool, Pool};
 use sqlx::types::chrono::Utc;
@@ -200,11 +200,11 @@ async fn sign_up(
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
-            let censor = Censor::Standard;
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
             let extracted_username = username.get("Username").unwrap().to_str().unwrap();
-            if email_regex.is_match(&email) && !censor.check(extracted_username){
+            let inappropriate: bool = extracted_username.is_inappropriate();
+            if email_regex.is_match(&email) && !inappropriate{
                 return match sqlx::query!(
                 "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,

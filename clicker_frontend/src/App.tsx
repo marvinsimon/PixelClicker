@@ -219,7 +219,7 @@ const App: Component = () => {
                 console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
-                //email did not follow form [abc]@[nop].[xyz]
+                //email did not follow form [abc]@[nop].[xyz] or username was inappropriate
                 break;
         }
     }

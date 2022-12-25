@@ -14,8 +14,15 @@ import testTile from "../assets/img/testTile.png";
 import testTileLeft from "../assets/img/testTileLeft.png";
 import testTileRight from "../assets/img/testTileRight.png";
 import sky from "../assets/img/clouds.png";
-import miner_sprite from "../assets/img/miner-animations_test2.png";
+import miner_sprite from "../assets/img/idle.png";
 import debris from "../assets/img/rock1.png";
+import mining from "../assets/img/mining_test2.png";
+import dirtCrack1 from "../assets/img/cracked1.png";
+import dirtCrack2 from "../assets/img/cracked2.png";
+import dirtCrack3 from "../assets/img/cracked3.png";
+import dirtCrack4 from "../assets/img/cracked4.png";
+import bones from "../assets/img/bones.png";
+
 
 export default class Preload extends Phaser.Scene {
     private CONFIG: any;
@@ -45,6 +52,11 @@ export default class Preload extends Phaser.Scene {
         // Spritesheets
         this.load.spritesheet('dirtBackgroundTile', dirtBackground, {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtTile', dirtTile, {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack1', dirtCrack1, {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack2', dirtCrack2, {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack3', dirtCrack3, {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack4', dirtCrack4, {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('bones', bones, {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('grassTile', grassTile, {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('grassTileDark', grassTileDark, {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtTileBarLeft', dirtTileBarLeft, {frameWidth: 64, frameHeight: 64});
@@ -57,7 +69,8 @@ export default class Preload extends Phaser.Scene {
         this.load.spritesheet('testTileLeft', testTileLeft, {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('testTileRight', testTileRight, {frameWidth: 64, frameHeight: 64});
         this.load.image('sky', sky);
-        this.load.spritesheet('miner', miner_sprite, {frameWidth: 80, frameHeight:100});
+        this.load.spritesheet('miner', miner_sprite, {frameWidth: 150, frameHeight:150});
+        this.load.spritesheet('mining', mining, {frameWidth: 150, frameHeight:150});
         this.load.image('debris', debris);
     }
 

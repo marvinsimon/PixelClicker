@@ -2,18 +2,19 @@ import Phaser from "phaser";
 
 export default class Generator {
     private CONFIG: any;
-    private DEPTH: {background: number, floor: number; miner: number};
+    private DEPTH: { background: number, floor: number; miner: number };
     private ctx: Phaser.Scene;
     private readonly cols: number;
     private readonly rows: number;
-    private layers: { background: any[]; floor: any[]; overlay: boolean; turrets: any[]; monsters: any[]; pickups: any[]};
+    private layers: { background: any[]; floor: any[]; overlay: boolean; turrets: any[]; monsters: any[]; pickups: any[] };
     private sprite!: Phaser.Physics.Arcade.Sprite;
-    private minerAnimation!: Phaser.Animations.Animation | false;
+    private minerIdle!: Phaser.Animations.Animation | false;
     private debris: any;
     private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
-    private IntegerBetween = Phaser.Math.Between;
     private triggerLeft = true;
     private triggerRight = true;
+    private minerMining!: Phaser.Animations.Animation | false;
+    private counter = 0;
 
     constructor(ctx: Phaser.Scene) {
         // @ts-ignore
@@ -41,46 +42,70 @@ export default class Generator {
         this.createFloor();
         this.createSky();
 
-        this.sprite = this.ctx.physics.add.sprite(500, 540, 'miner');
+        this.sprite = this.ctx.physics.add.sprite(500, 350, 'miner');
+        this.sprite.setScale(3, 3);
         this.sprite.setOrigin(0.5, 0);
         this.sprite.setBounce(0.1);
         this.sprite.setDepth(this.DEPTH.miner);
-        this.sprite.body.setSize(45, 35);
+        this.sprite.body.setSize(45, 18);
         this.ctx.cameras.main.startFollow(this.sprite);
-        this.ctx.cameras.main.followOffset.set(0, 110);
+        this.ctx.cameras.main.followOffset.set(0, -70);
         // Create the debris
         this.debris = this.ctx.add.particles('debris');
         this.debris.setDepth(2);
 
-
-        this.ctx.input.on('pointerup', () => {
-            // Set up the debris to emit debris
-            this.emitter = this.debris.createEmitter({
-                x: this.IntegerBetween(this.sprite.x + 20, this.sprite.x -20),
-                y: this.sprite.y + 150,
-                lifespan: 2000,
-                speed: {min: 300, max: 500},
-                scale: {start: 0.15, end: 0.1},
-                gravityY: 1000,
-                bounce: 0.8,
-            });
-            this.createSupportBarsLeft();
-            this.createSupportBarsRight();
-            this.destroyFloorRow();
-            this.appendFloorRow();
-            setTimeout(() => {
-                this.ctx.physics.add.collider(this.sprite, this.layers.floor[0]);
-                this.emitter.stop()
-            }, 20);
+        // Set up the debris to emit debris
+        this.emitter = this.debris.createEmitter({
+            x: 0,
+            y: 0,
+            lifespan: 2000,
+            speed: {min: 300, max: 500},
+            scale: {start: 0.15, end: 0.08},
+            gravityY: 1000,
+            bounce: 0.8,
+            on: false,
         });
 
-        this.minerAnimation = this.ctx.anims.create({
-            key: 'mine',
+        this.ctx.input.on('pointerdown', () => {
+            if (this.sprite.anims.getName() === 'idle') {
+                this.sprite.play('mining');
+                this.sprite.chain('idle');
+            }
+
+            if (this.counter < 4) {
+                this.crackFloorRow();
+                this.counter++;
+            } else {
+                setTimeout(() => {
+                    this.createSupportBarsLeft();
+                    this.createSupportBarsRight();
+                    this.destroyFloorRow();
+                    this.appendFloorRow();
+                    setTimeout(() => {
+                        this.ctx.physics.add.collider(this.sprite, this.layers.floor[0]);
+                        this.emitter.stop()
+                    }, 20);
+                }, 200);
+                this.counter = 0;
+            }
+        });
+
+        this.minerMining = this.ctx.anims.create({
+            key: 'mining',
+            // @ts-ignore
+            frames: this.ctx.anims.generateFrameNumbers('mining'),
+            frameRate: 15
+        });
+
+        this.minerIdle = this.ctx.anims.create({
+            key: 'idle',
             //@ts-ignore
             frames: this.ctx.anims.generateFrameNumbers('miner'),
-            frameRate: 24
+            frameRate: 6,
+            repeat: -1
         });
 
+        this.sprite.play({key: 'idle'});
     }
 
     // Update
@@ -88,10 +113,6 @@ export default class Generator {
         this.ctx.physics.add.collider(this.sprite, this.layers.floor[0]);
         this.scrollBackGround();
         this.scrollSideFloor();
-        this.ctx.input.on('pointerdown', () => {
-            // @ts-ignore
-            this.sprite.play({key: 'mine'});
-        });
     }
 
     createSupportBarsLeft() {
@@ -271,9 +292,21 @@ export default class Generator {
                     spr.setOrigin(0);
                     spr.setDepth(this.DEPTH.floor);
                 } else {
-                    spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
+                    if (tx < 3 || tx > 12) {
+                        if (Math.floor(Math.random() * (60 - 1 + 1)) + 1 === 10) {
+                            spr = this.ctx.physics.add.staticSprite(x, y, 'bones');
+                            spr.setOrigin(0);
+                            spr.setDepth(this.DEPTH.floor);
+                        } else {
+                            spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
+                            spr.setOrigin(0);
+                            spr.setDepth(this.DEPTH.floor);
+                        }
+                    } else {
+                        spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
+                        spr.setOrigin(0);
+                        spr.setDepth(this.DEPTH.floor);
+                    }
                 }
                 // @ts-ignore
                 floor[ty][tx] = spr;
@@ -286,9 +319,41 @@ export default class Generator {
 
     destroyFloorRow() {
         for (let tx = 4; tx < 12; tx++) {
+            this.debris.emitParticleAt(this.layers.floor[0][tx].x + (this.CONFIG.tile / 2), this.layers.floor[0][0].y, 3);
             this.layers.floor[0][tx].destroy();
         }
         this.layers.floor.splice(0, 1);
+    }
+
+    crackFloorRow() {
+        let spr;
+        for (let tx = 4; tx < 12; tx++) {
+            switch (this.counter) {
+                case 0:
+                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][0].y, 'dirtCrack1');
+                    spr.setOrigin(0);
+                    spr.setDepth(this.DEPTH.floor);
+                    console.log(this.counter);
+                    break;
+                case 1:
+                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, 'dirtCrack2');
+                    spr.setOrigin(0);
+                    spr.setDepth(this.DEPTH.floor);
+                    break;
+                case 2:
+                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, 'dirtCrack3');
+                    spr.setOrigin(0);
+                    spr.setDepth(this.DEPTH.floor);
+                    break;
+                case 3:
+                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, 'dirtCrack4');
+                    spr.setOrigin(0);
+                    spr.setDepth(this.DEPTH.floor);
+                    break;
+            }
+            this.layers.floor[0][tx].destroy();
+            this.layers.floor[0][tx] = spr;
+        }
     }
 
     appendFloorRow() {
@@ -312,9 +377,21 @@ export default class Generator {
                 spr.setOrigin(0);
                 spr.setDepth(this.DEPTH.floor);
             } else {
-                spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
-                spr.setOrigin(0);
-                spr.setDepth(this.DEPTH.floor);
+                if (tx < 3 || tx > 12) {
+                    if (Math.floor(Math.random() * (60 - 1 + 1)) + 1 === 10) {
+                        spr = this.ctx.physics.add.staticSprite(x, y, 'bones');
+                        spr.setOrigin(0);
+                        spr.setDepth(this.DEPTH.floor);
+                    } else {
+                        spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
+                        spr.setOrigin(0);
+                        spr.setDepth(this.DEPTH.floor);
+                    }
+                } else {
+                    spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
+                    spr.setOrigin(0);
+                    spr.setDepth(this.DEPTH.floor);
+                }
             }
             this.layers.floor[ty][tx] = spr;
         }

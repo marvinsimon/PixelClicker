@@ -49,6 +49,7 @@ const App: Component = () => {
     const [autoDepthPrice, setAutoDepthPrice] = createSignal(50);
     const [autoAmountPrice, setAutoAmountPrice] = createSignal(50);
     const [costNumber, setCostNumber] = createSignal("");
+    const [diamond, setDiamond] = createSignal(0);
 
     let socket: WebSocket | undefined;
 
@@ -107,6 +108,9 @@ const App: Component = () => {
             } else if ('TreasureFound' in event) {
                 console.log('Treasure found')
                 setOre(event.TreasureFound.ore);
+            } else if ('DiamondFound' in event) {
+                console.log('Diamond found');
+                setDiamond(event.DiamondFound.diamond);
             }
         }
         socket.onopen = () => {
@@ -141,7 +145,7 @@ const App: Component = () => {
             physics: {
                 default: 'arcade',
                 arcade: {
-                    gravity: { y: 2000 }
+                    gravity: {y: 2000}
                 }
             },
             scene: scenes,
@@ -163,7 +167,7 @@ const App: Component = () => {
         }
 
         // Sound
-        game.sound_on =  true;
+        game.sound_on = true;
 
         // window.addEventListener('resize', resizeGame);
         // resizeGame();
@@ -274,7 +278,7 @@ const App: Component = () => {
 
     }
 
-    const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean }) => {
+    const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean; diamond: number }) => {
         setShovelDepth(LoginState.shovel_depth);
         setShovelAmount(LoginState.shovel_amount);
         setAutoAmount(LoginState.automation_amount);
@@ -282,6 +286,7 @@ const App: Component = () => {
         setAutomation(LoginState.automation_started);
         setAttackLevel(LoginState.attack_level);
         setDefenceLevel(LoginState.defence_level);
+        setDiamond(LoginState.diamond);
     }
 
     const resetScreen = () => {
@@ -546,6 +551,17 @@ const App: Component = () => {
         }
     }
 
+    window.addEventListener('diamondEvent', async () => {
+        await pickedUpDiamond();
+    })
+
+    const pickedUpDiamond = async () => {
+        if (socket) {
+            const event: ClientMessages = 'Diamond';
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -635,7 +651,7 @@ const App: Component = () => {
                                 <label>{formatNumbers(depth())}</label>
                             </div>
                             <div class={styles.label_header + " " + displayModule.label_diamond}>
-                                <label>soon</label>
+                                <label>{diamond}</label>
                             </div>
                         </div>
                     </div>
@@ -826,7 +842,8 @@ const App: Component = () => {
                             <label style="font-size:20px"> Your Loot:</label>
                             <div class={styles.grid_loot}>
                                 <div class={styles.grid_loot_icon}></div>
-                                <label class={styles.grid_loot_label} style="font-size:20px">{formatNumbers(loot())}</label>
+                                <label class={styles.grid_loot_label}
+                                       style="font-size:20px">{formatNumbers(loot())}</label>
                             </div>
                         </div>
                     </Show>
@@ -837,11 +854,13 @@ const App: Component = () => {
                             <label style="font-size:20px">Your Offline Loot:</label>
                             <div class={styles.grid_ore}>
                                 <div class={styles.grid_ore_icon}></div>
-                                <label class={styles.grid_ore_label} style="font-size:20px">{formatNumbers(totalAmount())}</label>
+                                <label class={styles.grid_ore_label}
+                                       style="font-size:20px">{formatNumbers(totalAmount())}</label>
                             </div>
                             <div class={styles.grid_depth}>
                                 <div class={styles.grid_depth_icon}></div>
-                                <label class={styles.grid_depth_label} style="font-size:20px">{formatNumbers(totalDepth())}</label>
+                                <label class={styles.grid_depth_label}
+                                       style="font-size:20px">{formatNumbers(totalDepth())}</label>
                             </div>
                         </div>
                     </Show>

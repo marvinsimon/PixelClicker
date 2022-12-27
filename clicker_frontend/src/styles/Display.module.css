@@ -12,7 +12,8 @@
 
 .label_diamond {
     top: 84%;
-    left: 40%;
+    width: 50%;
+    direction: rtl;
 }
 
 @media (min-width: 2700px) {

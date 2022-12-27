@@ -60,6 +60,7 @@ export default class Preload extends Phaser.Scene {
         this.load.spritesheet('bones1', "src/assets/img/bones1.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('bones2', "src/assets/img/bones2.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('bones3', "src/assets/img/bones3.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('diamond', "src/assets/img/diamond2.png", {frameWidth: 64, frameHeight: 64});
 
         // Animations...................................................................................................
         // Idle

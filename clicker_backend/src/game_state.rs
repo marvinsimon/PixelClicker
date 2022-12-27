@@ -13,6 +13,7 @@ pub struct GameState {
     pub attack_level: i32,
     pub defence_level: i32,
     pub automation_started: bool,
+    pub diamond: i32
 }
 
 impl GameState {
@@ -167,11 +168,16 @@ impl GameState {
                     shovel_amount: self.shovel_amount_level,
                     shovel_depth: self.auto_depth_level,
                     automation_started: self.automation_started,
+                    diamond: self.diamond
                 }
             }
             ClientMessages::Treasure => {
                 self.ore += 1000.0;
                 ServerMessages::TreasureFound { ore: self.ore as u64 }
+            }
+            ClientMessages::Diamond => {
+                self.diamond += 100;
+                ServerMessages::DiamondFound { diamond: self.diamond }
             }
         }
     }
@@ -188,6 +194,7 @@ impl GameState {
             attack_level: 1,
             defence_level: 1,
             automation_started: false,
+            diamond: 0
         }
     }
 }

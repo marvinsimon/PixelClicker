@@ -19,6 +19,8 @@ export default class Generator {
     private breakCounter = 0;
     private start: any;
     private sound!: Phaser.Sound.BaseSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound;
+    private diamond: number = 1;
+    private pickedFirstDiamond: boolean = false;
 
     constructor(scene: Phaser.Scene) {
         // @ts-ignore
@@ -432,14 +434,31 @@ export default class Generator {
     appendPickups(x: number, y: number) {
         let spr;
         let randomBones = 80;
-        if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 10) {
+        let pointer = this.scene.input.mousePointer;
+        // @ts-ignore
+        if (this.scene.depth >= 20 && this.diamond == 1) {
+            this.pickedFirstDiamond = true;
+            console.log('Create Diamond');
+            spr = this.scene.add.sprite(x, y, 'diamond');
+            spr.setInteractive({useHandCursor: true})
+            spr.on('pointerdown', (event: any) => {
+                let diamondEvent = new CustomEvent('diamondEvent');
+                window.dispatchEvent(diamondEvent);
+
+                this.layers.pickups.forEach(sprite => {
+                    if (sprite.getBounds().contains(pointer.x, pointer.y + this.scene.cameras.main.scrollY)) {
+                        sprite.destroy();
+                    }
+                });
+                event.stopImmediatePropagation();
+            })
+        } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 10) {
             spr = this.scene.add.sprite(x, y, 'bones1');
             spr.setInteractive({useHandCursor: true});
             spr.on('pointerdown', (event: any) => {
                 let treasureEvent = new CustomEvent('treasureEvent');
                 window.dispatchEvent(treasureEvent);
 
-                let pointer = this.scene.input.mousePointer;
                 this.layers.pickups.forEach(sprite => {
                     if (sprite.getBounds().contains(pointer.x, pointer.y + this.scene.cameras.main.scrollY)) {
                         sprite.destroy();
@@ -451,6 +470,9 @@ export default class Generator {
             spr = this.scene.add.sprite(x, y, 'bones2');
         } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 50) {
             spr = this.scene.add.sprite(x, y, 'bones3');
+        }
+        if (this.pickedFirstDiamond) {
+            this.diamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
         }
         if (spr != null) {
             spr.setOrigin(0);

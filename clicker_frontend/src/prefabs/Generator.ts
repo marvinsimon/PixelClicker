@@ -2,27 +2,31 @@ import Phaser from "phaser";
 
 export default class Generator {
     private CONFIG: any;
-    private DEPTH: { background: number, floor: number; miner: number };
-    private ctx: Phaser.Scene;
+    private PRIORITY: { sky: number; background: number, floor: number; miner: number; objects: number; debris: number };
+    private scene: Phaser.Scene;
     private readonly cols: number;
     private readonly rows: number;
-    private layers: { background: any[]; floor: any[]; overlay: boolean; turrets: any[]; monsters: any[]; pickups: any[] };
-    private sprite!: Phaser.Physics.Arcade.Sprite;
-    private minerIdle!: Phaser.Animations.Animation | false;
-    private debris: any;
+    private layers: { background: any[]; floor: any[]; sideFloor: any[]; supportBars: any[]; pickups: any[] };
+    private sky!: Phaser.GameObjects.Image;
+    private miner!: Phaser.Physics.Arcade.Sprite;
+    private debris!: Phaser.GameObjects.Particles.ParticleEmitterManager;
     private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
-    private triggerLeft = true;
-    private triggerRight = true;
-    private minerMining!: Phaser.Animations.Animation | false;
-    private counter = 0;
+    private tileName: string | Phaser.Textures.Texture = 'dirt';
+    private crackedTileName: string | Phaser.Textures.Texture = 'dirtCrack';
+    private backgroundTileName: string | Phaser.Textures.Texture = 'backgroundDirt';
+    private cursorkeys!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private barRowCounter = 0;
+    private breakCounter = 0;
+    private start: any;
+    private sound!: Phaser.Sound.BaseSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound;
 
-    constructor(ctx: Phaser.Scene) {
+    constructor(scene: Phaser.Scene) {
         // @ts-ignore
-        this.CONFIG = ctx.CONFIG;
+        this.CONFIG = scene.CONFIG;
         // @ts-ignore
-        this.DEPTH = ctx.DEPTH;
+        this.PRIORITY = scene.PRIORITY;
 
-        this.ctx = ctx;
+        this.scene = scene;
 
         this.cols = 16;
         this.rows = 13;
@@ -30,29 +34,35 @@ export default class Generator {
         this.layers = {
             background: [],
             floor: [],
-            monsters: [],
+            sideFloor: [],
+            supportBars: [],
             pickups: [],
-            turrets: [],
-            overlay: false
         };
     }
 
     setup() {
+        // Create tiles
+        this.createSky();
         this.createBackground();
         this.createFloor();
-        this.createSky();
+        this.createSideFloor();
+        this.start = this.layers.floor[0][4].y;
 
-        this.sprite = this.ctx.physics.add.sprite(500, 350, 'miner');
-        this.sprite.setScale(3, 3);
-        this.sprite.setOrigin(0.5, 0);
-        this.sprite.setBounce(0.1);
-        this.sprite.setDepth(this.DEPTH.miner);
-        this.sprite.body.setSize(45, 18);
-        this.ctx.cameras.main.startFollow(this.sprite);
-        this.ctx.cameras.main.followOffset.set(0, -70);
-        // Create the debris
-        this.debris = this.ctx.add.particles('debris');
-        this.debris.setDepth(2);
+        // Create Miner
+        this.miner = this.scene.physics.add.sprite(500, 360, 'idleAnimation');
+        this.miner.setScale(3, 3);
+        this.miner.setOrigin(0.5, 0);
+        this.miner.setBounce(0.1);
+        this.miner.setDepth(this.PRIORITY.miner);
+        this.miner.body.setSize(45, 18);
+
+        // Camera
+        this.scene.cameras.main.startFollow(this.miner);
+        this.scene.cameras.main.followOffset.set(0, -70);
+
+        // Create debris
+        this.debris = this.scene.add.particles('debris');
+        this.debris.setDepth(this.PRIORITY.debris);
 
         // Set up the debris to emit debris
         this.emitter = this.debris.createEmitter({
@@ -66,93 +76,78 @@ export default class Generator {
             on: false,
         });
 
-        this.ctx.input.on('pointerdown', () => {
-            if (this.sprite.anims.getName() === 'idle') {
-                this.sprite.play('mining');
-                this.sprite.chain('idle');
+        // On click event --> Mining
+        this.scene.input.on('pointerdown', () => {
+            // Dispatch event to solid
+            let mineEvent = new CustomEvent('mineEvent');
+            window.dispatchEvent(mineEvent);
+            // Play mining animation
+            if (this.miner.anims.getName() === 'idle') {
+                this.miner.play('mining');
+                this.miner.chain('idle');
             }
-
-            if (this.counter < 4) {
+            // Play dig sound
+            if (!this.sound.isPlaying) {
+                this.sound.play();
+            }
+            // Create cracks in floor and destroy floor row on 5th click
+            if (this.breakCounter < 4) {
                 this.crackFloorRow();
-                this.counter++;
+                this.breakCounter++;
             } else {
-                setTimeout(() => {
-                    this.createSupportBarsLeft();
-                    this.createSupportBarsRight();
-                    this.destroyFloorRow();
-                    this.appendFloorRow();
-                    setTimeout(() => {
-                        this.ctx.physics.add.collider(this.sprite, this.layers.floor[0]);
-                        this.emitter.stop()
-                    }, 20);
-                }, 200);
-                this.counter = 0;
+                this.createSupportBars();
+                this.destroyFloor();
+                this.destroyPickups();
+                this.breakCounter = 0;
             }
         });
 
-        this.minerMining = this.ctx.anims.create({
+        this.cursorkeys = this.scene.input.keyboard.createCursorKeys();
+
+        // Create mining animation
+        this.scene.anims.create({
             key: 'mining',
-            // @ts-ignore
-            frames: this.ctx.anims.generateFrameNumbers('mining'),
+            frames: this.scene.anims.generateFrameNumbers('miningAnimation', {start: 0, end: 4}),
             frameRate: 15
         });
 
-        this.minerIdle = this.ctx.anims.create({
+        // Create idle animation
+        this.scene.anims.create({
             key: 'idle',
-            //@ts-ignore
-            frames: this.ctx.anims.generateFrameNumbers('miner'),
+            frames: this.scene.anims.generateFrameNumbers('idleAnimation', {start: 0, end: 7}),
             frameRate: 6,
             repeat: -1
         });
 
-        this.sprite.play({key: 'idle'});
+        // Play idle animation on game start
+        this.miner.play({key: 'idle'});
+
+        // Create dig sound
+        this.sound = this.scene.sound.add('dig');
     }
 
     // Update
     update() {
-        this.ctx.physics.add.collider(this.sprite, this.layers.floor[0]);
+        // @ts-ignore
+        this.checkDepth(this.scene.depth);
+
+        if (this.cursorkeys.space.isDown) {
+            this.miner.setY(this.miner.y - 10);
+        }
+        this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
         this.scrollBackGround();
         this.scrollSideFloor();
+        this.scrollSupportBars();
+        this.destroySky();
+        this.scrollFloor();
     }
 
-    createSupportBarsLeft() {
-        let spr;
-        if (this.layers.floor[0][0].texture.key == 'testTile') {
-
-            spr = this.ctx.add.sprite(this.layers.floor[0][3].x, this.layers.floor[0][0].y, 'testTileLeft');
-        } else {
-            if (this.triggerLeft) {
-                spr = this.ctx.add.sprite(this.layers.floor[0][3].x, this.layers.floor[0][0].y, 'dirtTileGrassBarLeft');
-                this.triggerLeft = false;
-            } else {
-                spr = this.ctx.add.sprite(this.layers.floor[0][3].x, this.layers.floor[0][0].y, 'dirtTileBarLeft');
-            }
-        }
-        spr.setOrigin(0);
-        spr.setDepth(this.DEPTH.floor);
-        this.layers.floor[0][3].destroy();
-        this.layers.floor[0][3] = spr;
+    // Create sky
+    createSky() {
+        this.sky = this.scene.add.image(0, 0, 'sky').setOrigin(0).setDepth(this.PRIORITY.sky);
     }
 
-    createSupportBarsRight() {
-        let spr;
-        if (this.layers.floor[0][0].texture.key == 'testTile') {
-            spr = this.ctx.add.sprite(this.layers.floor[0][12].x, this.layers.floor[0][0].y, 'testTileRight');
-        } else {
-            if (this.triggerRight) {
-                spr = this.ctx.add.sprite(this.layers.floor[0][12].x, this.layers.floor[0][0].y, 'dirtTileGrassBarRight');
-                this.triggerRight = false;
-            } else {
-                spr = this.ctx.add.sprite(this.layers.floor[0][12].x, this.layers.floor[0][0].y, 'dirtTileBarRight');
-            }
-        }
-        spr.setOrigin(0);
-        spr.setDepth(this.DEPTH.floor);
-        this.layers.floor[0][12].destroy();
-        this.layers.floor[0][12] = spr;
-    }
-
-    // Background Layer
+    // Background layer
     createBackground() {
         let x;
         let y;
@@ -174,26 +169,19 @@ export default class Generator {
 
                 if (ty == 10) {
                     if (tx == 9) {
-                        spr = this.ctx.add.sprite(x, y, 'tileGrassLadder');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.background);
+                        spr = this.scene.add.sprite(x, y, 'ladderOnGrass');
                     } else {
-                        spr = this.ctx.add.sprite(x, y, 'grassTileDark');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.background);
+                        spr = this.scene.add.sprite(x, y, 'backgroundGrass');
                     }
                 } else {
                     if (tx == 9) {
-                        spr = this.ctx.add.sprite(x, y, 'tileLadder');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.background);
+                        spr = this.scene.add.sprite(x, y, 'ladderOnDirt');
                     } else {
-                        spr = this.ctx.add.sprite(x, y, 'dirtBackgroundTile');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.background);
+                        spr = this.scene.add.sprite(x, y, this.backgroundTileName);
                     }
                 }
-
+                spr.setOrigin(0);
+                spr.setDepth(this.PRIORITY.background);
                 // @ts-ignore
                 background[ty][tx] = spr;
             }
@@ -203,8 +191,98 @@ export default class Generator {
         this.layers.background = background;
     }
 
+    // Floor layer
+    createFloor() {
+        let x;
+        let y;
+        let spr;
+
+        let rows = 4;
+        let cols = 12;
+
+        // Save tiles in array
+        let floor = [];
+
+        // Loop cols & rows
+        for (let ty = 0; ty < rows; ty++) {
+            floor[ty] = [];
+            for (let tx = 4; tx < cols; tx++) {
+                x = (tx * this.CONFIG.tile);
+                y = ((ty + 10) * this.CONFIG.tile);
+                    if (ty == 0) {
+                        spr = this.scene.physics.add.staticSprite(x, y, 'grass');
+                    } else {
+                        spr = this.scene.physics.add.staticSprite(x, y, this.tileName);
+                    }
+                spr?.setOrigin(0);
+                spr?.setDepth(this.PRIORITY.floor);
+                // @ts-ignore
+                floor[ty][tx] = spr;
+            }
+        }
+        // Save floor array in generator layers
+        this.layers.floor = floor;
+    }
+
+    // Side floor layer
+    createSideFloor() {
+        let x;
+        let y;
+        let spr;
+
+        // Draw bigger than camera view height
+        let cols = this.cols;
+        let rows = this.rows + 1;
+
+        // Save tiles in array
+        let sideFloor = [];
+
+        // Loop cols & rows
+        for (let ty = 0; ty < rows; ty++) {
+            sideFloor[ty] = [];
+            for (let tx = 0; tx < cols; tx++) {
+                x = (tx * this.CONFIG.tile);
+                y = (ty * this.CONFIG.tile);
+                if (tx < 4 || tx > 11) {
+                    if (ty == 10) {
+                        spr = this.scene.add.sprite(x, y, 'grass');
+                    } else {
+                        spr = this.scene.add.sprite(x, y, this.tileName);
+                    }
+                }
+                spr?.setOrigin(0);
+                spr?.setDepth(this.PRIORITY.background);
+                // @ts-ignore
+                sideFloor[ty][tx] = spr;
+            }
+        }
+        // Save floor array in generator layers
+        this.layers.sideFloor = sideFloor;
+    }
+
+    // Create support bars
+    createSupportBars() {
+        let leftSpr;
+        let rightSpr;
+
+        let bars = [];
+        leftSpr = this.scene.add.sprite(this.layers.sideFloor[10][3].x, this.layers.floor[0][5].y, 'barOnDirtLeft');
+        leftSpr.setOrigin(0);
+        leftSpr.setDepth(this.PRIORITY.objects);
+
+        rightSpr = this.scene.add.sprite(this.layers.sideFloor[10][12].x, this.layers.floor[0][5].y, 'barOnDirtRight');
+        rightSpr.setOrigin(0);
+        rightSpr.setDepth(this.PRIORITY.objects);
+
+        bars.push(leftSpr);
+        bars.push(rightSpr);
+
+        this.layers.supportBars[this.barRowCounter] = bars;
+        this.barRowCounter++;
+    }
+
     scrollBackGround() {
-        let offset = this.ctx.cameras.main.scrollY - this.layers.background[0][0].y;
+        let offset = this.scene.cameras.main.scrollY - this.layers.background[0][0].y;
 
         if (offset >= this.CONFIG.tile) {
             this.destroyBackgroundRow();
@@ -212,11 +290,33 @@ export default class Generator {
         }
     }
 
+    scrollFloor() {
+        let newStart = this.layers.floor[0][4].y;
+        if (this.start <= newStart - this.CONFIG.tile) {
+            this.start = this.layers.floor[0][4].y;
+            this.appendFloorRow();
+        }
+    }
+
     scrollSideFloor() {
-        let offset = this.ctx.cameras.main.scrollY - this.layers.floor[0][0].y;
+        let offset = this.scene.cameras.main.scrollY - this.layers.sideFloor[0][0].y;
 
         if (offset >= this.CONFIG.tile) {
-            this.destroySideFloorRow();
+            this.destroySideFloor();
+            this.appendSideFloorRow();
+        }
+    }
+
+    scrollSupportBars() {
+        if (this.barRowCounter == 12) {
+            this.destroyBars();
+            this.barRowCounter--;
+        }
+    }
+
+    destroySky() {
+        if (this.sky.y + this.sky.height < this.scene.cameras.main.scrollY) {
+            this.sky.destroy();
         }
     }
 
@@ -227,11 +327,33 @@ export default class Generator {
         this.layers.background.splice(0, 1);
     }
 
-    destroySideFloorRow() {
-        for (let tx = 0; tx < this.layers.floor[0].length; tx++) {
+    destroyFloor() {
+        for (let tx = 4; tx < 12; tx++) {
+            this.debris.emitParticleAt(this.layers.floor[0][tx].x + (this.CONFIG.tile / 2), this.layers.floor[0][tx].y, 3);
             this.layers.floor[0][tx].destroy();
         }
         this.layers.floor.splice(0, 1);
+    }
+
+    destroySideFloor() {
+        for (let tx = 0; tx < this.layers.sideFloor[0].length; tx++) {
+            this.layers.sideFloor[0][tx].destroy();
+        }
+        this.layers.sideFloor.splice(0, 1);
+    }
+
+    destroyBars() {
+        this.layers.supportBars[0][0].destroy();
+        this.layers.supportBars[0][1].destroy();
+        this.layers.supportBars.splice(0, 1);
+    }
+
+    destroyPickups() {
+        this.layers.pickups.forEach(sprite => {
+            if (sprite.getBounds().y - this.scene.cameras.main.scrollY <= -this.CONFIG.tile) {
+                sprite.destroy();
+            }
+        });
     }
 
     appendBackgroundRow() {
@@ -248,111 +370,14 @@ export default class Generator {
         // Draw tiles on this row
         for (let tx = 0; tx < this.cols; tx++) {
             x = (tx * this.CONFIG.tile);
-
             if (tx == 9) {
-                spr = this.ctx.add.sprite(x, y, 'tileLadder');
-                spr.setOrigin(0);
-                spr.setDepth(this.DEPTH.background);
+                spr = this.scene.add.sprite(x, y, 'ladderOnDirt');
             } else {
-                spr = this.ctx.add.sprite(x, y, 'dirtBackgroundTile');
-                spr.setOrigin(0);
-                spr.setDepth(this.DEPTH.background);
+                spr = this.scene.add.sprite(x, y, this.backgroundTileName);
             }
-
+            spr.setOrigin(0);
+            spr.setDepth(this.PRIORITY.background);
             this.layers.background[ty][tx] = spr;
-        }
-    }
-
-    createSky() {
-        this.ctx.add.image(0, 0, 'sky').setOrigin(0);
-    }
-
-    // Floor Layer
-    createFloor() {
-        let x;
-        let y;
-        let spr;
-
-        // Draw bigger than camera view height
-        let cols = this.cols;
-        let rows = 5;
-
-        // Save tiles in array
-        let floor = [];
-
-        // Loop cols & rows
-        for (let ty = 0; ty < rows; ty++) {
-            floor[ty] = [];
-            for (let tx = 0; tx < cols; tx++) {
-                x = (tx * this.CONFIG.tile);
-                y = ((ty + 10) * this.CONFIG.tile);
-
-                if (ty == 0) {
-                    spr = this.ctx.physics.add.staticSprite(x, y, 'grassTile');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
-                } else {
-                    if (tx < 3 || tx > 12) {
-                        if (Math.floor(Math.random() * (60 - 1 + 1)) + 1 === 10) {
-                            spr = this.ctx.physics.add.staticSprite(x, y, 'bones');
-                            spr.setOrigin(0);
-                            spr.setDepth(this.DEPTH.floor);
-                        } else {
-                            spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
-                            spr.setOrigin(0);
-                            spr.setDepth(this.DEPTH.floor);
-                        }
-                    } else {
-                        spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.floor);
-                    }
-                }
-                // @ts-ignore
-                floor[ty][tx] = spr;
-            }
-        }
-
-        // Save floor array in generator layers
-        this.layers.floor = floor;
-    }
-
-    destroyFloorRow() {
-        for (let tx = 4; tx < 12; tx++) {
-            this.debris.emitParticleAt(this.layers.floor[0][tx].x + (this.CONFIG.tile / 2), this.layers.floor[0][0].y, 3);
-            this.layers.floor[0][tx].destroy();
-        }
-        this.layers.floor.splice(0, 1);
-    }
-
-    crackFloorRow() {
-        let spr;
-        for (let tx = 4; tx < 12; tx++) {
-            switch (this.counter) {
-                case 0:
-                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][0].y, 'dirtCrack1');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
-                    console.log(this.counter);
-                    break;
-                case 1:
-                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, 'dirtCrack2');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
-                    break;
-                case 2:
-                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, 'dirtCrack3');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
-                    break;
-                case 3:
-                    spr = this.ctx.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, 'dirtCrack4');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
-                    break;
-            }
-            this.layers.floor[0][tx].destroy();
-            this.layers.floor[0][tx] = spr;
         }
     }
 
@@ -362,38 +387,119 @@ export default class Generator {
 
         // Row at the end of the floor, right below camera edge
         let ty = this.layers.floor.length;
-        let y = this.layers.floor[ty - 1][0].y + this.CONFIG.tile;
+        let y = this.layers.floor[ty - 1][4].y + this.CONFIG.tile;
 
         // Add empty row to the floor layer
         this.layers.floor.push([]);
 
         // Draw tiles on this row
+        for (let tx = 4; tx < 12; tx++) {
+            x = (tx * this.CONFIG.tile);
+
+            spr = this.scene.physics.add.staticSprite(x, y, this.tileName);
+
+            spr?.setOrigin(0);
+            spr?.setDepth(this.PRIORITY.floor);
+            this.layers.floor[ty][tx] = spr;
+        }
+    }
+
+    appendSideFloorRow() {
+        let x;
+        let spr;
+
+        // Row at the end of the floor, right below camera edge
+        let ty = this.layers.sideFloor.length;
+        let y = this.layers.sideFloor[ty - 1][0].y + this.CONFIG.tile;
+
+        // Add empty row to the floor layer
+        this.layers.sideFloor.push([]);
+
+        // Draw tiles on this row
         for (let tx = 0; tx < this.cols; tx++) {
             x = (tx * this.CONFIG.tile);
 
-            // @ts-ignore
-            if (this.ctx.depth >= 100) {
-                spr = this.ctx.physics.add.staticSprite(x, y, 'testTile');
-                spr.setOrigin(0);
-                spr.setDepth(this.DEPTH.floor);
-            } else {
-                if (tx < 3 || tx > 12) {
-                    if (Math.floor(Math.random() * (60 - 1 + 1)) + 1 === 10) {
-                        spr = this.ctx.physics.add.staticSprite(x, y, 'bones');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.floor);
-                    } else {
-                        spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
-                        spr.setOrigin(0);
-                        spr.setDepth(this.DEPTH.floor);
-                    }
-                } else {
-                    spr = this.ctx.physics.add.staticSprite(x, y, 'dirtTile');
-                    spr.setOrigin(0);
-                    spr.setDepth(this.DEPTH.floor);
-                }
+            if (tx < 4 || tx > 11) {
+                this.appendPickups(x, y);
+                spr = this.scene.add.sprite(x, y, this.tileName);
             }
-            this.layers.floor[ty][tx] = spr;
+            spr?.setOrigin(0);
+            spr?.setDepth(this.PRIORITY.floor);
+            this.layers.sideFloor[ty][tx] = spr;
+        }
+    }
+
+    appendPickups(x: number, y: number) {
+        let spr;
+        let randomBones = 80;
+        if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 10) {
+            spr = this.scene.add.sprite(x, y, 'bones1');
+            spr.setInteractive({useHandCursor: true});
+            spr.on('pointerdown', (event: any) => {
+                let treasureEvent = new CustomEvent('treasureEvent');
+                window.dispatchEvent(treasureEvent);
+
+                let pointer = this.scene.input.mousePointer;
+                this.layers.pickups.forEach(sprite => {
+                    if (sprite.getBounds().contains(pointer.x, pointer.y + this.scene.cameras.main.scrollY)) {
+                        sprite.destroy();
+                    }
+                });
+                event.stopImmediatePropagation();
+            });
+        } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 30) {
+            spr = this.scene.add.sprite(x, y, 'bones2');
+        } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 50) {
+            spr = this.scene.add.sprite(x, y, 'bones3');
+        }
+        if (spr != null) {
+            spr.setOrigin(0);
+            spr.setDepth(this.PRIORITY.objects);
+            this.layers.pickups.push(spr);
+        }
+    }
+
+    crackFloorRow() {
+        let spr;
+        // @ts-ignore
+        for (let tx = 4; tx < 12; tx++) {
+            switch (this.breakCounter) {
+                case 0:
+                    spr = this.scene.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, this.crackedTileName + '1');
+                    break;
+                case 1:
+                    spr = this.scene.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, this.crackedTileName + '2');
+                    break;
+                case 2:
+                    spr = this.scene.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, this.crackedTileName + '3');
+                    break;
+                case 3:
+                    spr = this.scene.physics.add.staticSprite(this.layers.floor[0][tx].x, this.layers.floor[0][tx].y, this.crackedTileName + '4');
+                    break;
+            }
+            spr?.setOrigin(0);
+            spr?.setDepth(this.PRIORITY.floor);
+            this.layers.floor[0][tx].destroy();
+            this.layers.floor[0][tx] = spr;
+        }
+    }
+
+    checkDepth(value: number) {
+        if (value == undefined) {
+            value = 1;
+        }
+        switch (true) {
+            case (value <= 21):
+                this.tileName = 'dirt';
+                this.crackedTileName = 'dirtCrack';
+                this.backgroundTileName = 'backgroundDirt'
+                break;
+            case (value > 21):
+                this.tileName = 'lava';
+                if (value > 39) {
+                    this.crackedTileName = 'lavaCrack';
+                }
+                break;
         }
     }
 }

@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import Generator from "../prefabs/Generator";
+
 export default class Play extends Phaser.Scene {
     private CONFIG: any;
     private depth!: number;
-    private DEPTH!: {background: number, floor: number; miner: number };
+    private PRIORITY!: { sky: number; background: number, floor: number; miner: number; objects: number; debris: number };
     private allow_input!: boolean;
     private is_pause!: boolean;
     private is_gameOver!: boolean;
@@ -16,10 +17,13 @@ export default class Play extends Phaser.Scene {
         // @ts-ignore
         this.CONFIG = this.sys.game.CONFIG;
 
-        this.DEPTH = {
+        this.PRIORITY = {
+            sky: 2,
             background: 0,
-            floor: 3,
-            miner: 4
+            floor: 2,
+            miner: 4,
+            objects: 3,
+            debris: 1,
         };
 
         this.generator = new Generator(this);

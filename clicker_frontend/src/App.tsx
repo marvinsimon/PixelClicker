@@ -10,11 +10,9 @@ import board from "./assets/img/Brettmiticon.png";
 import board_right from "./assets/img/Brett2.png";
 import small_board from "./assets/img/small_brett.png";
 import buttonSound from "./assets/audio/button_click.mp3";
-import digSound from "./assets/audio/pick2.mp3";
+
 import Phaser, {Game} from "phaser";
-import Boot from './scenes/boot';
 import Preload from "./scenes/preload";
-import Menu from "./scenes/menu";
 import Play from "./scenes/play";
 
 const App: Component = () => {
@@ -105,8 +103,10 @@ const App: Component = () => {
                 console.log("Got offline resources")
                 setTotalDepth(event.MinedOffline.depth);
                 setTotalAmount(event.MinedOffline.ore);
-
                 setShowOfflineResources(true);
+            } else if ('TreasureFound' in event) {
+                console.log('Treasure found')
+                setOre(event.TreasureFound.ore);
             }
         }
         socket.onopen = () => {
@@ -126,9 +126,7 @@ const App: Component = () => {
         // Scenes
         let scenes = [];
 
-        scenes.push(Boot);
         scenes.push(Preload);
-        scenes.push(Menu);
         scenes.push(Play);
 
         // Game config
@@ -507,13 +505,6 @@ const App: Component = () => {
         await buttonClick.play();
     }
 
-    const dig = new Audio(digSound);
-    dig.preload = "none";
-
-    const playDigSound = async () => {
-        await dig.play();
-    }
-
     function subtractCost(cost: string) {
         setCostNumber("-" + cost);
         let c = document.getElementById("cost");
@@ -537,6 +528,21 @@ const App: Component = () => {
             invalid.classList.remove(styles.fadeout);
             void invalid.offsetWidth;
             invalid.classList.add(styles.fadeout);
+        }
+    }
+
+    window.addEventListener('mineEvent', async () => {
+        await mine();
+    })
+
+    window.addEventListener('treasureEvent', async () => {
+        await treasure();
+    });
+
+    const treasure = async () => {
+        if (socket) {
+            const event: ClientMessages = "Treasure";
+            await socket.send(JSON.stringify(event));
         }
     }
 
@@ -635,8 +641,7 @@ const App: Component = () => {
                     </div>
                 </div>
                 <div id={'main'} class={styles.main} onClick={() => {
-                    void mine();
-                    void playDigSound()
+                    // void mine();
                 }}>
                 </div>
                 <div class={styles.controls}>

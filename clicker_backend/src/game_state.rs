@@ -169,6 +169,10 @@ impl GameState {
                     automation_started: self.automation_started,
                 }
             }
+            ClientMessages::Treasure => {
+                self.ore += 1000.0;
+                ServerMessages::TreasureFound { ore: self.ore as u64 }
+            }
         }
     }
 

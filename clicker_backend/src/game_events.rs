@@ -13,6 +13,7 @@ pub enum ClientMessages {
     UpgradeAttackLevel,
     UpgradeDefenceLevel,
     GetLoginData,
+    Treasure
 }
 
 #[derive(Serialize, TypeDef)]
@@ -30,4 +31,5 @@ pub enum ServerMessages {
     CombatElapsed{loot: u64},
     LoggedIn {},
     MinedOffline{ore: u64, depth: u64},
+    TreasureFound{ore: u64}
 }

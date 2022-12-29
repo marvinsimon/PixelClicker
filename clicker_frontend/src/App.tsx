@@ -98,6 +98,7 @@ const App: Component = () => {
                 console.log("Still logged in")
                 setAuth(true);
                 setLoggedIn(true);
+                loadGame();
             } else if ("AutomationStarted" in event) {
                 setAutomation(event.AutomationStarted.success);
             } else if ("MinedOffline" in event) {
@@ -111,12 +112,33 @@ const App: Component = () => {
             } else if ('DiamondFound' in event) {
                 console.log('Diamond found');
                 setDiamond(event.DiamondFound.diamond);
+            } else if ('GameData' in event) {
+                console.log('Load game data');
+                loadGameData(event.GameData.tile_name, event.GameData.cracked_tile_name, event.GameData.background_tile_name, event.GameData.picked_first_diamond);
             }
         }
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
+
+            window.addEventListener('saveEvent', async (event) => {
+                let save = event as CustomEvent;
+                if (socket) {
+                    let varia = {
+                        "SaveGame":
+                            {
+                                tile_name: save.detail.file.tileName,
+                                cracked_tile_name: save.detail.file.crackedTileName,
+                                background_tile_name: save.detail.file.backgroundTileName,
+                                picked_first_diamond: save.detail.file.pickedFirstDiamond,
+                            }
+                    };
+                    const event: ClientMessages = varia as ClientMessages;
+                    await socket.send(JSON.stringify(event));
+                }
+            });
             window.setTimeout(() => {
                 socket?.send(JSON.stringify(event));
+
             }, 1000);
         }
     }
@@ -169,33 +191,11 @@ const App: Component = () => {
         // Sound
         game.sound_on = true;
 
-        // window.addEventListener('resize', resizeGame);
-        // resizeGame();
-    }
-
-    function resizeGame() {
-        // Width-height-ratio of game resolution
-        let game_ratio = 1000 / 800;
-
-        //Make div full height of browser and keep the ratio of game resolution
-        let div = document.getElementById('main');
-        if (div != null) {
-            div.style.width = (window.innerHeight * game_ratio) + 'px';
-            div.style.height = window.innerHeight + 'px';
-
-            // Check if device DPI messes up the width-height-ratio
-            let canvas = document.getElementsByTagName('canvas')[0];
-
-            let dpi_w = (parseInt(div.style.width) / canvas.width);
-            let dpi_h = (parseInt(div.style.height) / canvas.height);
-
-            let height = window.innerHeight * (dpi_w / dpi_h);
-            let width = height * game_ratio;
-
-            // Scale canvas
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
-        }
+        // Game Data
+        game.tileName = "";
+        game.crackedTileName = "";
+        game.backgroundTileName = "";
+        game.pickedFirstDiamond = false;
     }
 
     window.setInterval(function () {
@@ -394,6 +394,7 @@ const App: Component = () => {
                 await connectBackend();
                 setLoggedIn(true);
                 setAuth(true);
+                await loadGame();
             } else if (response.status == 401) {
                 badStatusPopup();
                 console.log('Unauthorized');
@@ -413,6 +414,7 @@ const App: Component = () => {
                 setLoggedIn(false);
                 setAuth(false);
                 await connectBackend();
+                game.events.emit('logOut');
             }
         } else {
             console.log(`sign_out: failed`);
@@ -562,6 +564,24 @@ const App: Component = () => {
         }
     }
 
+    const loadGame = async () => {
+        if (socket) {
+            setTimeout(async () => {
+                const event: ClientMessages = 'LoadGame';
+                await socket?.send(JSON.stringify(event));
+            }, 200);
+        }
+    }
+
+    function loadGameData(tile_name: string, cracked_tile_name: string, background_tile_name: string, picked_first_diamond: boolean) {
+        game.tileName = tile_name;
+        game.crackedTileName = cracked_tile_name;
+        game.backgroundTileName = background_tile_name;
+        game.pickedFirstDiamond = picked_first_diamond;
+        game.events.emit('loadGame');
+    }
+
+
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -572,7 +592,7 @@ const App: Component = () => {
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <Show when={!loggedIn()}
-                          fallback={<button class={styles.User_symbol} onClick={() => {
+                          fallback={<button id="signOut" class={styles.User_symbol} onClick={() => {
                               sign_out();
                               setShow(false);
                               setInnerShow(false)

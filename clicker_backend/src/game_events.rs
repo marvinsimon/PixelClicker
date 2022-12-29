@@ -14,7 +14,9 @@ pub enum ClientMessages {
     UpgradeDefenceLevel,
     GetLoginData,
     Treasure,
-    Diamond
+    Diamond,
+    SaveGame{ tile_name: String, cracked_tile_name: String, background_tile_name: String, picked_first_diamond: bool },
+    LoadGame,
 }
 
 #[derive(Serialize, TypeDef)]
@@ -33,5 +35,7 @@ pub enum ServerMessages {
     LoggedIn {},
     MinedOffline{ore: u64, depth: u64},
     TreasureFound{ore: u64},
-    DiamondFound{diamond: i32}
+    DiamondFound{diamond: i32},
+    Ack,
+    GameData { tile_name: String, cracked_tile_name: String, background_tile_name: String, picked_first_diamond: bool }
 }

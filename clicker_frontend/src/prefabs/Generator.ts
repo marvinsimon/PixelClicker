@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import J = Phaser.Input.Keyboard.KeyCodes.J;
 
 export default class Generator {
     private CONFIG: any;
@@ -21,6 +22,8 @@ export default class Generator {
     private sound!: Phaser.Sound.BaseSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound;
     private diamond: number = 1;
     private pickedFirstDiamond: boolean = false;
+    private collision!: Phaser.Physics.Arcade.Collider;
+    private myInterval!: any;
 
     constructor(scene: Phaser.Scene) {
         // @ts-ignore
@@ -29,7 +32,6 @@ export default class Generator {
         this.PRIORITY = scene.PRIORITY;
 
         this.scene = scene;
-
         this.cols = 16;
         this.rows = 13;
 
@@ -43,11 +45,26 @@ export default class Generator {
     }
 
     setup() {
+
+        if (this.scene.loggedIn == true) {
+            this.tileName = this.scene.sys.game.tileName;
+            this.crackedTileName = this.scene.sys.game.crackedTileName;
+            this.backgroundTileName = this.scene.sys.game.backgroundTileName;
+            this.pickedFirstDiamond = this.scene.sys.game.pickedFirstDiamond;
+            console.log(this.scene.sys.game.pickedFirstDiamond);
+        }
+
         // Create tiles
         this.createSky();
         this.createBackground();
         this.createFloor();
         this.createSideFloor();
+
+        if (this.scene.loggedIn == true) {
+            for (let i = 0; i < 10; i++) {
+                this.createSupportBars(i, i);
+            }
+        }
         this.start = this.layers.floor[0][4].y;
 
         // Create Miner
@@ -78,6 +95,7 @@ export default class Generator {
             on: false,
         });
 
+        this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
         // On click event --> Mining
         this.scene.input.on('pointerdown', () => {
             // Dispatch event to solid
@@ -97,8 +115,10 @@ export default class Generator {
                 this.crackFloorRow();
                 this.breakCounter++;
             } else {
-                this.createSupportBars();
+                this.createSupportBars(10, 10);
                 this.destroyFloor();
+                this.collision.destroy();
+                this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
                 this.destroyPickups();
                 this.breakCounter = 0;
             }
@@ -126,6 +146,7 @@ export default class Generator {
 
         // Create dig sound
         this.sound = this.scene.sound.add('dig');
+        this.saveGame();
     }
 
     // Update
@@ -136,7 +157,7 @@ export default class Generator {
         if (this.cursorkeys.space.isDown) {
             this.miner.setY(this.miner.y - 10);
         }
-        this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
+        // this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
         this.scrollBackGround();
         this.scrollSideFloor();
         this.scrollSupportBars();
@@ -169,13 +190,16 @@ export default class Generator {
                 x = (tx * this.CONFIG.tile);
                 y = (ty * this.CONFIG.tile);
 
-                if (ty == 10) {
+                if (ty == 10 && this.scene.loggedIn == false) {
                     if (tx == 9) {
                         spr = this.scene.add.sprite(x, y, 'ladderOnGrass');
                     } else {
                         spr = this.scene.add.sprite(x, y, 'backgroundGrass');
                     }
                 } else {
+                    if (this.scene.loggedIn == true) {
+                        this.sky.destroy();
+                    }
                     if (tx == 9) {
                         spr = this.scene.add.sprite(x, y, 'ladderOnDirt');
                     } else {
@@ -211,11 +235,11 @@ export default class Generator {
             for (let tx = 4; tx < cols; tx++) {
                 x = (tx * this.CONFIG.tile);
                 y = ((ty + 10) * this.CONFIG.tile);
-                    if (ty == 0) {
-                        spr = this.scene.physics.add.staticSprite(x, y, 'grass');
-                    } else {
-                        spr = this.scene.physics.add.staticSprite(x, y, this.tileName);
-                    }
+                if (ty == 0 && this.scene.loggedIn == false) {
+                    spr = this.scene.physics.add.staticSprite(x, y, 'grass');
+                } else {
+                    spr = this.scene.physics.add.staticSprite(x, y, this.tileName);
+                }
                 spr?.setOrigin(0);
                 spr?.setDepth(this.PRIORITY.floor);
                 // @ts-ignore
@@ -246,7 +270,7 @@ export default class Generator {
                 x = (tx * this.CONFIG.tile);
                 y = (ty * this.CONFIG.tile);
                 if (tx < 4 || tx > 11) {
-                    if (ty == 10) {
+                    if (ty == 10 && this.scene.loggedIn == false) {
                         spr = this.scene.add.sprite(x, y, 'grass');
                     } else {
                         spr = this.scene.add.sprite(x, y, this.tileName);
@@ -263,24 +287,24 @@ export default class Generator {
     }
 
     // Create support bars
-    createSupportBars() {
+    createSupportBars(x: number, y: number) {
         let leftSpr;
         let rightSpr;
 
         let bars = [];
-        leftSpr = this.scene.add.sprite(this.layers.sideFloor[10][3].x, this.layers.floor[0][5].y, 'barOnDirtLeft');
+        leftSpr = this.scene.add.sprite(this.layers.sideFloor[x][3].x, this.layers.sideFloor[y][4].y, 'barOnDirtLeft');
         leftSpr.setOrigin(0);
         leftSpr.setDepth(this.PRIORITY.objects);
 
-        rightSpr = this.scene.add.sprite(this.layers.sideFloor[10][12].x, this.layers.floor[0][5].y, 'barOnDirtRight');
+        rightSpr = this.scene.add.sprite(this.layers.sideFloor[x][12].x, this.layers.sideFloor[y][4].y, 'barOnDirtRight');
         rightSpr.setOrigin(0);
         rightSpr.setDepth(this.PRIORITY.objects);
+        this.barRowCounter++;
 
         bars.push(leftSpr);
         bars.push(rightSpr);
 
         this.layers.supportBars[this.barRowCounter] = bars;
-        this.barRowCounter++;
     }
 
     scrollBackGround() {
@@ -345,8 +369,8 @@ export default class Generator {
     }
 
     destroyBars() {
-        this.layers.supportBars[0][0].destroy();
-        this.layers.supportBars[0][1].destroy();
+        this.layers.supportBars[1][0].destroy();
+        this.layers.supportBars[1][1].destroy();
         this.layers.supportBars.splice(0, 1);
     }
 
@@ -436,7 +460,7 @@ export default class Generator {
         let randomBones = 80;
         let pointer = this.scene.input.mousePointer;
         // @ts-ignore
-        if (this.scene.depth >= 20 && this.diamond == 1) {
+        if (this.scene.depth >= 20 && this.diamond == 1 && this.pickedFirstDiamond == false) {
             this.pickedFirstDiamond = true;
             console.log('Create Diamond');
             spr = this.scene.add.sprite(x, y, 'diamond');
@@ -518,10 +542,32 @@ export default class Generator {
                 break;
             case (value > 21):
                 this.tileName = 'lava';
-                if (value > 39) {
+                if (this.layers.sideFloor[10][0].texture.key == 'lava') {
                     this.crackedTileName = 'lavaCrack';
                 }
                 break;
         }
+    }
+
+    saveGame() {
+        this.myInterval = setInterval(() => {
+            let file = {
+                tileName: this.layers.sideFloor[12][0].texture.key,
+                crackedTileName: this.crackedTileName,
+                backgroundTileName: this.backgroundTileName,
+                pickedFirstDiamond: this.pickedFirstDiamond,
+            }
+            let saveEvent = new CustomEvent('saveEvent', {
+                detail: {
+                    file: file
+                }
+            });
+            console.log('SAVE');
+            window.dispatchEvent(saveEvent);
+        }, 10000);
+    }
+
+    clearAllIntervalls() {
+        clearInterval(this.myInterval);
     }
 }

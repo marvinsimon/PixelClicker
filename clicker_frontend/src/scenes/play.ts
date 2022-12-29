@@ -9,6 +9,8 @@ export default class Play extends Phaser.Scene {
     private is_pause!: boolean;
     private is_gameOver!: boolean;
     private generator!: Generator;
+    private loggedIn = false;
+
     constructor() {
         super({key: 'Play', active: false});
     }
@@ -34,6 +36,8 @@ export default class Play extends Phaser.Scene {
     }
 
     create() {
+        this.loadingGame();
+        this.loadLogOut();
         // Create floor
         this.generator.setup();
     }
@@ -42,5 +46,27 @@ export default class Play extends Phaser.Scene {
         this.generator.update();
         // @ts-ignore
         this.depth = this.sys.game.depth;
+    }
+
+    loadingGame() {
+        this.game.events.on("loadGame", () => {
+            this.loggedIn = true;
+            this.generator.clearAllIntervalls();
+            this.registry.destroy();
+            this.game.events.off('saveEvent');
+            this.scene.restart();
+            console.log('Restarting Logged In');
+        });
+    }
+
+    loadLogOut() {
+        this.game.events.on('logOut', () => {
+            this.loggedIn = false;
+            this.generator.clearAllIntervalls();
+            this.registry.destroy();
+            this.game.events.off('saveEvent');
+            this.scene.restart();
+            console.log('Restarting Logged Out');
+        });
     }
 }

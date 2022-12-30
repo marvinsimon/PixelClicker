@@ -16,19 +16,19 @@ export default class Preload extends Phaser.Scene {
     preload() {
         // Sprites......................................................................................................
         // Sky
-        this.load.image('sky', "src/assets/img/clouds.png");
+        this.load.image('sky', "src/assets/img/bg1.png");
 
         // Background
         this.load.spritesheet('backgroundGrass', "src/assets/img/grasTileDark.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('ladderOnGrass', "src/assets/img/ladderGrass.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('backgroundDirt', "src/assets/img/dirt-background-tile64px.png", {
+        this.load.spritesheet('backgroundDirt', "src/assets/img/tile_3.png", {
             frameWidth: 64,
             frameHeight: 64
         });
         this.load.spritesheet('ladderOnDirt', "src/assets/img/ladderDirt.png", {frameWidth: 64, frameHeight: 64});
 
         // Grass
-        this.load.spritesheet('grass', "src/assets/img/grassTile.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('grass', "src/assets/img/tile_1.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('barOnGrassLeft', "src/assets/img/tileGrassBarLeft.png", {
             frameWidth: 64,
             frameHeight: 64
@@ -39,7 +39,7 @@ export default class Preload extends Phaser.Scene {
         });
 
         // Dirt
-        this.load.spritesheet('dirt', "src/assets/img/dirt-tile64px.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirt', "src/assets/img/tile_2.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack1', "src/assets/img/cracked1.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack2', "src/assets/img/cracked2.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack3', "src/assets/img/cracked3.png", {frameWidth: 64, frameHeight: 64});

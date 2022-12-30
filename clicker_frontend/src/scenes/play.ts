@@ -49,11 +49,13 @@ export default class Play extends Phaser.Scene {
     }
 
     loadingGame() {
-        this.game.events.on("loadGame", () => {
+        this.game.events.on('loadGame', () => {
+            console.log("LoadLogIn")
             this.loggedIn = true;
             this.generator.clearAllIntervalls();
             this.registry.destroy();
             this.game.events.off('saveEvent');
+            this.game.events.off('loadGame');
             this.scene.restart();
             console.log('Restarting Logged In');
         });
@@ -61,10 +63,12 @@ export default class Play extends Phaser.Scene {
 
     loadLogOut() {
         this.game.events.on('logOut', () => {
+            console.log("LoadLogOut")
             this.loggedIn = false;
             this.generator.clearAllIntervalls();
             this.registry.destroy();
             this.game.events.off('saveEvent');
+            this.game.events.off('logOut');
             this.scene.restart();
             console.log('Restarting Logged Out');
         });

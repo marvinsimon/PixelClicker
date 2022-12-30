@@ -11,7 +11,8 @@ import board_right from "./assets/img/Brett2.png";
 import small_board from "./assets/img/small_brett.png";
 import buttonSound from "./assets/audio/button_click.mp3";
 
-import Phaser, {Game} from "phaser";
+import ClickerRoyaleGame from "./ClickerRoyaleGame";
+import Phaser from "phaser";
 import Preload from "./scenes/preload";
 import Play from "./scenes/play";
 
@@ -51,6 +52,7 @@ const App: Component = () => {
     const [costNumber, setCostNumber] = createSignal("");
     const [diamond, setDiamond] = createSignal(0);
 
+    let game: ClickerRoyaleGame;
     let socket: WebSocket | undefined;
 
     const connectBackend = async () => {
@@ -59,96 +61,109 @@ const App: Component = () => {
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
-            if ("NewState" in event) {
-                console.log(event.NewState);
-                setOre(event.NewState.ore);
-                setDepth(event.NewState.depth);
-                game.depth = depth();
-            } else if ("ShovelDepthUpgraded" in event) {
-                console.log(event.ShovelDepthUpgraded);
-                setShovelDepth(event.ShovelDepthUpgraded.new_level);
-                setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
-            } else if ("ShovelAmountUpgraded" in event) {
-                console.log(event.ShovelAmountUpgraded);
-                setShovelAmount(event.ShovelAmountUpgraded.new_level);
-                setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
-            } else if ("AutomationDepthUpgraded" in event) {
-                console.log(event.AutomationDepthUpgraded);
-                setAutoDepth(event.AutomationDepthUpgraded.new_level);
-                setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
-            } else if ("AutomationAmountUpgraded" in event) {
-                console.log(event.AutomationAmountUpgraded);
-                setAutoAmount(event.AutomationAmountUpgraded.new_level);
-                setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
-            } else if ("AttackLevelUpgraded" in event) {
-                console.log(event.AttackLevelUpgraded);
-                setAttackLevel(event.AttackLevelUpgraded.new_level);
-                setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
-            } else if ("DefenceLevelUpgraded" in event) {
-                console.log(event.DefenceLevelUpgraded);
-                setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-                setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
-            } else if ("LoginState" in event) {
-                console.log(event.LoginState);
-                setLoginStates(event.LoginState);
-            } else if ("CombatElapsed" in event) {
-                console.log(event.CombatElapsed);
-                lootArrived(event.CombatElapsed);
-            } else if ("LoggedIn" in event) {
-                console.log("Still logged in")
-                setAuth(true);
-                setLoggedIn(true);
-                loadGame();
-            } else if ("AutomationStarted" in event) {
-                setAutomation(event.AutomationStarted.success);
-            } else if ("MinedOffline" in event) {
-                console.log("Got offline resources")
-                setTotalDepth(event.MinedOffline.depth);
-                setTotalAmount(event.MinedOffline.ore);
-                setShowOfflineResources(true);
-            } else if ('TreasureFound' in event) {
-                console.log('Treasure found')
-                setOre(event.TreasureFound.ore);
-            } else if ('DiamondFound' in event) {
-                console.log('Diamond found');
-                setDiamond(event.DiamondFound.diamond);
-            } else if ('GameData' in event) {
-                console.log('Load game data');
-                loadGameData(event.GameData.tile_name, event.GameData.cracked_tile_name, event.GameData.background_tile_name, event.GameData.picked_first_diamond);
+            if (typeof event === 'object') {
+                if ("NewState" in event) {
+                    console.log(event.NewState);
+                    setOre(event.NewState.ore);
+                    setDepth(event.NewState.depth);
+                    game.depth = depth();
+                } else if ("ShovelDepthUpgraded" in event) {
+                    console.log(event.ShovelDepthUpgraded);
+                    setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                    if (event.ShovelDepthUpgraded.success) {
+                        subtractCost(formatNumbers(shovelDepthPrice()));
+                    }
+                    setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
+                } else if ("ShovelAmountUpgraded" in event) {
+                    console.log(event.ShovelAmountUpgraded);
+                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                    if (event.ShovelAmountUpgraded.success) {
+                        subtractCost(formatNumbers(shovelAmountPrice()));
+                    }
+                    setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
+                } else if ("AutomationDepthUpgraded" in event) {
+                    console.log(event.AutomationDepthUpgraded);
+                    setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                    if (event.AutomationDepthUpgraded.success) {
+                        subtractCost(formatNumbers(autoDepthPrice()));
+                    }
+                    setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
+                } else if ("AutomationAmountUpgraded" in event) {
+                    console.log(event.AutomationAmountUpgraded);
+                    setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                    if (event.AutomationAmountUpgraded.success) {
+                        subtractCost(formatNumbers(autoAmountPrice()));
+                    }
+                    setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
+                } else if ("AttackLevelUpgraded" in event) {
+                    console.log(event.AttackLevelUpgraded);
+                    setAttackLevel(event.AttackLevelUpgraded.new_level);
+                    if (event.AttackLevelUpgraded.success) {
+                        subtractCost(formatNumbers(attackPrice()));
+                    }
+                    setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
+                } else if ("DefenceLevelUpgraded" in event) {
+                    console.log(event.DefenceLevelUpgraded);
+                    setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                    if (event.DefenceLevelUpgraded.success) {
+                        subtractCost(formatNumbers(defencePrice()));
+                    }
+                    setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
+                } else if ("LoginState" in event) {
+                    console.log(event.LoginState);
+                    setLoginStates(event.LoginState);
+                } else if ("CombatElapsed" in event) {
+                    console.log(event.CombatElapsed);
+                    lootArrived(event.CombatElapsed);
+                } else if ("LoggedIn" in event) {
+                    console.log("Still logged in");
+                    setAuth(true);
+                    setLoggedIn(true);
+                    // loadGame();
+                } else if ("AutomationStarted" in event) {
+                    setAutomation(event.AutomationStarted.success);
+                    if (event.AutomationStarted.success) {
+                        subtractCost("200");
+                    }
+                } else if ("MinedOffline" in event) {
+                    console.log("Got offline resources");
+                    setTotalDepth(event.MinedOffline.depth);
+                    setTotalAmount(event.MinedOffline.ore);
+                    setShowOfflineResources(true);
+                } else if ('TreasureFound' in event) {
+                    console.log('Treasure found');
+                    setOre(event.TreasureFound.ore);
+                } else if ('DiamondFound' in event) {
+                    console.log('Diamond found');
+                    setDiamond(event.DiamondFound.diamond);
+                } else if ('GameData' in event) {
+                    console.log('Load game data');
+                    loadGameData(event.GameData.tile_name, event.GameData.cracked_tile_name, event.GameData.background_tile_name, event.GameData.picked_first_diamond);
+                }
             }
         }
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
-
-            window.addEventListener('saveEvent', async (event) => {
-                let save = event as CustomEvent;
-                if (socket) {
-                    let varia = {
-                        "SaveGame":
-                            {
-                                tile_name: save.detail.file.tileName,
-                                cracked_tile_name: save.detail.file.crackedTileName,
-                                background_tile_name: save.detail.file.backgroundTileName,
-                                picked_first_diamond: save.detail.file.pickedFirstDiamond,
-                            }
-                    };
-                    const event: ClientMessages = varia as ClientMessages;
-                    await socket.send(JSON.stringify(event));
-                }
-            });
+            saveGame();
             window.setTimeout(() => {
                 socket?.send(JSON.stringify(event));
 
             }, 1000);
         }
+
+        socket.onclose = () => {
+            window.removeEventListener('saveEvent', test);
+        }
     }
 
-    let game: Phaser.Game;
 
     // @ts-ignore
     window.onload = async () => {
         await connectBackend();
+        setupPhaserGame();
+    }
 
+    function setupPhaserGame() {
         // Scenes
         let scenes = [];
 
@@ -176,7 +191,7 @@ const App: Component = () => {
         };
 
         // Create game app
-        game = new Phaser.Game(config)
+        game = new ClickerRoyaleGame(config)
         // Globals
         game.CONFIG = {
             width: config.width,
@@ -287,6 +302,9 @@ const App: Component = () => {
         setAttackLevel(LoginState.attack_level);
         setDefenceLevel(LoginState.defence_level);
         setDiamond(LoginState.diamond);
+        if (loggedIn()) {
+            void loadGame();
+        }
     }
 
     const resetScreen = () => {
@@ -394,7 +412,6 @@ const App: Component = () => {
                 await connectBackend();
                 setLoggedIn(true);
                 setAuth(true);
-                await loadGame();
             } else if (response.status == 401) {
                 badStatusPopup();
                 console.log('Unauthorized');
@@ -413,8 +430,8 @@ const App: Component = () => {
                 disconnectBackend();
                 setLoggedIn(false);
                 setAuth(false);
-                await connectBackend();
                 game.events.emit('logOut');
+                await connectBackend();
             }
         } else {
             console.log(`sign_out: failed`);
@@ -505,6 +522,7 @@ const App: Component = () => {
             console.log("No match");
         }
     }
+
     const buttonClick = new Audio(buttonSound);
     buttonClick.preload = "none";
 
@@ -565,11 +583,34 @@ const App: Component = () => {
     }
 
     const loadGame = async () => {
+        console.log('test load');
         if (socket) {
             setTimeout(async () => {
                 const event: ClientMessages = 'LoadGame';
                 await socket?.send(JSON.stringify(event));
             }, 200);
+        }
+    }
+
+    function saveGame() {
+        window.addEventListener('saveEvent', test);
+    }
+
+    async function test(event: Event) {
+        let save = event as CustomEvent;
+        if (socket) {
+            console.log("Save event called");
+            let varia = {
+                "SaveGame":
+                    {
+                        tile_name: save.detail.file.tileName,
+                        cracked_tile_name: save.detail.file.crackedTileName,
+                        background_tile_name: save.detail.file.backgroundTileName,
+                        picked_first_diamond: save.detail.file.pickedFirstDiamond,
+                    }
+            };
+            const event: ClientMessages = varia as ClientMessages;
+            await socket.send(JSON.stringify(event));
         }
     }
 
@@ -580,7 +621,6 @@ const App: Component = () => {
         game.pickedFirstDiamond = picked_first_diamond;
         game.events.emit('loadGame');
     }
-
 
     return (
         <div class={styles.App}>
@@ -593,17 +633,17 @@ const App: Component = () => {
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <Show when={!loggedIn()}
                           fallback={<button id="signOut" class={styles.User_symbol} onClick={() => {
-                              sign_out();
+                              void sign_out();
                               setShow(false);
                               setInnerShow(false)
-                          }}></button>}>
+                          }}></button>} keyed>
                         <button onClick={(e) => {
                             setShow(true);
                             void playButtonSound()
                         }} class={styles.button_sign_up}>Login
                         </button>
                         <Show when={show()}
-                              fallback={""}>
+                              fallback={""} keyed>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                 <div class={styles.popup_h}>
                                     <h3>Login</h3>
@@ -630,7 +670,7 @@ const App: Component = () => {
                         </Show>
 
                         <Show when={innershow()}
-                              fallback={""}>
+                              fallback={""} keyed>
                             <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                 <div class={styles.popup_h}>
                                     <h3>Sign Up</h3>
@@ -677,7 +717,6 @@ const App: Component = () => {
                     </div>
                 </div>
                 <div id={'main'} class={styles.main} onClick={() => {
-                    // void mine();
                 }}>
                 </div>
                 <div class={styles.controls}>
@@ -696,7 +735,7 @@ const App: Component = () => {
                                       </button>
                                   </div>
                               </>
-                          }>
+                          } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
                                 <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
@@ -717,7 +756,6 @@ const App: Component = () => {
                                         class={styles.button + " " + pvpModule.upgrade_attack}
                                         onClick={() => {
                                             void upgradeAttackLevel();
-                                            subtractCost(formatNumbers(attackPrice()))
                                         }}><span>ATK</span>
                                     <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_attack}></a>
                                 </button>
@@ -728,7 +766,6 @@ const App: Component = () => {
                                         class={styles.button + " " + pvpModule.upgrade_defence}
                                         onClick={() => {
                                             void upgradeDefenceLevel();
-                                            subtractCost(formatNumbers(defencePrice()))
                                         }}><span>DEF</span>
                                     <a class={styles.icon_upgrade + " " + pvpModule.icon_upgrade_defence}></a>
                                 </button>
@@ -736,7 +773,7 @@ const App: Component = () => {
                                     class={styles.label_header + " " + pvpModule.label_defence_level}>{formatNumbers(defencePrice())}</label>
                                 <Show when={attacked()}
                                       fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
-                                                        onClick={attack}></button>}>
+                                                        onClick={attack}></button>} keyed>
                                     <div class={pvpModule.pvp_clock}>
                                         <div class={pvpModule.firstHand}></div>
                                         <div class={pvpModule.secondHand}></div>
@@ -761,7 +798,7 @@ const App: Component = () => {
                                       </button>
                                   </div>
                               </>
-                          }>
+                          } keyed>
                         <div class={styles.slideIn}>
                             <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
@@ -784,7 +821,6 @@ const App: Component = () => {
                                     class={styles.button + " " + mineModule.upgrade_speed}
                                     onClick={() => {
                                         void upgradeShovelDepth();
-                                        subtractCost(formatNumbers(shovelDepthPrice()))
                                     }}><span>Depth</span>
                                 <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_speed}></a>
                             </button>
@@ -795,7 +831,6 @@ const App: Component = () => {
                                     class={styles.button + " " + mineModule.upgrade_amount}
                                     onClick={() => {
                                         void upgradeShovelAmount();
-                                        subtractCost(formatNumbers(shovelAmountPrice()))
                                     }}><span>Amount</span>
                                 <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_amount}></a>
                             </button>
@@ -807,13 +842,12 @@ const App: Component = () => {
                                       <button class={styles.button + " " + mineModule.automate}
                                               onClick={() => {
                                                   void automate();
-                                                  subtractCost("200")
                                               }}>Automate
                                           <a class={styles.icon_upgrade + " " + mineModule.icon_automate}></a>
                                       </button>
                                       <label
                                           class={styles.label_header + " " + mineModule.label_automate_cost}>200</label>
-                                  </>}>
+                                  </>} keyed>
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
@@ -827,7 +861,6 @@ const App: Component = () => {
                                                 class={styles.button + " " + mineModule.upgrade_automate_speed}
                                                 onClick={() => {
                                                     void upgradeAutoDepth();
-                                                    subtractCost(formatNumbers(autoDepthPrice()))
                                                 }}><span>Depth</span>
                                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         </button>
@@ -838,7 +871,6 @@ const App: Component = () => {
                                                 class={styles.button + " " + mineModule.upgrade_automate_amount}
                                                 onClick={() => {
                                                     void upgradeAutoAmount();
-                                                    subtractCost(formatNumbers(autoAmountPrice()))
                                                 }}><span>Amount</span>
                                             <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         </button>
@@ -856,7 +888,7 @@ const App: Component = () => {
                         <button class={styles.button}>Shop</button>
                     </div>
 
-                    <Show when={showLoot()}>
+                    <Show when={showLoot()} keyed>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label style="font-size:30px"> Success! </label>
                             <label style="font-size:20px"> Your Loot:</label>
@@ -868,7 +900,7 @@ const App: Component = () => {
                         </div>
                     </Show>
 
-                    <Show when={showOfflineResources()}>
+                    <Show when={showOfflineResources()} keyed>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
                             <label style="font-size:30px"> Welcome back!</label>
                             <label style="font-size:20px">Your Offline Loot:</label>

@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import J = Phaser.Input.Keyboard.KeyCodes.J;
 
 export default class Generator {
     private CONFIG: any;
@@ -24,6 +23,7 @@ export default class Generator {
     private pickedFirstDiamond: boolean = false;
     private collision!: Phaser.Physics.Arcade.Collider;
     private myInterval!: any;
+    private saveEvent!: CustomEvent<{ file: { crackedTileName: string | Phaser.Textures.Texture; pickedFirstDiamond: boolean; backgroundTileName: string | Phaser.Textures.Texture; tileName: any } }>;
 
     constructor(scene: Phaser.Scene) {
         // @ts-ignore
@@ -460,7 +460,7 @@ export default class Generator {
         let randomBones = 80;
         let pointer = this.scene.input.mousePointer;
         // @ts-ignore
-        if (this.scene.depth >= 20 && this.diamond == 1 && this.pickedFirstDiamond == false) {
+        if (this.scene.depth >= 20 && this.diamond == 1 && !this.pickedFirstDiamond) {
             this.pickedFirstDiamond = true;
             console.log('Create Diamond');
             spr = this.scene.add.sprite(x, y, 'diamond');
@@ -535,12 +535,12 @@ export default class Generator {
             value = 1;
         }
         switch (true) {
-            case (value <= 21):
+            case (value <= 100):
                 this.tileName = 'dirt';
                 this.crackedTileName = 'dirtCrack';
                 this.backgroundTileName = 'backgroundDirt'
                 break;
-            case (value > 21):
+            case (value > 100):
                 this.tileName = 'lava';
                 if (this.layers.sideFloor[10][0].texture.key == 'lava') {
                     this.crackedTileName = 'lavaCrack';
@@ -557,17 +557,18 @@ export default class Generator {
                 backgroundTileName: this.backgroundTileName,
                 pickedFirstDiamond: this.pickedFirstDiamond,
             }
-            let saveEvent = new CustomEvent('saveEvent', {
+            this.saveEvent = new CustomEvent('saveEvent', {
                 detail: {
                     file: file
                 }
             });
-            console.log('SAVE');
-            window.dispatchEvent(saveEvent);
+            console.log('SAVE', this.myInterval);
+            window.dispatchEvent(this.saveEvent);
         }, 10000);
     }
 
     clearAllIntervalls() {
         clearInterval(this.myInterval);
+        console.log('Cleared Interval: ', this.myInterval);
     }
 }

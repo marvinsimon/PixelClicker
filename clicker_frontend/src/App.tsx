@@ -24,6 +24,7 @@ const App: Component = () => {
     //PopUp Variable
     const [show, setShow] = createSignal(false);
     const [innershow, setInnerShow] = createSignal(false);
+    const [showprofile, setShowProfile] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [automation_on, setAutomation] = createSignal(false);
@@ -464,6 +465,8 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
+
+
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -480,13 +483,43 @@ const App: Component = () => {
                                 dropdown();
                             }}></button>
                             <div id="myDropdown" class={styles.dropdowncntnt}>
-                                <a>Profile</a>
+                                <a onClick={(e) => {setShowProfile(true);void playButtonSound()}}>Profile</a>
                                 <a>Background</a>
-                                <a onClick={() => {sign_out();setShow(false);setInnerShow(false);}}>Log out</a>
+                                <a onClick={() => {sign_out();setShow(false);setInnerShow(false);void playButtonSound()}}>Log out</a>
                             </div>
+                            <Show when={showprofile()}
+                                  fallback={""}>
+                                <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
+
+                                        <h3>Profile</h3>
+                                        <div class={styles.flexitem}>
+                                            <div class={styles.displayimage}>
+                                            </div>
+                                            <input type="file" id="imageinput" accept="image/jpeg, image/png, image/jpg"/>
+                                            <script>
+                                                const image_input = document.querySelector("#image_input");
+                                                var uploaded_image = "";
+
+                                                image_input.addEventListener("change", function (){
+                                                const reader= new FileReader();
+                                                reader.addEventListener("load", ()=> {
+                                                uploaded_image = reader.result;
+                                                document.querySelector("#display_image").style.backgroundImage = `url(${uploaded_image})`;
+                                            });
+                                                reader.readAsDataURL(this.files[0]);
+                                            })
+                                            </script>
+                                        </div>
+
+                                        <div class={styles.flexitem}>
+                                            <label>Name: Test</label>
+                                            <br/>
+                                            <label>Email: {email_field.value}</label>
+                                        </div>
+
+                                </div>
+                            </Show>
                         </div>
-
-
                     }>
 
                         <button onClick={(e) => {setShow(true);void playButtonSound()}} class={styles.button_sign_up}>Login</button>

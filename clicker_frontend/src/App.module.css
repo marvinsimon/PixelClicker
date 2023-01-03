@@ -191,19 +191,27 @@
 }
 
 .flexitem {
-    border: solid #254de4 2px;
+    display: flex;
+    flex-direction: column;
     color: #fff;
     width: 300px;
-    height: 100px;
+    height: 150px;
+    justify-content: center;
+    align-items: center;
 }
 
 .displayimage {
-    width: 64px;
-    height: 64px;
+    width: 100px;
+    height: 100px;
     color: #04AA6D;
-    border: 1px solid white;
+    border: 2px solid white;
     background-position: center;
     background-size: cover;
+    border-radius: 100%;
+}
+
+input[type="file"]{
+    background-color: #c0c0c0 !important;
 }
 
 .popup_h {

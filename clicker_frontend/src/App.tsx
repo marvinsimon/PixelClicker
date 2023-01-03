@@ -465,7 +465,11 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
-
+    function rndpfp() {
+        const rnd = (Math.random()*4)+1;
+        const url = "/src/assets/pfp_" + rnd + ".png"
+        document.getElementById("image").style.backgroundImage = "url('/src/assets/pfp_" + rnd + ".png')";
+    }
 
     return (
         <div class={styles.App}>
@@ -493,22 +497,9 @@ const App: Component = () => {
 
                                         <h3>Profile</h3>
                                         <div class={styles.flexitem}>
-                                            <div class={styles.displayimage}>
+                                            <div id="image" class={styles.displayimage}>
                                             </div>
-                                            <input type="file" id="imageinput" accept="image/jpeg, image/png, image/jpg"/>
-                                            <script>
-                                                const image_input = document.querySelector("#image_input");
-                                                var uploaded_image = "";
-
-                                                image_input.addEventListener("change", function (){
-                                                const reader= new FileReader();
-                                                reader.addEventListener("load", ()=> {
-                                                uploaded_image = reader.result;
-                                                document.querySelector("#display_image").style.backgroundImage = `url(${uploaded_image})`;
-                                            });
-                                                reader.readAsDataURL(this.files[0]);
-                                            })
-                                            </script>
+                                            <input type="button" value="upload" onclick={rndpfp} />
                                         </div>
 
                                         <div class={styles.flexitem}>

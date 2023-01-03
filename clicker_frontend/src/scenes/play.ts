@@ -40,22 +40,22 @@ export default class Play extends ClickerRoyaleScene {
     }
 
     loadingGame() {
+        this.game.events.off('loadGame');
         this.game.events.on('loadGame', () => {
             console.log("LoadLogIn")
             this.loggedIn = true;
             this.registry.destroy();
-            this.game.events.off('loadGame');
             this.scene.restart();
             console.log('Restarting Logged In');
         });
     }
 
     loadLogOut() {
+        this.game.events.off('logOut');
         this.game.events.on('logOut', () => {
             console.log("LoadLogOut")
             this.loggedIn = false;
             this.registry.destroy();
-            this.game.events.off('logOut');
             this.scene.restart();
             console.log('Restarting Logged Out');
         });

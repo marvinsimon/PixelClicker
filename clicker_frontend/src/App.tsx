@@ -590,6 +590,7 @@ const App: Component = () => {
     }
 
     function loadGameData(picked_first_diamond: boolean) {
+        console.log('Load Game Data Call');
         game.pickedFirstDiamond = picked_first_diamond;
         game.events.emit('loadGame');
     }

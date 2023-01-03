@@ -119,6 +119,7 @@ export default class Generator {
         if (this.scene.loggedIn) {
             this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
             this.barRowCounter = Math.floor(this.scene.depth / 5 < 10 ? this.scene.depth / 5 : 10);
+            console.log('Bar Counter: ', this.barRowCounter);
             for (let i = 0; i < 10 && i < Math.floor(this.scene.depth / 5); i++) {
                 // this.checkDepth(this.scene.depth);
                 this.destroyFloor();

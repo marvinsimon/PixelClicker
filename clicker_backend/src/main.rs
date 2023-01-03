@@ -411,7 +411,7 @@ async fn get_username(id: i64, pool: &PgPool) -> String {
             r.username
         }
         Err(_) => {
-            return "Error".to_string();
+            "Error".to_string()
         }
     }
 }

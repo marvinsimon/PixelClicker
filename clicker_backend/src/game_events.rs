@@ -15,7 +15,7 @@ pub enum ClientMessages {
     GetLoginData,
     Treasure,
     Diamond,
-    SaveGame{ tile_name: String, cracked_tile_name: String, background_tile_name: String, picked_first_diamond: bool },
+    SaveGame{ tile_name: String, cracked_tile_name: String, background_tile_name: String, bar_row_counter: i32 },
     LoadGame,
 }
 
@@ -37,5 +37,5 @@ pub enum ServerMessages {
     TreasureFound{ore: u64},
     DiamondFound{diamond: i32},
     Ack,
-    GameData { tile_name: String, cracked_tile_name: String, background_tile_name: String, picked_first_diamond: bool }
+    GameData { tile_name: String, cracked_tile_name: String, background_tile_name: String, picked_first_diamond: bool,  bar_row_counter: i32 }
 }

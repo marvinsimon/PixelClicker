@@ -1,16 +1,8 @@
 import Phaser from 'phaser';
 
 export default class Preload extends Phaser.Scene {
-    private CONFIG: any;
-    private bg!: Phaser.GameObjects.Graphics;
-
     constructor() {
         super({key: 'Preload', active: true});
-    }
-
-    init() {
-        // @ts-ignore
-        this.CONFIG = this.sys.game.CONFIG;
     }
 
     preload() {

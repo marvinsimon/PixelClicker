@@ -1,24 +1,19 @@
-import Phaser from 'phaser';
 import Generator from "../prefabs/Generator";
+import ClickerRoyaleScene from "../ClickerRoyaleScene";
+import ClickerRoyaleGame from "../ClickerRoyaleGame";
 
-export default class Play extends Phaser.Scene {
-    private CONFIG: any;
-    private depth!: number;
-    private PRIORITY!: { sky: number; background: number, floor: number; miner: number; objects: number; debris: number };
+export default class Play extends ClickerRoyaleScene {
+    CONFIG: any;
+    PRIORITY!: { sky: number; background: number, floor: number; miner: number; objects: number; debris: number };
     private allow_input!: boolean;
     private is_pause!: boolean;
     private is_gameOver!: boolean;
     private generator!: Generator;
-    private loggedIn = false;
-
-    constructor() {
-        super({key: 'Play', active: false});
-    }
+    static gameInstance: ClickerRoyaleGame;
 
     init() {
-        // @ts-ignore
-        this.CONFIG = this.sys.game.CONFIG;
 
+        this.CONFIG = Play.gameInstance.CONFIG;
         this.PRIORITY = {
             sky: 2,
             background: 0,
@@ -44,8 +39,8 @@ export default class Play extends Phaser.Scene {
 
     update() {
         this.generator.update();
-        // @ts-ignore
-        this.depth = this.sys.game.depth;
+
+        this.depth = Play.gameInstance.depth;
     }
 
     loadingGame() {
@@ -72,5 +67,9 @@ export default class Play extends Phaser.Scene {
             this.scene.restart();
             console.log('Restarting Logged Out');
         });
+    }
+
+    static setGameInstance(game: ClickerRoyaleGame) {
+        this.gameInstance = game;
     }
 }

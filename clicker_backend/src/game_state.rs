@@ -18,6 +18,7 @@ pub struct GameState {
     pub cracked_tile_name: String,
     pub background_tile_name: String,
     pub picked_first_diamond: bool,
+    pub bar_row_counter: i32
 }
 
 impl GameState {
@@ -180,18 +181,19 @@ impl GameState {
                 ServerMessages::TreasureFound { ore: self.ore as u64 }
             }
             ClientMessages::Diamond => {
+                self.picked_first_diamond = true;
                 self.diamond += 100;
                 ServerMessages::DiamondFound { diamond: self.diamond }
             }
-            ClientMessages::SaveGame { tile_name, cracked_tile_name, background_tile_name, picked_first_diamond} =>  {
+            ClientMessages::SaveGame { tile_name, cracked_tile_name, background_tile_name, bar_row_counter} =>  {
                 self.tile_name = tile_name;
                 self.cracked_tile_name = cracked_tile_name;
                 self.background_tile_name = background_tile_name;
-                self.picked_first_diamond = picked_first_diamond;
+                self.bar_row_counter = bar_row_counter;
                 ServerMessages::Ack
             }
             ClientMessages::LoadGame => {
-                ServerMessages::GameData { tile_name: self.tile_name.clone(), cracked_tile_name: self.cracked_tile_name.clone(), background_tile_name: self.background_tile_name.clone(), picked_first_diamond: self.picked_first_diamond }
+                ServerMessages::GameData { tile_name: self.tile_name.clone(), cracked_tile_name: self.cracked_tile_name.clone(), background_tile_name: self.background_tile_name.clone(), picked_first_diamond: self.picked_first_diamond, bar_row_counter: self.bar_row_counter }
             }
         }
     }
@@ -213,6 +215,7 @@ impl GameState {
             cracked_tile_name: String::default(),
             background_tile_name: String::default(),
             picked_first_diamond: false,
+            bar_row_counter: 0
         }
     }
 }

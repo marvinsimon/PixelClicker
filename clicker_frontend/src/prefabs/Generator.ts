@@ -1,9 +1,11 @@
 import Phaser from "phaser";
+import Play from "../scenes/play";
+import ClickerRoyaleGame from "../ClickerRoyaleGame";
 
 export default class Generator {
     private CONFIG: any;
     private PRIORITY: { sky: number; background: number, floor: number; miner: number; objects: number; debris: number };
-    private scene: Phaser.Scene;
+    private scene: Play;
     private readonly cols: number;
     private readonly rows: number;
     private layers: { background: any[]; floor: any[]; sideFloor: any[]; supportBars: any[]; pickups: any[] };
@@ -23,15 +25,16 @@ export default class Generator {
     private pickedFirstDiamond: boolean = false;
     private collision!: Phaser.Physics.Arcade.Collider;
     private myInterval!: any;
-    private saveEvent!: CustomEvent<{ file: { crackedTileName: string | Phaser.Textures.Texture; pickedFirstDiamond: boolean; backgroundTileName: string | Phaser.Textures.Texture; tileName: any } }>;
+    private saveEvent!: CustomEvent<{ file: { crackedTileName: string | Phaser.Textures.Texture; backgroundTileName: string | Phaser.Textures.Texture; tileName: any } }>;
+    private gameInstance: ClickerRoyaleGame;
 
-    constructor(scene: Phaser.Scene) {
-        // @ts-ignore
+    constructor(scene: Play) {
         this.CONFIG = scene.CONFIG;
-        // @ts-ignore
         this.PRIORITY = scene.PRIORITY;
 
         this.scene = scene;
+
+        this.gameInstance = Play.gameInstance;
         this.cols = 16;
         this.rows = 13;
 
@@ -45,13 +48,13 @@ export default class Generator {
     }
 
     setup() {
-
-        if (this.scene.loggedIn == true) {
-            this.tileName = this.scene.sys.game.tileName;
-            this.crackedTileName = this.scene.sys.game.crackedTileName;
-            this.backgroundTileName = this.scene.sys.game.backgroundTileName;
-            this.pickedFirstDiamond = this.scene.sys.game.pickedFirstDiamond;
-            console.log(this.scene.sys.game.pickedFirstDiamond);
+        // Load game data when logging in
+        if (this.scene.loggedIn) {
+            this.tileName = this.gameInstance.tileName;
+            this.crackedTileName = this.gameInstance.crackedTileName;
+            this.backgroundTileName = this.gameInstance.backgroundTileName;
+            this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
+            this.barRowCounter = this.gameInstance.barRowCounter;
         }
 
         // Create tiles
@@ -60,11 +63,7 @@ export default class Generator {
         this.createFloor();
         this.createSideFloor();
 
-        if (this.scene.loggedIn == true) {
-            for (let i = 0; i < 10; i++) {
-                this.createSupportBars(i, i);
-            }
-        }
+
         this.start = this.layers.floor[0][4].y;
 
         // Create Miner
@@ -95,7 +94,6 @@ export default class Generator {
             on: false,
         });
 
-        this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
         // On click event --> Mining
         this.scene.input.on('pointerdown', () => {
             // Dispatch event to solid
@@ -115,7 +113,7 @@ export default class Generator {
                 this.crackFloorRow();
                 this.breakCounter++;
             } else {
-                this.createSupportBars(10, 10);
+                this.createSupportBars(10, 10, this.barRowCounter);
                 this.destroyFloor();
                 this.collision.destroy();
                 this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
@@ -123,6 +121,25 @@ export default class Generator {
                 this.breakCounter = 0;
             }
         });
+
+        // Create support bars to match tiles when logging in & destroy sky
+        if (this.scene.loggedIn) {
+            for (let i = 0; i < 10 && i < (this.scene.depth / 5); i++) {
+                if (this.barRowCounter > 10) {
+                    this.barRowCounter = 10;
+                }
+                this.checkDepth(this.scene.depth);
+                this.destroyFloor();
+                this.destroyPickups();
+                this.scrollFloor();
+                setTimeout(() => {
+                    this.createSupportBars(i, (10 - this.barRowCounter) + i, i);
+                    this.barRowCounter--;
+                }, 900);
+            }
+        }
+
+        this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
 
         this.cursorkeys = this.scene.input.keyboard.createCursorKeys();
 
@@ -151,13 +168,11 @@ export default class Generator {
 
     // Update
     update() {
-        // @ts-ignore
         this.checkDepth(this.scene.depth);
 
         if (this.cursorkeys.space.isDown) {
             this.miner.setY(this.miner.y - 10);
         }
-        // this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
         this.scrollBackGround();
         this.scrollSideFloor();
         this.scrollSupportBars();
@@ -190,16 +205,13 @@ export default class Generator {
                 x = (tx * this.CONFIG.tile);
                 y = (ty * this.CONFIG.tile);
 
-                if (ty == 10 && this.scene.loggedIn == false) {
+                if (ty == 10 && !this.scene.loggedIn) {
                     if (tx == 9) {
                         spr = this.scene.add.sprite(x, y, 'ladderOnGrass');
                     } else {
                         spr = this.scene.add.sprite(x, y, 'backgroundGrass');
                     }
                 } else {
-                    if (this.scene.loggedIn == true) {
-                        this.sky.destroy();
-                    }
                     if (tx == 9) {
                         spr = this.scene.add.sprite(x, y, 'ladderOnDirt');
                     } else {
@@ -235,7 +247,7 @@ export default class Generator {
             for (let tx = 4; tx < cols; tx++) {
                 x = (tx * this.CONFIG.tile);
                 y = ((ty + 10) * this.CONFIG.tile);
-                if (ty == 0 && this.scene.loggedIn == false) {
+                if (ty == 0 && !this.scene.loggedIn) {
                     spr = this.scene.physics.add.staticSprite(x, y, 'grass');
                 } else {
                     spr = this.scene.physics.add.staticSprite(x, y, this.tileName);
@@ -270,7 +282,7 @@ export default class Generator {
                 x = (tx * this.CONFIG.tile);
                 y = (ty * this.CONFIG.tile);
                 if (tx < 4 || tx > 11) {
-                    if (ty == 10 && this.scene.loggedIn == false) {
+                    if (ty == 10 && !this.scene.loggedIn) {
                         spr = this.scene.add.sprite(x, y, 'grass');
                     } else {
                         spr = this.scene.add.sprite(x, y, this.tileName);
@@ -287,7 +299,7 @@ export default class Generator {
     }
 
     // Create support bars
-    createSupportBars(x: number, y: number) {
+    createSupportBars(x: number, y: number, counter: number) {
         let leftSpr;
         let rightSpr;
 
@@ -299,12 +311,12 @@ export default class Generator {
         rightSpr = this.scene.add.sprite(this.layers.sideFloor[x][12].x, this.layers.sideFloor[y][4].y, 'barOnDirtRight');
         rightSpr.setOrigin(0);
         rightSpr.setDepth(this.PRIORITY.objects);
-        this.barRowCounter++;
 
         bars.push(leftSpr);
         bars.push(rightSpr);
 
-        this.layers.supportBars[this.barRowCounter] = bars;
+        this.layers.supportBars[counter] = bars;
+        this.barRowCounter++;
     }
 
     scrollBackGround() {
@@ -369,8 +381,8 @@ export default class Generator {
     }
 
     destroyBars() {
-        this.layers.supportBars[1][0].destroy();
-        this.layers.supportBars[1][1].destroy();
+        this.layers.supportBars[0][0].destroy();
+        this.layers.supportBars[0][1].destroy();
         this.layers.supportBars.splice(0, 1);
     }
 
@@ -459,13 +471,16 @@ export default class Generator {
         let spr;
         let randomBones = 80;
         let pointer = this.scene.input.mousePointer;
-        // @ts-ignore
-        if (this.scene.depth >= 20 && this.diamond == 1 && !this.pickedFirstDiamond) {
-            this.pickedFirstDiamond = true;
+        if (this.pickedFirstDiamond) {
+            this.diamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
+        }
+        if (this.scene.depth >= 20 && this.diamond == 1) {
+            this.diamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
             console.log('Create Diamond');
             spr = this.scene.add.sprite(x, y, 'diamond');
-            spr.setInteractive({useHandCursor: true})
+            spr.setInteractive({useHandCursor: true});
             spr.on('pointerdown', (event: any) => {
+                this.pickedFirstDiamond = true;
                 let diamondEvent = new CustomEvent('diamondEvent');
                 window.dispatchEvent(diamondEvent);
 
@@ -475,7 +490,7 @@ export default class Generator {
                     }
                 });
                 event.stopImmediatePropagation();
-            })
+            });
         } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 10) {
             spr = this.scene.add.sprite(x, y, 'bones1');
             spr.setInteractive({useHandCursor: true});
@@ -495,9 +510,6 @@ export default class Generator {
         } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 50) {
             spr = this.scene.add.sprite(x, y, 'bones3');
         }
-        if (this.pickedFirstDiamond) {
-            this.diamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
-        }
         if (spr != null) {
             spr.setOrigin(0);
             spr.setDepth(this.PRIORITY.objects);
@@ -507,7 +519,6 @@ export default class Generator {
 
     crackFloorRow() {
         let spr;
-        // @ts-ignore
         for (let tx = 4; tx < 12; tx++) {
             switch (this.breakCounter) {
                 case 0:
@@ -535,12 +546,12 @@ export default class Generator {
             value = 1;
         }
         switch (true) {
-            case (value <= 100):
+            case (value <= 50):
                 this.tileName = 'dirt';
                 this.crackedTileName = 'dirtCrack';
                 this.backgroundTileName = 'backgroundDirt'
                 break;
-            case (value > 100):
+            case (value > 51):
                 this.tileName = 'lava';
                 if (this.layers.sideFloor[10][0].texture.key == 'lava') {
                     this.crackedTileName = 'lavaCrack';
@@ -555,7 +566,7 @@ export default class Generator {
                 tileName: this.layers.sideFloor[12][0].texture.key,
                 crackedTileName: this.crackedTileName,
                 backgroundTileName: this.backgroundTileName,
-                pickedFirstDiamond: this.pickedFirstDiamond,
+                barRowCounter: this.barRowCounter,
             }
             this.saveEvent = new CustomEvent('saveEvent', {
                 detail: {

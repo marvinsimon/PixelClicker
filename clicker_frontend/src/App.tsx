@@ -138,7 +138,7 @@ const App: Component = () => {
                     setDiamond(event.DiamondFound.diamond);
                 } else if ('GameData' in event) {
                     console.log('Load game data');
-                    loadGameData(event.GameData.tile_name, event.GameData.cracked_tile_name, event.GameData.background_tile_name, event.GameData.picked_first_diamond);
+                    loadGameData(event.GameData.tile_name, event.GameData.cracked_tile_name, event.GameData.background_tile_name, event.GameData.picked_first_diamond, event.GameData.bar_row_counter);
                 }
             }
         }
@@ -211,6 +211,9 @@ const App: Component = () => {
         game.crackedTileName = "";
         game.backgroundTileName = "";
         game.pickedFirstDiamond = false;
+        game.barRowCounter = 0;
+
+        Play.setGameInstance(game);
     }
 
     window.setInterval(function () {
@@ -606,7 +609,7 @@ const App: Component = () => {
                         tile_name: save.detail.file.tileName,
                         cracked_tile_name: save.detail.file.crackedTileName,
                         background_tile_name: save.detail.file.backgroundTileName,
-                        picked_first_diamond: save.detail.file.pickedFirstDiamond,
+                        bar_row_counter: save.detail.file.barRowCounter
                     }
             };
             const event: ClientMessages = varia as ClientMessages;
@@ -614,11 +617,12 @@ const App: Component = () => {
         }
     }
 
-    function loadGameData(tile_name: string, cracked_tile_name: string, background_tile_name: string, picked_first_diamond: boolean) {
+    function loadGameData(tile_name: string, cracked_tile_name: string, background_tile_name: string, picked_first_diamond: boolean, bar_row_counter: number) {
         game.tileName = tile_name;
         game.crackedTileName = cracked_tile_name;
         game.backgroundTileName = background_tile_name;
         game.pickedFirstDiamond = picked_first_diamond;
+        game.barRowCounter = bar_row_counter;
         game.events.emit('loadGame');
     }
 

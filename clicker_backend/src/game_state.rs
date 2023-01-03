@@ -14,11 +14,7 @@ pub struct GameState {
     pub defence_level: i32,
     pub automation_started: bool,
     pub diamond: i32,
-    pub tile_name: String,
-    pub cracked_tile_name: String,
-    pub background_tile_name: String,
     pub picked_first_diamond: bool,
-    pub bar_row_counter: i32
 }
 
 impl GameState {
@@ -185,15 +181,8 @@ impl GameState {
                 self.diamond += 100;
                 ServerMessages::DiamondFound { diamond: self.diamond }
             }
-            ClientMessages::SaveGame { tile_name, cracked_tile_name, background_tile_name, bar_row_counter} =>  {
-                self.tile_name = tile_name;
-                self.cracked_tile_name = cracked_tile_name;
-                self.background_tile_name = background_tile_name;
-                self.bar_row_counter = bar_row_counter;
-                ServerMessages::Ack
-            }
             ClientMessages::LoadGame => {
-                ServerMessages::GameData { tile_name: self.tile_name.clone(), cracked_tile_name: self.cracked_tile_name.clone(), background_tile_name: self.background_tile_name.clone(), picked_first_diamond: self.picked_first_diamond, bar_row_counter: self.bar_row_counter }
+                ServerMessages::GameData { picked_first_diamond: self.picked_first_diamond }
             }
         }
     }
@@ -211,11 +200,7 @@ impl GameState {
             defence_level: 1,
             automation_started: false,
             diamond: 0,
-            tile_name: String::default(),
-            cracked_tile_name: String::default(),
-            background_tile_name: String::default(),
-            picked_first_diamond: false,
-            bar_row_counter: 0
+            picked_first_diamond: false
         }
     }
 }

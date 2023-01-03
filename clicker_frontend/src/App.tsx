@@ -119,7 +119,6 @@ const App: Component = () => {
                     console.log("Still logged in");
                     setAuth(true);
                     setLoggedIn(true);
-                    // loadGame();
                 } else if ("AutomationStarted" in event) {
                     setAutomation(event.AutomationStarted.success);
                     if (event.AutomationStarted.success) {
@@ -138,21 +137,16 @@ const App: Component = () => {
                     setDiamond(event.DiamondFound.diamond);
                 } else if ('GameData' in event) {
                     console.log('Load game data');
-                    loadGameData(event.GameData.tile_name, event.GameData.cracked_tile_name, event.GameData.background_tile_name, event.GameData.picked_first_diamond, event.GameData.bar_row_counter);
+                    loadGameData(event.GameData.picked_first_diamond);
                 }
             }
         }
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
-            saveGame();
             window.setTimeout(() => {
                 socket?.send(JSON.stringify(event));
 
             }, 1000);
-        }
-
-        socket.onclose = () => {
-            window.removeEventListener('saveEvent', test);
         }
     }
 
@@ -595,34 +589,8 @@ const App: Component = () => {
         }
     }
 
-    function saveGame() {
-        window.addEventListener('saveEvent', test);
-    }
-
-    async function test(event: Event) {
-        let save = event as CustomEvent;
-        if (socket) {
-            console.log("Save event called");
-            let varia = {
-                "SaveGame":
-                    {
-                        tile_name: save.detail.file.tileName,
-                        cracked_tile_name: save.detail.file.crackedTileName,
-                        background_tile_name: save.detail.file.backgroundTileName,
-                        bar_row_counter: save.detail.file.barRowCounter
-                    }
-            };
-            const event: ClientMessages = varia as ClientMessages;
-            await socket.send(JSON.stringify(event));
-        }
-    }
-
-    function loadGameData(tile_name: string, cracked_tile_name: string, background_tile_name: string, picked_first_diamond: boolean, bar_row_counter: number) {
-        game.tileName = tile_name;
-        game.crackedTileName = cracked_tile_name;
-        game.backgroundTileName = background_tile_name;
+    function loadGameData(picked_first_diamond: boolean) {
         game.pickedFirstDiamond = picked_first_diamond;
-        game.barRowCounter = bar_row_counter;
         game.events.emit('loadGame');
     }
 

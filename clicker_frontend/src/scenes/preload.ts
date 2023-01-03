@@ -8,30 +8,26 @@ export default class Preload extends Phaser.Scene {
     preload() {
         // Sprites......................................................................................................
         // Sky
-        this.load.image('sky', "src/assets/img/bg1.png");
+        this.load.image('sky', "src/assets/img/newBG.png");
 
         // Background
-        this.load.spritesheet('backgroundGrass', "src/assets/img/grasTileDark.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('backgroundGrass', "src/assets/img/new_tile1_bg_dark.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
         this.load.spritesheet('ladderOnGrass', "src/assets/img/ladderGrass.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('backgroundDirt', "src/assets/img/tile_3.png", {
+        this.load.spritesheet('backgroundDirt', "src/assets/img/new_tile3_big_dark.png", {
             frameWidth: 64,
             frameHeight: 64
         });
         this.load.spritesheet('ladderOnDirt', "src/assets/img/ladderDirt.png", {frameWidth: 64, frameHeight: 64});
 
         // Grass
-        this.load.spritesheet('grass', "src/assets/img/tile_1.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('barOnGrassLeft', "src/assets/img/tileGrassBarLeft.png", {
-            frameWidth: 64,
-            frameHeight: 64
-        });
-        this.load.spritesheet('barOnGrassRight', "src/assets/img/tileGrassBarRight.png", {
-            frameWidth: 64,
-            frameHeight: 64
-        });
+        this.load.spritesheet('grass', "src/assets/img/new_tile1_big.png", {frameWidth: 64, frameHeight: 64});
+
 
         // Dirt
-        this.load.spritesheet('dirt', "src/assets/img/tile_2.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirt', "src/assets/img/new_tile2_big.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack1', "src/assets/img/cracked1.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack2', "src/assets/img/cracked2.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack3', "src/assets/img/cracked3.png", {frameWidth: 64, frameHeight: 64});
@@ -45,8 +41,7 @@ export default class Preload extends Phaser.Scene {
         this.load.spritesheet('lavaCrack2', "src/assets/img/testCracked2.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('lavaCrack3', "src/assets/img/testCracked3.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('lavaCrack4', "src/assets/img/testCracked4.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('barOnLavaLeft', "src/assets/img/testTileLeft.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('barOnLavaRight', "src/assets/img/testTileRight.png", {frameWidth: 64, frameHeight: 64});
+
 
         // Game objects
         this.load.spritesheet('bones1', "src/assets/img/bones1.png", {frameWidth: 64, frameHeight: 64});

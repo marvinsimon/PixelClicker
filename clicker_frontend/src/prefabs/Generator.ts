@@ -24,8 +24,6 @@ export default class Generator {
     private diamond: number = 1;
     private pickedFirstDiamond: boolean = false;
     private collision!: Phaser.Physics.Arcade.Collider;
-    private myInterval!: any;
-    private saveEvent!: CustomEvent<{ file: { crackedTileName: string | Phaser.Textures.Texture; backgroundTileName: string | Phaser.Textures.Texture; tileName: any } }>;
     private gameInstance: ClickerRoyaleGame;
 
     constructor(scene: Play) {
@@ -48,14 +46,8 @@ export default class Generator {
     }
 
     setup() {
-        // Load game data when logging in
-        if (this.scene.loggedIn) {
-            this.tileName = this.gameInstance.tileName;
-            this.crackedTileName = this.gameInstance.crackedTileName;
-            this.backgroundTileName = this.gameInstance.backgroundTileName;
-            this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
-            this.barRowCounter = this.gameInstance.barRowCounter;
-        }
+        // Disable all input while loading game
+        this.gameInstance.input.enabled = false;
 
         // Create tiles
         this.createSky();
@@ -63,7 +55,8 @@ export default class Generator {
         this.createFloor();
         this.createSideFloor();
 
-
+        // Check depth to match tiles with depth
+        this.checkDepth(this.scene.depth);
         this.start = this.layers.floor[0][4].y;
 
         // Create Miner
@@ -124,11 +117,10 @@ export default class Generator {
 
         // Create support bars to match tiles when logging in & destroy sky
         if (this.scene.loggedIn) {
-            for (let i = 0; i < 10 && i < (this.scene.depth / 5); i++) {
-                if (this.barRowCounter > 10) {
-                    this.barRowCounter = 10;
-                }
-                this.checkDepth(this.scene.depth);
+            this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
+            this.barRowCounter = Math.floor(this.scene.depth / 5 < 10 ? this.scene.depth / 5 : 10);
+            for (let i = 0; i < 10 && i < Math.floor(this.scene.depth / 5); i++) {
+                // this.checkDepth(this.scene.depth);
                 this.destroyFloor();
                 this.destroyPickups();
                 this.scrollFloor();
@@ -137,8 +129,17 @@ export default class Generator {
                     this.barRowCounter--;
                 }, 900);
             }
+            setTimeout(() => {
+                this.breakCounter = this.scene.depth % 5;
+                if (this.breakCounter != 0 && this.breakCounter <= 4) {
+                    this.breakCounter--;
+                    this.crackFloorRow();
+                    this.breakCounter++;
+                }
+            }, 800);
         }
 
+        // Add collision between miner and the first floor layer
         this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
 
         this.cursorkeys = this.scene.input.keyboard.createCursorKeys();
@@ -163,7 +164,11 @@ export default class Generator {
 
         // Create dig sound
         this.sound = this.scene.sound.add('dig');
-        this.saveGame();
+
+        // Enable input after some time, guarantying load is finished
+        setTimeout(() => {
+            this.gameInstance.input.enabled = true;
+        }, 1000);
     }
 
     // Update
@@ -558,28 +563,5 @@ export default class Generator {
                 }
                 break;
         }
-    }
-
-    saveGame() {
-        this.myInterval = setInterval(() => {
-            let file = {
-                tileName: this.layers.sideFloor[12][0].texture.key,
-                crackedTileName: this.crackedTileName,
-                backgroundTileName: this.backgroundTileName,
-                barRowCounter: this.barRowCounter,
-            }
-            this.saveEvent = new CustomEvent('saveEvent', {
-                detail: {
-                    file: file
-                }
-            });
-            console.log('SAVE', this.myInterval);
-            window.dispatchEvent(this.saveEvent);
-        }, 10000);
-    }
-
-    clearAllIntervalls() {
-        clearInterval(this.myInterval);
-        console.log('Cleared Interval: ', this.myInterval);
     }
 }

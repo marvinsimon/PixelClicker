@@ -2,21 +2,33 @@
 }
 
 .label_pvp {
-    top: 6.5%;
-    left: 25%;
+    top: -0.5%;
+    left: 28%;
+    font-size: 1.8vw;
 }
 
 .icon_upgrade_attack {
-    top: 42%;
-    left: 40%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
 }
 
 .upgrade_attack {
     top: 40.25%;
     height: 24%;
-    width: 70%;
-    left: -0.5%;
-    font-size: 4rem;
+    width: 77%;
+    left: -3.5%;
+    font-size: 3.25vw;
+    overflow: visible;
+}
+
+.upgrade_attack:hover span {
+    display: none;
+}
+
+.upgrade_attack:hover:before {
+    content: attr(attLvl);
 }
 
 .label_attack_level {
@@ -24,17 +36,33 @@
     right: 24%;
 }
 
+.attack_ore {
+    top: 50%;
+    left: 78%;
+}
+
 .icon_upgrade_defence {
-    top: 59.5%;
-    left: 40%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
 }
 
 .upgrade_defence {
     top: 57.75%;
     height: 24%;
-    width: 70%;
-    left: -0.5%;
-    font-size: 4rem;
+    width: 77%;
+    left: -3.5%;
+    font-size: 3.25vw;
+    overflow: visible;
+}
+
+.upgrade_defence:hover span {
+    display: none;
+}
+
+.upgrade_defence:hover:before {
+    content: attr(defLvl);
 }
 
 .label_defence_level {
@@ -47,4 +75,90 @@
     background-image: url("src/assets/attack_button.png");
     height: 26%;
     width: 122%;
+}
+
+.pvp_clock {
+    width: 2.5vw;
+    height: 2.5vw;
+    background: #d0d0d0;
+    box-shadow: inset 0 0 5px 5px #fff;
+    border-radius: 50%;
+    border: 0.2vw solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 83.3%;
+    left: 33%;
+}
+
+.firstHand {
+    width: 1vw;
+    height: 2vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: clockAnimation 10s linear infinite;
+}
+
+@keyframes clockAnimation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.firstHand:before {
+    content: '';
+    width: 0.195vw;
+    height: 0.7vw;
+    top: 43%;
+    background: black;
+    position: absolute;
+    border-radius: 25px;
+}
+
+.secondHand {
+    width: 3.5vw;
+    height: 1vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: clockAnimation 4s linear infinite;
+}
+
+.secondHand:before {
+    content: '';
+    width: 0.8vw;
+    height: 0.2vw;
+    left: 24%;
+    background: black;
+    position: absolute;
+    border-radius: 25px;
+}
+
+.secondHand:after {
+    content: '';
+    width: 0.35vw;
+    height: 0.35vw;
+    border-radius: 50%;
+    background: black;
+}
+
+@media (min-width: 2000px) {
+    .label_pvp {
+        font-size: 36px;
+    }
+
+    .upgrade_attack {
+        font-size: 65px;
+    }
+
+    .upgrade_defence {
+        font-size: 65px;
+    }
 }

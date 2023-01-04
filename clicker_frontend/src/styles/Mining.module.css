@@ -2,22 +2,33 @@
 }
 
 .label_mine {
-    font-size: 1.25vw;
-    top: 7%;
-    left: 8%;
+    font-size: 1.8vw;
+    top: -8%;
+    left: 11%;
 }
 
 .icon_upgrade_speed {
-    top: 42%;
-    left: 40%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
 }
 
 .upgrade_speed {
     top: 40.25%;
     height: 24%;
-    width: 70%;
-    left: -0.5%;
-    font-size: 3rem;
+    width: 77%;
+    left: -3.5%;
+    font-size: 3.25vw;
+    overflow: visible;
+}
+
+.upgrade_speed:hover span {
+    display: none;
+}
+
+.upgrade_speed:hover:before {
+    content: attr(shovelSpeedLvl);
 }
 
 .label_speed_level {
@@ -26,16 +37,27 @@
 }
 
 .icon_upgrade_amount {
-    top: 59.5%;
-    left: 40%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
 }
 
 .upgrade_amount {
     top: 57.75%;
     height: 24%;
-    width: 70%;
-    left: -0.5%;
-    font-size: 2.8rem;
+    width: 77%;
+    left: -3.5%;
+    font-size: 3.25vw;
+    overflow: visible;
+}
+
+.upgrade_amount:hover span {
+    display: none;
+}
+
+.upgrade_amount:hover:before {
+    content: attr(shovelAmountLvl);
 }
 
 .label_amount_level {
@@ -47,26 +69,69 @@
     top: 75%;
     height: 24%;
     width: 100%;
-    font-size: 3rem;
+    font-size: 3.2vw;
+    left: -11.5%;
+    overflow: visible;
+}
+
+.icon_automate {
+    top: -116%;
+    left: 66%;
+    width: 58%;
+    height: 277%;
+}
+
+.label_automate_cost {
+    top: 84%;
+    right: 24%;
 }
 
 .label_automate {
-    top: 85%;
-    font-size: 1.1vw;
+    top: 84.5%;
+    font-size: 1.4vw;
+}
+
+.auto_label_board {
+    top: 26.5%;
+    position: absolute;
+    background-image: url("src/assets/wood_label_new.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 35%;
+    height: 12%;
+    -webkit-box-shadow: 1px 3px 4px #000;
+}
+
+.label_auto {
+    font-size: 1.4vw;
+    top: 13%;
+    left: 4%;
 }
 
 .upgrade_automate_speed {
     height: 42%;
-    width: 70%;
     top: 27%;
-    left: -0.5%;
+    width: 77%;
+    left: -3.5%;
+    font-size: 3.25vw;
+    overflow: visible;
 }
 
 .icon_upgrade_automate_speed {
-    top: 30.5%;
-    left: 40%;
-    height: 34.75%;
-    width: 20%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
+}
+
+.upgrade_automate_speed:hover span {
+    display: none;
+}
+
+.upgrade_automate_speed:hover:before {
+    content: attr(autoDepthLvl);
 }
 
 .label_speed_automate_level {
@@ -76,19 +141,63 @@
 
 .upgrade_automate_amount {
     height: 42%;
-    width: 70%;
     top: 57.5%;
-    left: -0.5%;
+    width: 77%;
+    left: -3.5%;
+    font-size: 3.25vw;
+    overflow: visible;
 }
 
 .icon_upgrade_automate_amount {
-    top: 60.5%;
-    left: 40%;
-    height: 34.75%;
-    width: 20%;
+    top: -116%;
+    left: 57%;
+    width: 75%;
+    height: 277%;
+}
+
+.upgrade_automate_amount:hover span {
+    display: none;
+}
+
+.upgrade_automate_amount:hover:before {
+    content: attr(autoAmountLvl);
 }
 
 .label_amount_automate_level {
     top: 72.5%;
     right: 24%;
+}
+
+@media (min-width: 2000px) {
+    .label_mine {
+        font-size: 36px;
+    }
+
+    .upgrade_amount {
+        font-size: 64px;
+    }
+
+    .upgrade_speed {
+        font-size: 64px;
+    }
+
+    .upgrade_automate_amount {
+        font-size: 64px;
+    }
+
+    .upgrade_automate_speed {
+        font-size: 64px;
+    }
+
+    .automate {
+        font-size: 64px;
+    }
+
+    .label_auto {
+        font-size: 28px;
+    }
+
+    .label_automate {
+        font-size: 28px;
+    }
 }

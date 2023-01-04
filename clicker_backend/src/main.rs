@@ -421,7 +421,8 @@ async fn create_dummy_players(pool: &PgPool) {
         dummy_game_state.defence_level = 2 + i * 5;
         let game_state_value = serde_json::to_value(&dummy_game_state).unwrap();
         if let Ok(_r) = sqlx::query!(
-                "INSERT INTO player (email, password, game_state, pvp_score) VALUES ($1, $2, $3, $4) RETURNING id;",
+                "INSERT INTO player (email, username, password, game_state, pvp_score) VALUES ($1, $2, $3, $4, $5) RETURNING id;",
+                full_email,
                 full_email,
                 password,
                 game_state_value,
@@ -436,7 +437,8 @@ async fn create_dummy_players(pool: &PgPool) {
     dummy_game_state.defence_level = 1000;
     let game_state_value = serde_json::to_value(&dummy_game_state).unwrap();
     if let Ok(_r) = sqlx::query!(
-                "INSERT INTO player (email, password, game_state, pvp_score) VALUES ($1, $2, $3, $4) RETURNING id;",
+                "INSERT INTO player (email, username, password, game_state, pvp_score) VALUES ($1, $2, $3, $4, $5) RETURNING id;",
+                email,
                 email,
                 password,
                 game_state_value,

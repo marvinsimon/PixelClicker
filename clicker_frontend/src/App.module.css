@@ -2,49 +2,92 @@
     box-sizing: border-box;
     padding: 0;
     margin: 0;
-    font-family: Public Pixel Font, monospace;
+    font-family: Retro Pixel Font, monospace;
     overflow: hidden;
 }
 
 @font-face {
-    font-family: 'Public Pixel Font';
-    src: url("./assets/PublicPixel.ttf");
+    font-family: 'Retro Pixel Font';
+    src: url("./assets/Retro Gaming.ttf");
 }
 
 .container {
-    background: linear-gradient(to top, black 0%, #3f3f3f 60%);
+    background-image: linear-gradient(to top, #000000, #0e0a0c, #161316, #1c191f, #202028, #24252f, #272b36, #2a313d, #2f3743, #343c49, #394250, #3e4856);
     background-size: cover;
     display: grid;
     grid-template-columns: repeat(4, minmax(200px, 1fr));
-    grid-template-rows: 5vw 100vh;
+    grid-template-rows: 5vw 2vw 100vh;
     grid-template-areas:
         "hd   hd   hd   hd"
+        "bar  bar  bar  bar"
         "left main main right";
-
 }
 
 .header {
     grid-area: hd;
-    background: linear-gradient(to top, #3f3f3f 40%, lightgrey 200%);
+    background-color: #3e4856;
     display: flex;
     padding: 10px;
     justify-content: space-between;
+    align-items: center;
     z-index: 30;
+}
+
+.woodBar {
+    grid-area: bar;
+    z-index: 20;
+    display: flex;
+    background-image: url("assets/wood_bar_new.png");
+    background-size: contain;
+}
+
+.dropdown {
+    float: right;
+    position: relative;
+    display: inline-block;
 
 }
 
+.dropdowncntnt {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    right: 0;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 60;
+}
+
+.dropdowncntnt a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    z-index: 60;
+}
+
+.dropdowncntnt a:hover {
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+.show {display: block;}
+
 .main {
-    border-top: solid 30px black;
     grid-area: main;
     z-index: 20;
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
 }
 
 .controls {
-    border-top: solid 30px black;
     grid-area: right;
     display: grid;
     grid-template-rows: auto;
-    max-height: 80vh;
+    max-height: 45vw;
 }
 
 .buttonitem {
@@ -56,7 +99,6 @@
 }
 
 .board {
-    border-top: solid 30px black;
     grid-area: left;
 }
 
@@ -74,36 +116,50 @@
 }
 
 .header_logo {
+    width: 5vw;
+    height: auto;
+    max-width: 100px;
 }
 
 .button_sign_up {
-    background: url("assets/stone_button_dark_test.png") no-repeat;
+    background: url("assets/stone_button_light.png") no-repeat;
     background-size: 100% 100%;
     height: 80%;
     width: 8%;
     border: none;
     transition-duration: .4s;
-    font-size: 1rem;
+    font-size: 1.3vw;
 }
 
 .button_sign_up:hover {
-    transform: scale(.95);
+    transform: scale(1.05);
     cursor: pointer;
 }
 
+.button_sign_up:active {
+    color: white;
+    transition-duration: 0s;
+    transform: scale(0.95);
+}
+
 .User_symbol {
-    background: url("assets/User_symbol.png") no-repeat center center;
+    background: url("assets/User_symbol_new.png") no-repeat center center;
     background-size: 100% 100%;
-    height: 6em;
-    width: 6em;
+    height: 4vw;
+    width: 4vw;
     border: none;
     transition-duration: .4s;
     margin-top: auto;
 }
 
 .User_symbol:hover {
-    transform: scale(.95);
+    transform: scale(1.05);
     cursor: pointer;
+}
+
+.User_symbol:active {
+    transition-duration: 0s;
+    transform: scale(0.95);
 }
 
 .game {
@@ -111,28 +167,31 @@
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
+    cursor: url("assets/pickaxe_small.png"), pointer;
+    position: absolute;
 }
 
 .modal {
     z-index: 40;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
-
     position: absolute;
     top: 50%;
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-
-    height: 400px;
-    width: 300px;
-
-    color: #282c34;
-    border-radius: 5px;
+    height: 458px;
+    width: 393px;
     padding: 10px;
-    background-color: #beb5b0;
+    background-image: url("/src/assets/PopUp.png");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+.popup_h {
+    transform: translateY(150%);
 }
 
 .buttonswitch {
@@ -148,6 +207,7 @@
 .switch {
     display: flex;
     font-size: small;
+    transform: translateY(-200%);
 }
 
 input[type=text] {
@@ -156,6 +216,7 @@ input[type=text] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    transform: translateY(30%);
 }
 
 input[type=password] {
@@ -164,6 +225,7 @@ input[type=password] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+    transform: translateY(30%);
 }
 
 input[type=submit] {
@@ -173,10 +235,15 @@ input[type=submit] {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transform: translateY(10%);
 }
 
 input[type=submit]:hover {
     background-color: #45a049;
+}
+
+input[type=submit]:active {
+
 }
 
 .button {
@@ -191,12 +258,18 @@ input[type=submit]:hover {
     background-image: url("src/assets/stone_button_dark_test.png");
     height: 125%;
     width: 125%;
-    font-size: 3rem;
+    font-size: 3.25vw;
 }
 
 .button:hover {
-    transform: scale(.28);
+    transform: scale(.32);
     cursor: pointer;
+}
+
+.button:active {
+    color: white;
+    transition-duration: 0s;
+    transform: scale(.28);
 }
 
 .progressBar {
@@ -207,21 +280,48 @@ input[type=submit]:hover {
     background-repeat: no-repeat;
     background-color: transparent;
     border: none;
-    height: 8%;
+    height: 7.9%;
+    width: 37%;
+}
+
+.progressBar::-webkit-progress-value {
+    background-color: rgb(124, 159, 159, 0.5) !important;
+}
+
+.progressBar::-moz-progress-bar {
+    background-color: rgb(124, 159, 159, 0.6) !important;
+    position: absolute;
+    height: 50px;
+    margin-top: 2px;
+    margin-left: 1px;
+    margin-right: 1px;
+    border-radius: 13px;
+}
+
+.time {
+    top: 84%;
+    right: 30%;
 }
 
 .label_header {
     position: absolute;
     color: white;
-    font-family: Public Pixel Font, monospace;
+    font-family: Retro Pixel Font, monospace;
     font-size: 1.6vw;
-    text-shadow: 2px 2px 4px #000;
+    text-shadow: -1px -1px 0 #000,
+    0 -1px 0 #000,
+    1px -1px 0 #000,
+    1px 0 0 #000,
+    1px 1px 0 #000,
+    0 1px 0 #000,
+    -1px 1px 0 #000,
+    -1px 0 0 #000;
 }
 
 .label_board {
     top: 40%;
     position: absolute;
-    background-image: url("src/assets/board_wood_large.png");
+    background-image: url("src/assets/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -230,8 +330,7 @@ input[type=submit]:hover {
     height: 7%;
     justify-content: center;
     align-items: center;
-    -webkit-box-shadow: 1px 3px 4px #000;
-
+    /*-webkit-box-shadow: 1px 3px 4px #000;*/
 }
 
 .icon_upgrade {
@@ -248,22 +347,202 @@ input[type=submit]:hover {
     transition-duration: .4s;
 }
 
+.ore {
+    position: absolute;
+    background-image: url("src/assets/ore.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 3.5%;
+    width: 5%;
+    border: none;
+}
+
+.button_close {
+    position: absolute;
+    top: 93.3%;
+    background-image: url("src/assets/wood_label_close.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 6%;
+    width: 10%;
+    border: none;
+    transition-duration: .4s;
+    align-items: center;
+    /*-webkit-box-shadow: 1px 3px 4px #000;*/
+    display: flex;
+}
+
+.label_close {
+    font-size: 1.5vw;
+    left: 26%;
+}
+
+.button_close:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.button_close:active {
+    transition-duration: 0s;
+    transform: scale(0.9);
+}
+
+@media (min-width: 2000px) {
+    .container {
+        background-size: cover;
+        display: grid;
+        grid-template-columns: 500px 500px 500px 500px 40px 1fr;
+        grid-template-rows: 100px 40px 100vh;
+        grid-template-areas:
+        "hd   hd   hd   hd    vBar heil"
+        "bar  bar  bar  bar   vBar heil"
+        "left main main right vBar heil";
+
+    }
+
+    .heil {
+        background-image: linear-gradient(to top, #000000, #0e0a0c, #161316, #1c191f, #202028, #24252f, #272b36, #2a313d, #2f3743, #343c49, #394250, #3e4856);
+        z-index: 100;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .heil_img {
+        background-image: url("assets/heilenberg_edit.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        height: 954px;
+        width: 633px;
+        position: absolute;
+        right: -23.7%;
+        bottom: 0;
+    }
+
+    .gear_rotate_counterClockwise {
+        max-width: 240px;
+        max-height: 240px;
+    }
+
+    .gear_rotate_clockwise {
+        max-width: 307px;
+        max-height: 307px;
+    }
+
+    .gear_normal {
+        max-width: 240px;
+        max-height: 240px;
+    }
+
+    .gear_left {
+        position: absolute;
+        left: 1380px;
+    }
+
+    .gear_right {
+        position: absolute;
+        left: 1880px;
+    }
+
+    .header {
+        max-height: 100px;
+    }
+
+    .woodBar {
+        max-height: 40px;
+    }
+
+    .vBar {
+        grid-area: vBar;
+        z-index: 40;
+        display: flex;
+        background-image: url("assets/vBar.png");
+        background-size: contain;
+    }
+
+    .main {
+        max-width: 1000px;
+    }
+
+    .controls {
+        max-width: 500px;
+        max-height: 899px;
+    }
+
+    .slideIn {
+        max-width: 500px;
+    }
+
+    .slideOut {
+        max-width: 500px;
+    }
+
+    .slideIn_automate {
+        max-width: 500px;
+    }
+
+    .slideOut_automate {
+        max-width: 500px;
+    }
+
+    .label_header {
+        font-size: 32px;
+    }
+
+    .modal {
+        position: absolute;
+        left: 1000px;
+    }
+
+    .button {
+        font-size: 65px;
+    }
+
+    .button_sign_up {
+        font-size: 26px;
+    }
+
+    .label_close {
+        font-size: 30px;
+    }
+}
+
+@media (min-width: 2550px) {
+    .heil_img {
+        left: 0;
+    }
+}
+
 @media (max-width: 800px) {
     .container {
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 100px 100vh;
+        grid-template-rows: 100px 25px 100vh;
+    }
+
+    .header_logo {
+        min-width: 100px;
+    }
+
+    .woodBar {
+        background-size: cover;
     }
 
     .main {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 3;
         z-index: 20;
     }
 
     .board {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 3;
         z-index: 30;
     }
 
@@ -294,35 +573,6 @@ input[type=submit]:hover {
     align-items: center;
 }
 
-.button_close {
-    position: absolute;
-    top: 92%;
-    background-image: url("src/assets/board_wood_small.png");
-    background-color: transparent;
-    background-position: center center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    height: 5%;
-    width: 10%;
-    border: none;
-    transition-duration: .4s;
-    justify-content: center;
-    align-items: center;
-    -webkit-box-shadow: 1px 3px 4px #000;
-}
-
-.label_close {
-    color: rgb(114, 23, 42);
-    font-size: 1.3vw;
-    bottom: 7.5%;
-    left: 26%;
-}
-
-.button_close:hover {
-    transform: scale(.9);
-    cursor: pointer;
-}
-
 .slideIn {
     position: absolute;
     animation-name: slideIn;
@@ -340,13 +590,13 @@ input[type=submit]:hover {
         transform: translateY(-100%);
     }
     60% {
-        transform: translateY(0%);
+        transform: translateY(-0.25%);
     }
     80% {
         transform: translateY(-2%);
     }
     100% {
-        transform: translateY(-0%);
+        transform: translateY(-0.25%);
     }
 }
 
@@ -364,13 +614,13 @@ input[type=submit]:hover {
 
 @keyframes slideOut {
     0% {
-        transform: translateY(0%);
+        transform: translateY(-0.25%);
     }
     20% {
         transform: translateY(-2%);
     }
     40% {
-        transform: translateY(0%);
+        transform: translateY(-0.25%);
     }
     100% {
         transform: translateY(-100%);
@@ -384,7 +634,7 @@ input[type=submit]:hover {
 .gear_normal {
     overflow: hidden;
     position: fixed;
-    background-image: url("./assets/gear.png");
+    background-image: url("./assets/cog3.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -392,7 +642,7 @@ input[type=submit]:hover {
     height: 12vw;
     width: 12vw;
     border: none;
-    top: -2%;
+    top: -0.5%;
     z-index: 4;
 }
 
@@ -499,4 +749,169 @@ input[type=submit]:hover {
     100% {
         transform: translateY(50%);
     }
+}
+
+.miner {
+    background-image: url("assets/miner_masculine_1.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    position: relative;
+    height: 6vw;
+    width: 5vw;
+    left: 2%;
+    z-index: 100;
+    top: -6%;
+}
+
+.cost {
+    position: absolute;
+    top: 46%;
+    right: 25%;
+    font-size: 1.4vw;
+    color: red;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.costFadeOut {
+    position: absolute;
+    top: 46%;
+    right: 25%;
+    font-size: 1.4vw;
+    animation: costFade ease 3s;
+    opacity: 0;
+    transform: translateY(-40%);
+    color: red;
+    visibility: visible;
+}
+
+@keyframes costFade {
+    0% {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-40%);
+        opacity: 0;
+    }
+}
+
+.invalid {
+    transform: translateY(-100%);
+    position: relative;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.fadeout {
+    animation-name: fadeOut;
+    animation-delay: 0s;
+    animation-duration: 4s;
+    animation-fill-mode: forwards;
+    transform: translateY(-100%);
+    position: relative;
+    visibility: visible;
+    opacity: 0;
+    color: darkred;
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.grid_ore {
+    display: grid;
+    grid-template-rows: 31px;
+    grid-template-columns: 50px auto;
+}
+
+.grid_ore_label {
+    display: flex;
+    grid-row: 1;
+    grid-column: 2/3;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid_ore_icon {
+    display: flex;
+    position: relative;
+    background-image: url("src/assets/ore.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 98.5%;
+    width: 66%;
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.grid_depth {
+    display: grid;
+    grid-template-rows: 31px;
+    grid-template-columns: 50px auto;
+}
+
+.grid_depth_label {
+    display: flex;
+    grid-row: 1;
+    grid-column: 2/3;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid_depth_icon {
+    display: flex;
+    position: relative;
+    background-image: url("src/assets/pickaxe.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 98.5%;
+    width: 66%;
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.grid_loot {
+    display: grid;
+    grid-template-rows: 31px;
+    grid-template-columns: 50px auto;
+}
+
+.grid_loot_label {
+    display: flex;
+    grid-row: 1;
+    grid-column: 2/3;
+    justify-content: center;
+    align-items: center;
+}
+
+.grid_loot_icon {
+    display: flex;
+    position: relative;
+    background-image: url("src/assets/ore.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 98.5%;
+    width: 66%;
+    grid-row: 1;
+    grid-column: 1;
 }

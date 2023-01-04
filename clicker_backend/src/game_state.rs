@@ -13,6 +13,7 @@ pub struct GameState {
     pub attack_level: i32,
     pub defence_level: i32,
     pub automation_started: bool,
+    pub is_dummy: bool,
 }
 
 impl GameState {
@@ -184,6 +185,7 @@ impl GameState {
             attack_level: 1,
             defence_level: 1,
             automation_started: false,
+            is_dummy: false,
         }
     }
 }

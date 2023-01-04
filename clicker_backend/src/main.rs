@@ -299,6 +299,14 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut game_state = GameState::new();
     let mut logged_in = false;
     let mut interval = Instant::now();
+
+    if let Ok(None) = sqlx::query!(
+        "SELECT * FROM player;"
+    ).fetch_optional(&pool)
+        .await {
+            create_dummy_players(&pool).await;
+    }
+    
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
@@ -397,6 +405,46 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }
+}
+
+async fn create_dummy_players(pool: &PgPool) {
+    let mut dummy_game_state = GameState::new();
+    let mut email = "dummy";
+    let mut password = "dummyPassword";
+    dummy_game_state.is_dummy = true;
+
+    for i in 1..10 {
+        let full_email = format!("{}{}", email, i);
+        dummy_game_state.ore = (500 + i * 500) as f64;
+        dummy_game_state.depth = (400 + i * 400) as f64;
+        dummy_game_state.attack_level = 1 + i * 10;
+        dummy_game_state.defence_level = 2 + i * 5;
+        let game_state_value = serde_json::to_value(&dummy_game_state).unwrap();
+        if let Ok(_r) = sqlx::query!(
+                "INSERT INTO player (email, username, password, game_state, pvp_score) VALUES ($1, $2, $3, $4, $5) RETURNING id;",
+                full_email,
+                full_email,
+                password,
+                game_state_value,
+                (100 * i) as i64,
+        ).fetch_one(pool)
+            .await {};
+    }
+
+    email = "ChuckNorris";
+    password = "ROUNDHOUSEKICK";
+    dummy_game_state.ore = 1000000.0;
+    dummy_game_state.defence_level = 1000;
+    let game_state_value = serde_json::to_value(&dummy_game_state).unwrap();
+    if let Ok(_r) = sqlx::query!(
+                "INSERT INTO player (email, username, password, game_state, pvp_score) VALUES ($1, $2, $3, $4, $5) RETURNING id;",
+                email,
+                email,
+                password,
+                game_state_value,
+                9007199254740991,
+    ).fetch_one(pool)
+        .await {};
 }
 
 async fn get_username(id: i64, pool: &PgPool) -> String {
@@ -536,7 +584,7 @@ async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
     {
         Ok(r) => {
             match sqlx::query!(
-                "SELECT id, game_state \
+                "SELECT id \
                 FROM player WHERE is_online = false \
                 AND pvp_score >= $1 ORDER BY pvp_score ASC;",
                 r.pvp_score
@@ -565,8 +613,10 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
         loot = game_state_def.ore / 2.0;
     }
 
-    game_state_def.ore -= loot;
-    save_game_state_to_database(id_def, &game_state_def, pool).await;
+    if !game_state_def.is_dummy {
+        game_state_def.ore -= loot;
+        save_game_state_to_database(id_def, &game_state_def, pool).await;
+    }
 
     if (sqlx::query!(
         "INSERT INTO PVP (id_att, id_def, loot, timestamp) VALUES ( $1, $2, $3, $4);",

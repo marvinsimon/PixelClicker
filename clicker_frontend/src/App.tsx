@@ -468,12 +468,13 @@ const App: Component = () => {
 
     function displayPfp() {
         const image_input = document.querySelector("#image_input");
-        const uploaded_image = "";
+        var uploaded_image = "";
 
         image_input.addEventListener("change", function () {
             const reader = new FileReader();
             reader.addEventListener("load", ()=>{
-                document.querySelector("#image").src = reader.result;
+                uploaded_image = reader.result;
+                document.querySelector("#display_image").style.backgroundImage = `url(${uploaded_image})`;
             });
             reader.readAsDataURL(this.files[0]);
         });
@@ -517,9 +518,10 @@ const App: Component = () => {
 
                                             <input type="file" id="image_input" accept="image/png, image/jpg"/>
                                             <div id="display_image" class={styles.displayimage}>
-                                                <img id="image"/>
+
                                             </div>
                                             <button onClick={displayPfp}>Button</button>
+                                            <button onClick={}>Safe</button>
                                         </div>
 
 

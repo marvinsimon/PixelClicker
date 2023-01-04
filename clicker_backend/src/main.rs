@@ -8,6 +8,7 @@ use axum::{
     response::Response,
     Router, routing::get,
 };
+use axum::http::HeaderMap;
 
 use argon2::{
     password_hash::{
@@ -19,6 +20,8 @@ use argon2::{
 
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
+use regex::Regex;
+use rustrict::CensorStr;
 
 use sqlx::{PgPool, Pool};
 use sqlx::types::chrono::Utc;
@@ -127,7 +130,7 @@ async fn login(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     match sqlx::query!(
-        "SELECT id, game_state, password, timestamp FROM player WHERE email = $1;",
+        "SELECT id, game_state, password, timestamp FROM player WHERE (email = $1 OR username = $1);",
         email
     )
         .fetch_optional(&pool)
@@ -183,7 +186,7 @@ fn check_password(password_hash: String, password: &[u8]) -> bool {
 
 
 async fn sign_up(
-    AuthBasic((email, password)): AuthBasic,
+    AuthBasic((email, password)): AuthBasic, username: HeaderMap,
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
@@ -196,28 +199,35 @@ async fn sign_up(
     {
         Ok(Some(_)) => StatusCode::BAD_REQUEST,
         Ok(None) => {
+            let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
-            match sqlx::query!(
-                "INSERT INTO player (email, password, game_state) VALUES ($1, $2, $3) RETURNING id;",
+            let extracted_username = username.get("Username").unwrap().to_str().unwrap();
+            let inappropriate: bool = extracted_username.is_inappropriate();
+            if email_regex.is_match(&email) && !inappropriate{
+                return match sqlx::query!(
+                "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,
+                extracted_username,
                 hash_password(password.unwrap().as_bytes()),
                 game_state_value
             )
-                .fetch_one(&pool)
-                .await
-            {
-                Ok(r) => {
-                    session.set(PLAYER_AUTH, r.id);
-                    save_score_to_database(r.id, &game_state, &pool).await;
-                    set_player_as_online(r.id, &pool).await;
-                    StatusCode::OK
-                }
-                Err(err) => {
-                    println!("{}", err);
-                    StatusCode::INTERNAL_SERVER_ERROR
-                }
+                    .fetch_one(&pool)
+                    .await
+                {
+                    Ok(r) => {
+                        session.set(PLAYER_AUTH, r.id);
+                        save_score_to_database(r.id, &game_state, &pool).await;
+                        set_player_as_online(r.id, &pool).await;
+                        StatusCode::OK
+                    }
+                    Err(err) => {
+                        println!("{}", err);
+                        StatusCode::INTERNAL_SERVER_ERROR
+                    }
+                };
             }
+            StatusCode::NOT_ACCEPTABLE
         }
         Err(err) => {
             println!("{}", err);
@@ -225,6 +235,7 @@ async fn sign_up(
         }
     }
 }
+
 
 async fn logout(
     session: AxumSession<AxumPgPool>,
@@ -248,14 +259,14 @@ async fn attack(
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
-        match sqlx::query!(
+        return match sqlx::query!(
         "SELECT id FROM PVP WHERE id_att = $1;",
         id
     )
             .fetch_optional(&pool)
             .await {
             Ok(Some(_)) => {
-                return StatusCode::BAD_REQUEST;
+                StatusCode::BAD_REQUEST
             }
             Ok(None) => {
                 let defender_id = search_for_enemy(id, &pool).await;
@@ -273,13 +284,13 @@ async fn attack(
                 } else {
                     calculate_combat(id, defender_id, &pool).await;
                 }
-                return StatusCode::OK;
+                StatusCode::OK
             }
             Err(err) => {
                 println!("{}", err);
-                return StatusCode::INTERNAL_SERVER_ERROR;
+                StatusCode::INTERNAL_SERVER_ERROR
             }
-        }
+        };
     }
     StatusCode::BAD_REQUEST
 }
@@ -299,6 +310,14 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                         .is_err() {
                         break;
                     }
+                    //ask for username
+                    let event = ServerMessages::SetUsername { username: get_username(id, &pool).await };
+                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                        .await
+                        .is_err() {
+                        break;
+                    }
+                    //send offline mined resources
                     if game_state.automation_started {
                         if let Ok(r) = sqlx::query!(
                             "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
@@ -380,13 +399,31 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     }
 }
 
+async fn get_username(id: i64, pool: &PgPool) -> String {
+    match sqlx::query!(
+        "SELECT username FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await
+    {
+        Ok(r) => {
+            r.username
+        }
+        Err(_) => {
+            "Error".to_string()
+        }
+    }
+}
+
 async fn test_for_new_registry(id: i64, pool: &PgPool) -> bool {
     match sqlx::query!(
         "SELECT is_new FROM player WHERE id = $1;",
         id
     )
         .fetch_one(pool)
-        .await {
+        .await
+    {
         Ok(r) => {
             r.is_new
         }

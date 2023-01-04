@@ -15,10 +15,12 @@ const App: Component = () => {
 
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
+    let username_field: HTMLInputElement;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
     const [depth, setDepth] = createSignal(0);
+    const [username, setUsername] = createSignal("")
     //PopUp Variable
     const [show, setShow] = createSignal(false);
     const [innershow, setInnerShow] = createSignal(false);
@@ -51,46 +53,63 @@ const App: Component = () => {
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
-            if ("NewState" in event) {
-                console.log(event.NewState);
-                setOre(event.NewState.ore);
-                setDepth(event.NewState.depth);
-            } else if ("ShovelDepthUpgraded" in event) {
-                console.log(event.ShovelDepthUpgraded);
-                setShovelDepth(event.ShovelDepthUpgraded.new_level);
-            } else if ("ShovelAmountUpgraded" in event) {
-                console.log(event.ShovelAmountUpgraded);
-                setShovelAmount(event.ShovelAmountUpgraded.new_level);
-            } else if ("AutomationDepthUpgraded" in event) {
-                console.log(event.AutomationDepthUpgraded);
-                setAutoDepth(event.AutomationDepthUpgraded.new_level);
-            } else if ("AutomationAmountUpgraded" in event) {
-                console.log(event.AutomationAmountUpgraded);
-                setAutoAmount(event.AutomationAmountUpgraded.new_level);
-            } else if ("AttackLevelUpgraded" in event) {
-                console.log(event.AttackLevelUpgraded);
-                setAttackLevel(event.AttackLevelUpgraded.new_level);
-            } else if ("DefenceLevelUpgraded" in event) {
-                console.log(event.DefenceLevelUpgraded);
-                setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-            } else if ("LoginState" in event) {
-                console.log(event.LoginState);
-                setLoginStates(event.LoginState);
-            } else if ("CombatElapsed" in event) {
-                console.log(event.CombatElapsed);
-                lootArrived(event.CombatElapsed);
-            } else if ("LoggedIn" in event) {
-                console.log("Still logged in")
-                setAuth(true);
-                setLoggedIn(true);
-            } else if ("AutomationStarted" in event) {
-                setAutomation(event.AutomationStarted.success);
-            } else if ("MinedOffline" in event) {
-                console.log("Got offline resources")
-                setTotalDepth(event.MinedOffline.depth);
-                setTotalAmount(event.MinedOffline.ore);
-
-                setShowOfflineResources(true);
+            const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
+            let arr = (msg.data as string).match(re)![0];
+            switch (arr) {
+                case "NewState":
+                    console.log(event.NewState);
+                    setOre(event.NewState.ore);
+                    setDepth(event.NewState.depth);
+                    break;
+                case "ShovelDepthUpgraded":
+                    console.log(event.ShovelDepthUpgraded);
+                    setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                    break;
+                case "ShovelAmountUpgraded":
+                    console.log(event.ShovelAmountUpgraded);
+                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                    break;
+                case "AutomationStarted":
+                    setAutomation(event.AutomationStarted.success);
+                    break;
+                case "AutomationDepthUpgraded":
+                    console.log(event.AutomationDepthUpgraded);
+                    setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                    break;
+                case "AutomationAmountUpgraded":
+                    console.log(event.AutomationAmountUpgraded);
+                    setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                    break;
+                case "AttackLevelUpgraded":
+                    console.log(event.AttackLevelUpgraded);
+                    setAttackLevel(event.AttackLevelUpgraded.new_level);
+                    break;
+                case "DefenceLevelUpgraded":
+                    console.log(event.DefenceLevelUpgraded);
+                    setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                    break;
+                case "CombatElapsed":
+                    console.log(event.CombatElapsed);
+                    lootArrived(event.CombatElapsed);
+                    break;
+                case "LoginState":
+                    console.log(event.LoginState);
+                    setLoginStates(event.LoginState);
+                    break;
+                case "LoggedIn":
+                    console.log("Still logged in")
+                    setAuth(true);
+                    setLoggedIn(true);
+                    break;
+                case "MinedOffline":
+                    console.log("Got offline resources")
+                    setTotalDepth(event.MinedOffline.depth);
+                    setTotalAmount(event.MinedOffline.ore);
+                    setShowOfflineResources(true);
+                    break;
+                case "SetUsername":
+                    setUsername(event.SetUsername.username);
+                    break;
             }
         }
         socket.onopen = () => {
@@ -181,18 +200,27 @@ const App: Component = () => {
     const sign_up = async () => {
         setBad_request_bool(false);
         let auth = btoa(`${email_field.value}:${password_field.value}`);
+        let username = username_field.value;
+        console.log(username);
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
-            headers: {Authorization: `Basic ${auth}`},
+            headers: {Authorization: `Basic ${auth}`, Username: username}
         });
         console.log(`sign_up: ${response.statusText}`);
-        if (response.ok) {
-            setLoggedIn(true);
-            setAuth(true);
-        } else if (response.status == 400) {
-            setBad_request_bool(true);
-            console.log('Bad Request');
+        switch (response.status) {
+            case 200:   //OK
+                setLoggedIn(true);
+                setAuth(true);
+                setUsername(username);
+                break;
+            case 400:   //Bad_Request
+                setBad_request_bool(true);
+                console.log('Bad Request');
+                break;
+            case 406:   //Not_Acceptable
+                //email did not follow form [abc]@[nop].[xyz] or username was inappropriate
+                break;
         }
     }
 
@@ -207,13 +235,18 @@ const App: Component = () => {
                 headers: {Authorization: `Basic ${auth}`},
             });
             console.log(`login: ${response.statusText}`);
-            if (response.ok) {
-                await connectBackend();
-                setLoggedIn(true);
-                setAuth(true);
-            } else if (response.status == 401) {
-                setUnauthorized(true);
-                console.log('Unauthorized');
+
+            switch (response.status) {
+                case 200:
+                    await connectBackend();
+                    setLoggedIn(true);
+                    setAuth(true);
+                    break;
+                case 401:
+                    //credentials did not match any existing user
+                    setUnauthorized(true);
+                    console.log('Unauthorized');
+                    break;
             }
         }
     }
@@ -229,6 +262,7 @@ const App: Component = () => {
                 disconnectBackend();
                 setLoggedIn(false);
                 setAuth(false);
+                setUsername("")
                 await connectBackend();
             }
         } else {
@@ -246,7 +280,7 @@ const App: Component = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
     }
 
-    const unHide = () => {
+    const unhide = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
     }
 
@@ -311,6 +345,7 @@ const App: Component = () => {
             <div class={styles.container}>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={<button class={styles.User_symbol} onClick={() => {
                               sign_out();
@@ -323,7 +358,7 @@ const App: Component = () => {
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
                                 <h3>Login</h3>
                                 <input type="text" ref={email_field!} style="width: 300px;"
-                                       placeholder="email.."/>
+                                       placeholder="email or username.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Log In" onClick={login}/>
@@ -336,7 +371,7 @@ const App: Component = () => {
                                         setInnerShow(true)
                                     }}>Sign Up
                                     </button>
-                            </div>
+                                </div>
                             </div>
                         </Show>
 
@@ -346,6 +381,8 @@ const App: Component = () => {
                                 <h3>Sign Up</h3>
                                 <input type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
+                                <input type="text" ref={username_field!} style="width: 300px;"
+                                       placeholder="username.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Sign Up" onClick={sign_up}/>
@@ -405,7 +442,7 @@ const App: Component = () => {
                                     slideOut();
                                     window.setTimeout(function () {
                                         setShowPVP(false);
-                                        unHide();
+                                        unhide();
                                     }, 1300);
                                     rotateCounterClockwise();
                                 }}>
@@ -464,7 +501,7 @@ const App: Component = () => {
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
-                                    unHide();
+                                    unhide();
                                 }, 1300);
                                 rotateCounterClockwise();
                             }}>
@@ -493,13 +530,18 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={small_board} class={styles.board_img_automate} alt={"Automate Board"}/>
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed} onClick={upgradeAutoDepth}>Depth</button>
+                                        <img src={small_board} class={styles.board_img_automate}
+                                             alt={"Automate Board"}/>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_speed}
+                                                onClick={upgradeAutoDepth}>Depth
+                                        </button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_speed}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{autoDepth()}</label>
 
-                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount} onClick={upgradeAutoAmount}>Amount</button>
+                                        <button class={styles.button + " " + mineModule.upgrade_automate_amount}
+                                                onClick={upgradeAutoAmount}>Amount
+                                        </button>
                                         <a class={styles.icon_upgrade + " " + mineModule.icon_upgrade_automate_amount}></a>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_amount_automate_level}>{autoAmount()}</label>
@@ -522,7 +564,7 @@ const App: Component = () => {
                         </div>
                     </Show>
 
-                    <Show when={showOfflineResources()} >
+                    <Show when={showOfflineResources()}>
                         <div class={styles.modal} use:clickOutside={() => setShowOfflineResources(false)}>
                             <label> Willkommen zurück! </label>
                             <label> Abgebautes Erz: {totalAmount()}</label>

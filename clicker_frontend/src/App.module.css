@@ -210,6 +210,11 @@
     border-radius: 100%;
 }
 
+#image{
+    width: 100px;
+    height: auto;
+}
+
 input[type="file"]{
     background-color: #c0c0c0 !important;
 }

@@ -12,6 +12,7 @@ import small_board from "./assets/small_brett.png";
 import game from "./assets/Playground.png";
 import buttonSound from "./assets/button_click.mp3";
 import digSound from "./assets/pick2.mp3";
+import {render} from "solid-js/web";
 
 const App: Component = () => {
 
@@ -465,11 +466,27 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
-    function rndpfp() {
-        const rnd = (Math.random()*4)+1;
-        const url = "/src/assets/pfp_" + rnd + ".png"
-        document.getElementById("image").style.backgroundImage = "url('/src/assets/pfp_" + rnd + ".png')";
+    function displayPfp() {
+        const image_input = document.querySelector("#image_input");
+        const uploaded_image = "";
+
+        image_input.addEventListener("change", function () {
+            const reader = new FileReader();
+            reader.addEventListener("load", ()=>{
+                document.querySelector("#image").src = reader.result;
+            });
+            reader.readAsDataURL(this.files[0]);
+        });
+        /*
+        const input = document.getElementById("input");
+        input.addEventListener("change", handleFiles, false);
+        function handleFiles(){
+            const fileList = this.files;
+            const selectedFile = fileList[0];
+            document.getElementById("image").style.backgroundImage = `url(${selectedFile})`;
+        }*/
     }
+
 
     return (
         <div class={styles.App}>
@@ -497,10 +514,14 @@ const App: Component = () => {
 
                                         <h3>Profile</h3>
                                         <div class={styles.flexitem}>
-                                            <div id="image" class={styles.displayimage}>
+
+                                            <input type="file" id="image_input" accept="image/png, image/jpg"/>
+                                            <div id="display_image" class={styles.displayimage}>
+                                                <img id="image"/>
                                             </div>
-                                            <input type="button" value="upload" onclick={rndpfp} />
+                                            <button onClick={displayPfp}>Button</button>
                                         </div>
+
 
                                         <div class={styles.flexitem}>
                                             <label>Name: Test</label>

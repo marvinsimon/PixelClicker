@@ -471,6 +471,11 @@ const App: Component = () => {
             const pfp = document.querySelector("#display_image").style.backgroundImage;
         }
 
+        if (socket) {
+            const event: ClientMessages = "UpgradeAttackLevel";
+            await socket.send(JSON.stringify(event));
+        }
+
     }
 
     function displayPfp() {

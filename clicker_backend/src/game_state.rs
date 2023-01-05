@@ -13,6 +13,7 @@ pub struct GameState {
     pub attack_level: i32,
     pub defence_level: i32,
     pub automation_started: bool,
+    pub image_data: [u8],
 }
 
 impl GameState {
@@ -167,8 +168,10 @@ impl GameState {
                     shovel_amount: self.shovel_amount_level,
                     shovel_depth: self.auto_depth_level,
                     automation_started: self.automation_started,
+                    image_data: self.image_data,
                 }
             }
+            ClientMessages::SafeImage { .. } => {}
         }
     }
 
@@ -184,6 +187,7 @@ impl GameState {
             attack_level: 1,
             defence_level: 1,
             automation_started: false,
+            image_data: *[0],
         }
     }
 }

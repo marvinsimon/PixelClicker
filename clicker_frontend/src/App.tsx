@@ -466,6 +466,13 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
+    const safeImg = async () => {
+        if (document.querySelector("#display_image").style.backgroundImage != null){
+            const pfp = document.querySelector("#display_image").style.backgroundImage;
+        }
+
+    }
+
     function displayPfp() {
         const image_input = document.querySelector("#image_input");
         var uploaded_image = "";
@@ -478,14 +485,6 @@ const App: Component = () => {
             });
             reader.readAsDataURL(this.files[0]);
         });
-        /*
-        const input = document.getElementById("input");
-        input.addEventListener("change", handleFiles, false);
-        function handleFiles(){
-            const fileList = this.files;
-            const selectedFile = fileList[0];
-            document.getElementById("image").style.backgroundImage = `url(${selectedFile})`;
-        }*/
     }
 
 
@@ -516,16 +515,16 @@ const App: Component = () => {
                                         <h3>Profile</h3>
                                         <div class={styles.flexitem}>
 
-                                            <input type="file" id="image_input" accept="image/png, image/jpg"/>
+                                            <input type="file" class={styles.image_input} id="image_input" accept="image/png, image/jpg" onclick={displayPfp}/>
                                             <div id="display_image" class={styles.displayimage}>
-
                                             </div>
-                                            <button onClick={displayPfp}>Button</button>
-                                            <button onClick={}>Safe</button>
+                                            <button onClick={safeImg}>Safe</button>
+
+
                                         </div>
 
 
-                                        <div class={styles.flexitem}>
+                                        <div class={styles.flexitem2}>
                                             <label>Name: Test</label>
                                             <br/>
                                             <label>Email: {email_field.value}</label>

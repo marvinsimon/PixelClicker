@@ -195,19 +195,36 @@
     flex-direction: column;
     color: #fff;
     width: 300px;
-    height: 150px;
+    height: 250px;
     justify-content: center;
     align-items: center;
+    border: solid black 2px;
+}
+
+.flexitem2 {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    width: 300px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    border: solid black 2px;
 }
 
 .displayimage {
-    width: 100px;
-    height: 100px;
+    width: 200px;
+    height: 200px;
     color: #04AA6D;
     border: 2px solid white;
     background-position: center;
     background-size: cover;
     border-radius: 100%;
+}
+
+#image_input{
+    max-width: 100px;
+    border: solid 3px black;
 }
 
 #image{

@@ -8,40 +8,74 @@ export default class Preload extends Phaser.Scene {
     preload() {
         // Sprites......................................................................................................
         // Sky
-        this.load.image('sky', "src/assets/img/newBG.png");
+        this.load.image('sky', "src/assets/img/sky.png");
 
-        // Background
-        this.load.spritesheet('backgroundGrass', "src/assets/img/new_tile1_bg_dark.png", {
+        // Dirt Background
+        this.load.spritesheet('backgroundGrass', "src/assets/img/dirt_background_grass.png", {
             frameWidth: 64,
             frameHeight: 64
         });
-        this.load.spritesheet('ladderOnGrass', "src/assets/img/ladderGrass.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('backgroundDirt', "src/assets/img/new_tile3_big_dark.png", {
+        this.load.spritesheet('ladderOnGrass', "src/assets/img/dirt_background_ladder_grass.png", {
             frameWidth: 64,
             frameHeight: 64
         });
-        this.load.spritesheet('ladderOnDirt', "src/assets/img/ladderDirt.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('backgroundDirt', "src/assets/img/dirt_background.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+        this.load.spritesheet('ladderOnDirt', "src/assets/img/dirt_background_ladder.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
 
         // Grass
-        this.load.spritesheet('grass', "src/assets/img/new_tile1_big.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('grass', "src/assets/img/grass.png", {frameWidth: 64, frameHeight: 64});
 
 
         // Dirt
-        this.load.spritesheet('dirt', "src/assets/img/new_tile2_big.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('dirtCrack1', "src/assets/img/cracked1.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('dirtCrack2', "src/assets/img/cracked2.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('dirtCrack3', "src/assets/img/cracked3.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('dirtCrack4', "src/assets/img/cracked4.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('barOnDirtLeft', "src/assets/img/barLeft.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('barOnDirtRight', "src/assets/img/barRight.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirt', "src/assets/img/dirt.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack1', "src/assets/img/dirt_cracked1.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack2', "src/assets/img/dirt_cracked2.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack3', "src/assets/img/dirt_cracked3.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('dirtCrack4', "src/assets/img/dirt_cracked4.png", {frameWidth: 64, frameHeight: 64});
+
+        // Support Bars
+        this.load.spritesheet('barLeft', "src/assets/img/barLeft.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('barRight', "src/assets/img/barRight.png", {frameWidth: 64, frameHeight: 64});
 
         // Lava
-        this.load.spritesheet('lava', "src/assets/img/testTile.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('lavaCrack1', "src/assets/img/testCracked1.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('lavaCrack2', "src/assets/img/testCracked2.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('lavaCrack3', "src/assets/img/testCracked3.png", {frameWidth: 64, frameHeight: 64});
-        this.load.spritesheet('lavaCrack4', "src/assets/img/testCracked4.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('lava', "src/assets/img/lava.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('lavaCrack1', "src/assets/img/lava_cracked1.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('lavaCrack2', "src/assets/img/lava_cracked2.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('lavaCrack3', "src/assets/img/lava_cracked3.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('lavaCrack4', "src/assets/img/lava_cracked4.png", {frameWidth: 64, frameHeight: 64});
 
+        // Lava Background
+        this.load.spritesheet('backgroundLava', "src/assets/img/lava_background.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+        this.load.spritesheet('ladderOnLava', "src/assets/img/lava_background_ladder.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+
+        // Sand
+        this.load.spritesheet('sand', "src/assets/img/sand.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('sandCrack1', "src/assets/img/sand_cracked1.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('sandCrack2', "src/assets/img/sand_cracked2.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('sandCrack3', "src/assets/img/sand_cracked3.png", {frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('sandCrack4', "src/assets/img/sand_cracked4.png", {frameWidth: 64, frameHeight: 64});
+
+        // Sand Background
+        this.load.spritesheet('backgroundSand', "src/assets/img/sand_background.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
+        this.load.spritesheet('ladderOnSand', "src/assets/img/sand_background_ladder.png", {
+            frameWidth: 64,
+            frameHeight: 64
+        });
 
         // Game objects
         this.load.spritesheet('bones1', "src/assets/img/bones1.png", {frameWidth: 64, frameHeight: 64});
@@ -53,7 +87,7 @@ export default class Preload extends Phaser.Scene {
         // Idle
         this.load.spritesheet('idleAnimation', "src/assets/img/idle.png", {frameWidth: 150, frameHeight: 150});
         // Mining
-        this.load.spritesheet('miningAnimation', "src/assets/img/mining_test2.png", {
+        this.load.spritesheet('miningAnimation', "src/assets/img/mining.png", {
             frameWidth: 150,
             frameHeight: 150
         });

@@ -25,6 +25,7 @@ export default class Generator {
     private pickedFirstDiamond: boolean = false;
     private collision!: Phaser.Physics.Arcade.Collider;
     private gameInstance: ClickerRoyaleGame;
+    private ladderTileName: string | Phaser.Textures.Texture = 'ladderOnDirt';
 
     constructor(scene: Play) {
         this.CONFIG = scene.CONFIG;
@@ -219,7 +220,7 @@ export default class Generator {
                     }
                 } else {
                     if (tx == 9) {
-                        spr = this.scene.add.sprite(x, y, 'ladderOnDirt');
+                        spr = this.scene.add.sprite(x, y, this.ladderTileName);
                     } else {
                         spr = this.scene.add.sprite(x, y, this.backgroundTileName);
                     }
@@ -310,11 +311,11 @@ export default class Generator {
         let rightSpr;
 
         let bars = [];
-        leftSpr = this.scene.add.sprite(this.layers.sideFloor[x][3].x, this.layers.sideFloor[y][4].y, 'barOnDirtLeft');
+        leftSpr = this.scene.add.sprite(this.layers.sideFloor[x][3].x, this.layers.sideFloor[y][4].y, 'barLeft');
         leftSpr.setOrigin(0);
         leftSpr.setDepth(this.PRIORITY.objects);
 
-        rightSpr = this.scene.add.sprite(this.layers.sideFloor[x][12].x, this.layers.sideFloor[y][4].y, 'barOnDirtRight');
+        rightSpr = this.scene.add.sprite(this.layers.sideFloor[x][12].x, this.layers.sideFloor[y][4].y, 'barRight');
         rightSpr.setOrigin(0);
         rightSpr.setDepth(this.PRIORITY.objects);
 
@@ -415,7 +416,7 @@ export default class Generator {
         for (let tx = 0; tx < this.cols; tx++) {
             x = (tx * this.CONFIG.tile);
             if (tx == 9) {
-                spr = this.scene.add.sprite(x, y, 'ladderOnDirt');
+                spr = this.scene.add.sprite(x, y, this.ladderTileName);
             } else {
                 spr = this.scene.add.sprite(x, y, this.backgroundTileName);
             }
@@ -557,10 +558,20 @@ export default class Generator {
                 this.crackedTileName = 'dirtCrack';
                 this.backgroundTileName = 'backgroundDirt'
                 break;
-            case (value > 51):
+            case (value > 101):
                 this.tileName = 'lava';
+                this.backgroundTileName = 'backgroundLava'
+                this.ladderTileName = 'ladderOnLava'
                 if (this.layers.sideFloor[10][0].texture.key == 'lava') {
                     this.crackedTileName = 'lavaCrack';
+                }
+                break;
+            case (value > 51):
+                this.tileName = 'sand';
+                this.backgroundTileName = 'backgroundSand'
+                this.ladderTileName = 'ladderOnSand'
+                if (this.layers.sideFloor[10][0].texture.key == 'sand') {
+                    this.crackedTileName = 'sandCrack';
                 }
                 break;
         }

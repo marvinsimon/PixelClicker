@@ -123,6 +123,7 @@ const App: Component = () => {
                     setAutomation(event.AutomationStarted.success);
                     if (event.AutomationStarted.success) {
                         subtractCost("200");
+                        startAutomation();
                     }
                 } else if ("MinedOffline" in event) {
                     console.log("Got offline resources");
@@ -206,6 +207,7 @@ const App: Component = () => {
         game.backgroundTileName = "";
         game.pickedFirstDiamond = false;
         game.barRowCounter = 0;
+        game.automation = false;
 
         Play.setGameInstance(game);
     }
@@ -301,6 +303,9 @@ const App: Component = () => {
         setDiamond(LoginState.diamond);
         if (loggedIn()) {
             void loadGame();
+        }
+        if (automation_on()) {
+            game.automation = true;
         }
     }
 
@@ -593,6 +598,11 @@ const App: Component = () => {
         console.log('Load Game Data Call');
         game.pickedFirstDiamond = picked_first_diamond;
         game.events.emit('loadGame');
+    }
+
+    function startAutomation() {
+        game.automation = true;
+        game.events.emit('startAutomate');
     }
 
     return (

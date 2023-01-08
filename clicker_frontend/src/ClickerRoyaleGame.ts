@@ -10,6 +10,7 @@ export default class ClickerRoyaleGame extends Phaser.Game {
     backgroundTileName!: string | Phaser.Textures.Texture;
     pickedFirstDiamond!: boolean;
     barRowCounter!: number;
+    automation!: boolean;
 
     constructor(config: Phaser.Types.Core.GameConfig) {
         super(config);

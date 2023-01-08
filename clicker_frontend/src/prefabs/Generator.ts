@@ -11,6 +11,7 @@ export default class Generator {
     private layers: { background: any[]; floor: any[]; sideFloor: any[]; supportBars: any[]; pickups: any[] };
     private sky!: Phaser.GameObjects.Image;
     private miner!: Phaser.Physics.Arcade.Sprite;
+    private drill!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private debris!: Phaser.GameObjects.Particles.ParticleEmitterManager;
     private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
     private tileName: string | Phaser.Textures.Texture = 'dirt';
@@ -61,16 +62,22 @@ export default class Generator {
         this.start = this.layers.floor[0][4].y;
 
         // Create Miner
-        this.miner = this.scene.physics.add.sprite(500, 360, 'idleAnimation');
+        this.miner = this.scene.physics.add.sprite(400, 360, 'idleAnimation');
         this.miner.setScale(3, 3);
         this.miner.setOrigin(0.5, 0);
         this.miner.setBounce(0.1);
         this.miner.setDepth(this.PRIORITY.miner);
         this.miner.body.setSize(45, 18);
 
+        // add event listener for automate starting
+        this.scene.game.events.off('startAutomate');
+        this.scene.game.events.on('startAutomate', () => {
+            this.createDrill();
+        });
+
         // Camera
         this.scene.cameras.main.startFollow(this.miner);
-        this.scene.cameras.main.followOffset.set(0, -70);
+        this.scene.cameras.main.followOffset.set(-100, -70);
 
         // Create debris
         this.debris = this.scene.add.particles('debris');
@@ -103,17 +110,7 @@ export default class Generator {
                 this.sound.play();
             }
             // Create cracks in floor and destroy floor row on 5th click
-            if (this.breakCounter < 4) {
-                this.crackFloorRow();
-                this.breakCounter++;
-            } else {
-                this.createSupportBars(10, 10, this.barRowCounter);
-                this.destroyFloor();
-                this.collision.destroy();
-                this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
-                this.destroyPickups();
-                this.breakCounter = 0;
-            }
+            this.breakFloor();
         });
 
         // Create support bars to match tiles when logging in & destroy sky
@@ -139,6 +136,10 @@ export default class Generator {
                     this.breakCounter++;
                 }
             }, 800);
+
+            if (this.gameInstance.automation) {
+                this.createDrill();
+            }
         }
 
         // Add collision between miner and the first floor layer
@@ -326,6 +327,35 @@ export default class Generator {
         this.barRowCounter++;
     }
 
+    createDrill() {
+        // Create Drill
+        this.drill = this.scene.physics.add.sprite(700, this.miner.y, 'drillAnimation');
+        this.drill.setScale(0.6, 0.6);
+        this.drill.setOrigin(0.5, 0);
+        this.drill.setDepth(this.PRIORITY.miner);
+        this.drill.body.setSize(45, 48);
+
+        // Add collision between drill and first floor layer
+        this.collision = this.scene.physics.add.collider(this.drill, this.layers.floor[0]);
+        console.log(this.layers.floor);
+
+        // Create drill animation
+        this.scene.anims.create({
+            key: 'drill',
+            frames: this.scene.anims.generateFrameNumbers('drillAnimation', {start: 0, end: 1}),
+            frameRate: 6,
+            repeat: -1
+        })
+
+        // Play drill animation
+        this.drill.play({key: 'drill'});
+
+        setInterval(() => {
+            // Create cracks in floor and destroy floor row on 5th click
+            this.breakFloor();
+        }, 800);
+    }
+
     scrollBackGround() {
         let offset = this.scene.cameras.main.scrollY - this.layers.background[0][0].y;
 
@@ -399,6 +429,23 @@ export default class Generator {
                 sprite.destroy();
             }
         });
+    }
+
+    breakFloor() {
+        if (this.breakCounter < 4) {
+            this.crackFloorRow();
+            this.breakCounter++;
+        } else {
+            this.createSupportBars(10, 10, this.barRowCounter);
+            this.destroyFloor();
+            this.collision.destroy();
+            this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
+            if (this.drill != null) {
+                this.collision = this.scene.physics.add.collider(this.drill, this.layers.floor[0]);
+            }
+            this.destroyPickups();
+            this.breakCounter = 0;
+        }
     }
 
     appendBackgroundRow() {

@@ -92,6 +92,8 @@ export default class Preload extends Phaser.Scene {
             frameHeight: 150
         });
         this.load.image('debris', "src/assets/img/rock1.png");
+        // Drill
+        this.load.spritesheet('drillAnimation', "src/assets/img/drill_sprite2.png", {frameWidth: 142, frameHeight: 155});
 
         // Sounds.......................................................................................................
         // Dig

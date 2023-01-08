@@ -98,6 +98,7 @@ async fn main() {
         .route("/login", get(login))
         .route("/logout", get(logout))
         .route("/combat", get(attack))
+        .route("/save_pfp", get(update_profile_picture))
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
@@ -204,7 +205,7 @@ async fn sign_up(
             let game_state_value = serde_json::to_value(&game_state).unwrap();
             let extracted_username = username.get("Username").unwrap().to_str().unwrap();
             let inappropriate: bool = extracted_username.is_inappropriate();
-            if email_regex.is_match(&email) && !inappropriate{
+            if email_regex.is_match(&email) && !inappropriate {
                 return match sqlx::query!(
                 "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,
@@ -272,9 +273,9 @@ async fn attack(
                 let defender_id = search_for_enemy(id, &pool).await;
                 if defender_id == -1 {
                     if (sqlx::query!(
-                "DELETE FROM PVP WHERE id_att = $1",
-                id
-            )
+                    "DELETE FROM PVP WHERE id_att = $1",
+                    id
+                    )
                         .execute(&pool)
                         .await).is_ok()
                     {
@@ -295,6 +296,25 @@ async fn attack(
     StatusCode::BAD_REQUEST
 }
 
+async fn update_profile_picture(
+    pfp: HeaderMap,
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+) -> StatusCode {
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
+        let extracted_pfp = pfp.get("pfp").unwrap().to_str().unwrap();
+        if (sqlx::query!(
+        "UPDATE player SET profile_picture = $1 WHERE id = $2;",
+            extracted_pfp,
+            id
+    ).execute(&pool)
+            .await).is_ok() {
+            return StatusCode::OK;
+        }
+    }
+    StatusCode::BAD_REQUEST
+}
+
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
     let mut game_state = GameState::new();
     let mut logged_in = false;
@@ -304,9 +324,9 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         "SELECT * FROM player;"
     ).fetch_optional(&pool)
         .await {
-            create_dummy_players(&pool).await;
+        create_dummy_players(&pool).await;
     }
-    
+
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
@@ -320,6 +340,13 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                     }
                     //ask for username
                     let event = ServerMessages::SetUsername { username: get_username(id, &pool).await };
+                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                        .await
+                        .is_err() {
+                        break;
+                    }
+                    //ask for profile picture
+                    let event = ServerMessages::SetProfilePicture { pfp: get_profile_picture(id, &pool).await };
                     if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
                         .await
                         .is_err() {
@@ -457,6 +484,23 @@ async fn get_username(id: i64, pool: &PgPool) -> String {
     {
         Ok(r) => {
             r.username
+        }
+        Err(_) => {
+            "Error".to_string()
+        }
+    }
+}
+
+async fn get_profile_picture(id: i64, pool: &PgPool) -> String {
+    match sqlx::query!(
+        "SELECT profile_picture FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await
+    {
+        Ok(r) => {
+            r.profile_picture
         }
         Err(_) => {
             "Error".to_string()

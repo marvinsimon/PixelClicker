@@ -493,38 +493,38 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
-    const safeImg = async () => {
-        if (document.querySelector("#display_image").style.backgroundImage === null){
-
-        }else {
-            const pfp = document.querySelector("#display_image").style.backgroundImage;
-            imageToUint8Array(pfp,)
+    const saveImg = async () => {
+        if (document.querySelector("#display_image")!.style.backgroundImage != null){
+            const pfp = document.querySelector("#display_image")!.style.backgroundImage;
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            let u8 =  await imageToUint8Array(pfp, context);
+            let decoder = new TextDecoder('utf8');
+            let b64pfp = btoa(decoder.decode(u8));
+            const response = await fetch("http://localhost:3001/savePfp", {
+                method: "GET",
+                credentials: "include",
+                headers: {pfp: b64pfp},
+            });
         }
-
-        if (socket) {
-            const event: ClientMessages = "SafeImage";
-            await socket.send(JSON.stringify(event));
-        }
-
     }
 
     async function imageToUint8Array(image, context) {
         context.width = image.width;
         context.height = image.height;
         context.drawImage(image, 0, 0);
-        const blob = await context.canvas.toBlob("callback", "image/jpeg",1);
+        const blob = await context.canvas.toBlob(context.canvas, "image/jpeg", 1);
         return new Uint8Array(await blob.arrayBuffer());
     }
 
     function displayPfp() {
         const image_input = document.querySelector("#image_input");
-        var uploaded_image = "";
-
-        image_input.addEventListener("change", function () {
+        let uploaded_image;
+        image_input!.addEventListener("change", () => {
             const reader = new FileReader();
             reader.addEventListener("load", ()=>{
                 uploaded_image = reader.result;
-                document.querySelector("#display_image").style.backgroundImage = `url(${uploaded_image})`;
+                document.querySelector("#display_image")!.style.backgroundImage = `url(${uploaded_image})`;
             });
             reader.readAsDataURL(this.files[0]);
         });
@@ -562,7 +562,7 @@ const App: Component = () => {
                                             <input type="file" class={styles.image_input} id="image_input" accept="image/png, image/jpg" onclick={displayPfp}/>
                                             <div id="display_image" class={styles.displayimage}>
                                             </div>
-                                            <button onClick={safeImg}>Safe</button>
+                                            <button onClick={saveImg}>Safe</button>
 
 
                                         </div>

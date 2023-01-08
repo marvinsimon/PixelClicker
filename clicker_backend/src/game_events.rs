@@ -31,4 +31,5 @@ pub enum ServerMessages {
     LoggedIn {},
     MinedOffline { ore: u64, depth: u64 },
     SetUsername { username: String },
+    SetProfilePicture {pfp: String},
 }

@@ -2,8 +2,8 @@ DROP TABLE IF EXISTS Player;
 CREATE TABLE Player
 (
     id            BIGSERIAL PRIMARY KEY,
-    email         text    NOT NULL,
-    password      text    NOT NULL,
+    email         TEXT    NOT NULL,
+    password      TEXT    NOT NULL,
     game_state    JSON    NOT NULL,
     timestamp     BIGINT,
     pvp_score     BIGINT,
@@ -20,4 +20,24 @@ CREATE TABLE PVP
     id_def    BIGINT NOT NULL,
     loot      FLOAT  NOT NULL,
     timestamp BIGINT NOT NULL
+);
+
+CREATE TYPE EVENT_CLASS AS ENUM ('daily', 'weekly', 'seasonal');
+
+CREATE TABLE Event
+(
+    id BIGSERIAL PRIMARY KEY,
+    event_text TEXT NOT NULL ,
+    classification EVENT_CLASS NOT NULL
+);
+
+
+-- This table needs to be deleted in a daily cron job and reinitialized
+CREATE TABLE Player_Event
+(
+    id BIGSERIAL PRIMARY KEY,
+    id_event BIGINT NOT NULL,
+    id_player BIGINT NOT NULL,
+    finished BOOLEAN DEFAULT false,
+    "date" DATE DEFAULT current_date
 );

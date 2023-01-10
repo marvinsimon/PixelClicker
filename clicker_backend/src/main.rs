@@ -25,11 +25,12 @@ use sqlx::types::chrono::Utc;
 use tokio::time::Instant;
 use tower_http::cors::CorsLayer;
 
-use crate::game_events::{ClientMessages, ServerMessages};
+use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 
-mod game_events;
+mod game_messages;
 mod game_state;
+mod events;
 
 const SECONDS_DAY: i64 = 84600;
 

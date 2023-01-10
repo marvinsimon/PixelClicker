@@ -4,6 +4,7 @@ CREATE TABLE Player
     id            BIGSERIAL PRIMARY KEY,
     email         TEXT    NOT NULL,
     password      TEXT    NOT NULL,
+    username      TEXT    NOT NULL,
     game_state    JSON    NOT NULL,
     timestamp     BIGINT,
     pvp_score     BIGINT,
@@ -26,8 +27,8 @@ CREATE TYPE EVENT_CLASS AS ENUM ('daily', 'weekly', 'seasonal');
 
 CREATE TABLE Event
 (
-    id BIGSERIAL PRIMARY KEY,
-    event_text TEXT NOT NULL ,
+    id             BIGSERIAL PRIMARY KEY,
+    event_text     TEXT        NOT NULL,
     classification EVENT_CLASS NOT NULL
 );
 
@@ -35,9 +36,9 @@ CREATE TABLE Event
 -- This table needs to be deleted in a daily cron job and reinitialized
 CREATE TABLE Player_Event
 (
-    id BIGSERIAL PRIMARY KEY,
-    id_event BIGINT NOT NULL,
+    id        BIGSERIAL PRIMARY KEY,
+    id_event  BIGINT NOT NULL,
     id_player BIGINT NOT NULL,
-    finished BOOLEAN DEFAULT false,
-    "date" DATE DEFAULT current_date
+    finished  BOOLEAN DEFAULT false,
+    "date"    DATE    DEFAULT current_date
 );

@@ -17,24 +17,23 @@ export default class Generator {
     private tileName: string | Phaser.Textures.Texture = 'dirt';
     private crackedTileName: string | Phaser.Textures.Texture = 'dirtCrack';
     private backgroundTileName: string | Phaser.Textures.Texture = 'backgroundDirt';
-    private cursorkeys!: Phaser.Types.Input.Keyboard.CursorKeys;
+    private ladderTileName: string | Phaser.Textures.Texture = 'ladderOnDirt';
     private barRowCounter = 0;
     private breakCounter = 0;
-    private start: any;
+    private startFirstFloor!: number;
     private sound!: Phaser.Sound.BaseSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound;
-    private diamond: number = 1;
+    private randomDiamond: number = 1;
     private pickedFirstDiamond: boolean = false;
     private collision!: Phaser.Physics.Arcade.Collider;
     private gameInstance: ClickerRoyaleGame;
-    private ladderTileName: string | Phaser.Textures.Texture = 'ladderOnDirt';
 
     constructor(scene: Play) {
         this.CONFIG = scene.CONFIG;
         this.PRIORITY = scene.PRIORITY;
 
         this.scene = scene;
-
         this.gameInstance = Play.gameInstance;
+
         this.cols = 16;
         this.rows = 13;
 
@@ -59,108 +58,37 @@ export default class Generator {
 
         // Check depth to match tiles with depth
         this.checkDepth(this.scene.depth);
-        this.start = this.layers.floor[0][4].y;
+
+        // Set first floor row to help when scrolling the floor
+        this.startFirstFloor = this.layers.floor[0][4].y;
 
         // Create Miner
-        this.miner = this.scene.physics.add.sprite(400, 360, 'idleAnimation');
-        this.miner.setScale(3, 3);
-        this.miner.setOrigin(0.5, 0);
-        this.miner.setBounce(0.1);
-        this.miner.setDepth(this.PRIORITY.miner);
-        this.miner.body.setSize(45, 18);
+        this.createMiner();
 
         // add event listener for automate starting
-        this.scene.game.events.off('startAutomate');
-        this.scene.game.events.on('startAutomate', () => {
+        this.gameInstance.events.off('startAutomate');
+        this.gameInstance.events.on('startAutomate', () => {
             this.createDrill();
         });
 
-        // Camera
+        // Set camera to follow miner
         this.scene.cameras.main.startFollow(this.miner);
         this.scene.cameras.main.followOffset.set(-100, -70);
 
-        // Create debris
-        this.debris = this.scene.add.particles('debris');
-        this.debris.setDepth(this.PRIORITY.debris);
-
-        // Set up the debris to emit debris
-        this.emitter = this.debris.createEmitter({
-            x: 0,
-            y: 0,
-            lifespan: 2000,
-            speed: {min: 300, max: 500},
-            scale: {start: 0.15, end: 0.08},
-            gravityY: 1000,
-            bounce: 0.8,
-            on: false,
-        });
+        // Setup debris particles
+        this.setupDebris();
 
         // On click event --> Mining
-        this.scene.input.on('pointerdown', () => {
-            // Dispatch event to solid
-            let mineEvent = new CustomEvent('mineEvent');
-            window.dispatchEvent(mineEvent);
-            // Play mining animation
-            if (this.miner.anims.getName() === 'idle') {
-                this.miner.play('mining');
-                this.miner.chain('idle');
-            }
-            // Play dig sound
-            if (!this.sound.isPlaying) {
-                this.sound.play();
-            }
-            // Create cracks in floor and destroy floor row on 5th click
-            this.breakFloor();
-        });
+        this.setupMiningEvent();
 
-        // Create support bars to match tiles when logging in & destroy sky
-        if (this.scene.loggedIn) {
-            this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
-            this.barRowCounter = Math.floor(this.scene.depth / 5 < 10 ? this.scene.depth / 5 : 10);
-            console.log('Bar Counter: ', this.barRowCounter);
-            for (let i = 0; i < 10 && i < Math.floor(this.scene.depth / 5); i++) {
-                // this.checkDepth(this.scene.depth);
-                this.destroyFloor();
-                this.destroyPickups();
-                this.scrollFloor();
-                setTimeout(() => {
-                    this.createSupportBars(i, (10 - this.barRowCounter) + i, i);
-                    this.barRowCounter--;
-                }, 900);
-            }
-            setTimeout(() => {
-                this.breakCounter = this.scene.depth % 5;
-                if (this.breakCounter != 0 && this.breakCounter <= 4) {
-                    this.breakCounter--;
-                    this.crackFloorRow();
-                    this.breakCounter++;
-                }
-            }, 800);
-
-            if (this.gameInstance.automation) {
-                this.createDrill();
-            }
-        }
+        // when logging in
+        this.loadGameData();
 
         // Add collision between miner and the first floor layer
         this.collision = this.scene.physics.add.collider(this.miner, this.layers.floor[0]);
 
-        this.cursorkeys = this.scene.input.keyboard.createCursorKeys();
-
-        // Create mining animation
-        this.scene.anims.create({
-            key: 'mining',
-            frames: this.scene.anims.generateFrameNumbers('miningAnimation', {start: 0, end: 4}),
-            frameRate: 15
-        });
-
-        // Create idle animation
-        this.scene.anims.create({
-            key: 'idle',
-            frames: this.scene.anims.generateFrameNumbers('idleAnimation', {start: 0, end: 7}),
-            frameRate: 6,
-            repeat: -1
-        });
+        // Setup miner animation
+        this.setupMinerAnimations();
 
         // Play idle animation on game start
         this.miner.play({key: 'idle'});
@@ -168,19 +96,15 @@ export default class Generator {
         // Create dig sound
         this.sound = this.scene.sound.add('dig');
 
-        // Enable input after some time, guarantying load is finished
+        // Enable user input after some time, guarantying loading is finished
         setTimeout(() => {
             this.gameInstance.input.enabled = true;
         }, 1000);
     }
 
-    // Update
+    // Update game
     update() {
         this.checkDepth(this.scene.depth);
-
-        if (this.cursorkeys.space.isDown) {
-            this.miner.setY(this.miner.y - 10);
-        }
         this.scrollBackGround();
         this.scrollSideFloor();
         this.scrollSupportBars();
@@ -193,7 +117,7 @@ export default class Generator {
         this.sky = this.scene.add.image(0, 0, 'sky').setOrigin(0).setDepth(this.PRIORITY.sky);
     }
 
-    // Background layer
+    // Create background layer
     createBackground() {
         let x;
         let y;
@@ -237,7 +161,7 @@ export default class Generator {
         this.layers.background = background;
     }
 
-    // Floor layer
+    // Create floor layer
     createFloor() {
         let x;
         let y;
@@ -270,7 +194,7 @@ export default class Generator {
         this.layers.floor = floor;
     }
 
-    // Side floor layer
+    // Create side floor layer
     createSideFloor() {
         let x;
         let y;
@@ -302,7 +226,7 @@ export default class Generator {
                 sideFloor[ty][tx] = spr;
             }
         }
-        // Save floor array in generator layers
+        // Save side floor array in generator layers
         this.layers.sideFloor = sideFloor;
     }
 
@@ -325,6 +249,15 @@ export default class Generator {
 
         this.layers.supportBars[counter] = bars;
         this.barRowCounter++;
+    }
+
+    createMiner() {
+        this.miner = this.scene.physics.add.sprite(400, 360, 'idleAnimation');
+        this.miner.setScale(3, 3);
+        this.miner.setOrigin(0.5, 0);
+        this.miner.setBounce(0.1);
+        this.miner.setDepth(this.PRIORITY.miner);
+        this.miner.body.setSize(45, 18);
     }
 
     createDrill() {
@@ -350,10 +283,65 @@ export default class Generator {
         // Play drill animation
         this.drill.play({key: 'drill'});
 
+        // set interval how often the drill breaks the floor tile
         setInterval(() => {
             // Create cracks in floor and destroy floor row on 5th click
             this.breakFloor();
         }, 800);
+    }
+
+    setupDebris() {
+        // Create debris
+        this.debris = this.scene.add.particles('debris');
+        this.debris.setDepth(this.PRIORITY.debris);
+
+        // Set up the particle emitter to emit debris
+        this.emitter = this.debris.createEmitter({
+            x: 0,
+            y: 0,
+            lifespan: 2000,
+            speed: {min: 300, max: 500},
+            scale: {start: 0.15, end: 0.08},
+            gravityY: 1000,
+            bounce: 0.8,
+            on: false,
+        });
+    }
+
+    setupMiningEvent() {
+        this.scene.input.on('pointerdown', () => {
+            // Dispatch event to solid
+            let mineEvent = new CustomEvent('mineEvent');
+            window.dispatchEvent(mineEvent);
+            // Play mining animation
+            if (this.miner.anims.getName() === 'idle') {
+                this.miner.play('mining');
+                this.miner.chain('idle');
+            }
+            // Play dig sound
+            if (!this.sound.isPlaying) {
+                this.sound.play();
+            }
+            // Create cracks in floor and destroy floor row on 5th click
+            this.breakFloor();
+        });
+    }
+
+    setupMinerAnimations() {
+        // Create mining animation
+        this.scene.anims.create({
+            key: 'mining',
+            frames: this.scene.anims.generateFrameNumbers('miningAnimation', {start: 0, end: 4}),
+            frameRate: 15
+        });
+
+        // Create idle animation
+        this.scene.anims.create({
+            key: 'idle',
+            frames: this.scene.anims.generateFrameNumbers('idleAnimation', {start: 0, end: 7}),
+            frameRate: 6,
+            repeat: -1
+        });
     }
 
     scrollBackGround() {
@@ -366,9 +354,10 @@ export default class Generator {
     }
 
     scrollFloor() {
-        let newStart = this.layers.floor[0][4].y;
-        if (this.start <= newStart - this.CONFIG.tile) {
-            this.start = this.layers.floor[0][4].y;
+        let newStartFirstFloor = this.layers.floor[0][4].y;
+
+        if (this.startFirstFloor <= newStartFirstFloor - this.CONFIG.tile) {
+            this.startFirstFloor = this.layers.floor[0][4].y;
             this.appendFloorRow();
         }
     }
@@ -456,7 +445,7 @@ export default class Generator {
         let ty = this.layers.background.length;
         let y = this.layers.background[ty - 1][0].y + this.CONFIG.tile;
 
-        // Add empty row to the floor layer
+        // Add empty row to the background layer
         this.layers.background.push([]);
 
         // Draw tiles on this row
@@ -500,11 +489,11 @@ export default class Generator {
         let x;
         let spr;
 
-        // Row at the end of the floor, right below camera edge
+        // Row at the end of the side floor, right below camera edge
         let ty = this.layers.sideFloor.length;
         let y = this.layers.sideFloor[ty - 1][0].y + this.CONFIG.tile;
 
-        // Add empty row to the floor layer
+        // Add empty row to the side floor layer
         this.layers.sideFloor.push([]);
 
         // Draw tiles on this row
@@ -526,12 +515,12 @@ export default class Generator {
         let randomBones = 80;
         let pointer = this.scene.input.mousePointer;
         if (this.pickedFirstDiamond) {
-            this.diamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
+            this.randomDiamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
         }
-        if (this.scene.depth >= 20 && this.diamond == 1) {
-            this.diamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
+        if (this.scene.depth >= 20 && this.randomDiamond == 1) {
+            this.randomDiamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
             console.log('Create Diamond');
-            spr = this.scene.add.sprite(x, y, 'diamond');
+            spr = this.scene.add.sprite(x, y, 'randomDiamond');
             spr.setInteractive({useHandCursor: true});
             spr.on('pointerdown', (event: any) => {
                 this.pickedFirstDiamond = true;
@@ -600,12 +589,12 @@ export default class Generator {
             value = 1;
         }
         switch (true) {
-            case (value <= 50):
+            case (value <= 5000):
                 this.tileName = 'dirt';
                 this.crackedTileName = 'dirtCrack';
                 this.backgroundTileName = 'backgroundDirt'
                 break;
-            case (value > 101):
+            case (value > 15001):
                 this.tileName = 'lava';
                 this.backgroundTileName = 'backgroundLava'
                 this.ladderTileName = 'ladderOnLava'
@@ -613,7 +602,7 @@ export default class Generator {
                     this.crackedTileName = 'lavaCrack';
                 }
                 break;
-            case (value > 51):
+            case (value > 5001):
                 this.tileName = 'sand';
                 this.backgroundTileName = 'backgroundSand'
                 this.ladderTileName = 'ladderOnSand'
@@ -621,6 +610,37 @@ export default class Generator {
                     this.crackedTileName = 'sandCrack';
                 }
                 break;
+        }
+    }
+
+    loadGameData() {
+        // Create support bars to match tiles when logging in & destroy sky
+        if (this.scene.loggedIn) {
+            this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
+            this.barRowCounter = Math.floor(this.scene.depth / 5 < 10 ? this.scene.depth / 5 : 10);
+            console.log('Bar Counter: ', this.barRowCounter);
+            for (let i = 0; i < 10 && i < Math.floor(this.scene.depth / 5); i++) {
+                // this.checkDepth(this.scene.depth);
+                this.destroyFloor();
+                this.destroyPickups();
+                this.scrollFloor();
+                setTimeout(() => {
+                    this.createSupportBars(i, (10 - this.barRowCounter) + i, i);
+                    this.barRowCounter--;
+                }, 900);
+            }
+            setTimeout(() => {
+                this.breakCounter = this.scene.depth % 5;
+                if (this.breakCounter != 0 && this.breakCounter <= 4) {
+                    this.breakCounter--;
+                    this.crackFloorRow();
+                    this.breakCounter++;
+                }
+            }, 800);
+
+            if (this.gameInstance.automation) {
+                this.createDrill();
+            }
         }
     }
 }

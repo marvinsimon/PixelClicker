@@ -47,9 +47,6 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    /*justify-content: center;*/
-    /*align-items: center;*/
-    /*background-color: black;*/
 }
 
 .controls {
@@ -299,7 +296,6 @@ input[type=submit]:active {
     height: 7%;
     justify-content: center;
     align-items: center;
-    /*-webkit-box-shadow: 1px 3px 4px #000;*/
 }
 
 .icon_upgrade {
@@ -341,7 +337,6 @@ input[type=submit]:active {
     border: none;
     transition-duration: .4s;
     align-items: center;
-    /*-webkit-box-shadow: 1px 3px 4px #000;*/
     display: flex;
 }
 
@@ -718,18 +713,6 @@ input[type=submit]:active {
     100% {
         transform: translateY(50%);
     }
-}
-
-.miner {
-    background-image: url("src/assets/img/miner_masculine_1.png");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    position: relative;
-    height: 6vw;
-    width: 5vw;
-    left: 2%;
-    z-index: 100;
-    top: -6%;
 }
 
 .cost {

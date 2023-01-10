@@ -31,7 +31,6 @@ export default class Preload extends Phaser.Scene {
         // Grass
         this.load.spritesheet('grass', "src/assets/img/grass.png", {frameWidth: 64, frameHeight: 64});
 
-
         // Dirt
         this.load.spritesheet('dirt', "src/assets/img/dirt.png", {frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('dirtCrack1', "src/assets/img/dirt_cracked1.png", {frameWidth: 64, frameHeight: 64});
@@ -93,7 +92,10 @@ export default class Preload extends Phaser.Scene {
         });
         this.load.image('debris', "src/assets/img/rock1.png");
         // Drill
-        this.load.spritesheet('drillAnimation', "src/assets/img/drill_sprite2.png", {frameWidth: 142, frameHeight: 155});
+        this.load.spritesheet('drillAnimation', "src/assets/img/drill_sprite2.png", {
+            frameWidth: 142,
+            frameHeight: 155
+        });
 
         // Sounds.......................................................................................................
         // Dig

@@ -146,11 +146,9 @@ const App: Component = () => {
             const event: ClientMessages = "GetLoginData";
             window.setTimeout(() => {
                 socket?.send(JSON.stringify(event));
-
             }, 1000);
         }
     }
-
 
     // @ts-ignore
     window.onload = async () => {
@@ -585,7 +583,6 @@ const App: Component = () => {
     }
 
     const loadGame = async () => {
-        console.log('test load');
         if (socket) {
             setTimeout(async () => {
                 const event: ClientMessages = 'LoadGame';
@@ -595,7 +592,6 @@ const App: Component = () => {
     }
 
     function loadGameData(picked_first_diamond: boolean) {
-        console.log('Load Game Data Call');
         game.pickedFirstDiamond = picked_first_diamond;
         game.events.emit('loadGame');
     }
@@ -699,8 +695,7 @@ const App: Component = () => {
                         </div>
                     </div>
                 </div>
-                <div id={'main'} class={styles.main} onClick={() => {
-                }}>
+                <div id={'main'} class={styles.main}>
                 </div>
                 <div class={styles.controls}>
                     <a class={styles.gear_normal + " " + styles.gear_left}/>

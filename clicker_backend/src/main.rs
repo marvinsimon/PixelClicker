@@ -33,6 +33,7 @@ use crate::game_state::GameState;
 
 mod game_events;
 mod game_state;
+mod unit_tests;
 
 const SECONDS_DAY: i64 = 84600;
 

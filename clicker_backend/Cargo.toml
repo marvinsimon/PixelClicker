@@ -6,19 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.66"
-axum = { version = "0.6.0-rc.2", features = ["ws"] }
+anyhow = "1.0.68"
+axum = { version = "0.6.2", features = ["ws"] }
 axum-auth = "0.4.0"
 axum_database_sessions = { version = "5.0.0" }
-axum_sessions_auth = "5.0.0"
+axum_sessions_auth = "5.0.1"
 dashmap = "5.4.0"
-serde = { version = "1.0.150", features = ["derive"] }
-serde_json = "1.0.89"
+serde = { version = "1.0.152", features = ["derive"] }
+serde_json = "1.0.91"
 sqlx = { version = "0.6.2", features = ["json", "chrono"] }
-tokio = { version = "1.23", features = ["full"] }
+tokio = { version = "1.24.1", features = ["full"] }
 tower-http = { version = "0.3.5", features = ["cors"] }
-typescript-type-def = "0.5.4"
+typescript-type-def = "0.5.5"
 argon2 = "0.4.1"
 rand_core = { version = "0.6.4", features = ["std"] }
-regex = "1"
-rustrict = "0.5.8"
+regex = "1.7.1"
+rustrict = "0.5.10"

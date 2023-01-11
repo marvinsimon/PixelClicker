@@ -35,7 +35,7 @@ pub enum ServerMessages {
     MinedOffline{ore: u64, depth: u64},
     TreasureFound{ore: u64},
     DiamondFound{diamond: i32},
-    GameData { picked_first_diamond: bool }
+    GameData { picked_first_diamond: bool },
     SetUsername { username: String },
 
 }

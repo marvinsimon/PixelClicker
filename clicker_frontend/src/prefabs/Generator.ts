@@ -270,7 +270,6 @@ export default class Generator {
 
         // Add collision between drill and first floor layer
         this.collision = this.scene.physics.add.collider(this.drill, this.layers.floor[0]);
-        console.log(this.layers.floor);
 
         // Create drill animation
         this.scene.anims.create({
@@ -513,14 +512,15 @@ export default class Generator {
     appendPickups(x: number, y: number) {
         let spr;
         let randomBones = 80;
+        let randomTreasure = 200;
+        let randomDiamond = 1000;
         let pointer = this.scene.input.mousePointer;
         if (this.pickedFirstDiamond) {
-            this.randomDiamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
+            this.randomDiamond = Math.floor(Math.random() * (randomDiamond - 1 + 1)) + 1;
         }
-        if (this.scene.depth >= 20 && this.randomDiamond == 1) {
-            this.randomDiamond = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
-            console.log('Create Diamond');
-            spr = this.scene.add.sprite(x, y, 'randomDiamond');
+        if (this.scene.depth >= 500 && this.randomDiamond == 1) {
+            this.randomDiamond = Math.floor(Math.random() * (randomDiamond - 1 + 1)) + 1;
+            spr = this.scene.add.sprite(x, y, 'diamond');
             spr.setInteractive({cursor: 'url(src/assets/img/hand_cursor_small.png), pointer'});
             spr.on('pointerdown', (event: any) => {
                 this.pickedFirstDiamond = true;
@@ -534,7 +534,7 @@ export default class Generator {
                 });
                 event.stopImmediatePropagation();
             });
-        } else if (Math.floor(Math.random() * (randomBones - 1 + 1)) + 1 === 10) {
+        } else if (Math.floor(Math.random() * (randomTreasure - 1 + 1)) + 1 === 10) {
             spr = this.scene.add.sprite(x, y, 'bones1');
             spr.setInteractive({cursor: 'url(src/assets/img/hand_cursor_small.png), pointer'});
             spr.on('pointerdown', (event: any) => {
@@ -618,7 +618,6 @@ export default class Generator {
         if (this.scene.loggedIn) {
             this.pickedFirstDiamond = this.gameInstance.pickedFirstDiamond;
             this.barRowCounter = Math.floor(this.scene.depth / 5 < 10 ? this.scene.depth / 5 : 10);
-            console.log('Bar Counter: ', this.barRowCounter);
             for (let i = 0; i < 10 && i < Math.floor(this.scene.depth / 5); i++) {
                 // this.checkDepth(this.scene.depth);
                 this.destroyFloor();

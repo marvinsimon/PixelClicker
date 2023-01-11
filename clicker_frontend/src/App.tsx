@@ -771,7 +771,6 @@ const App: Component = () => {
                                           setShowMining(true);
                                           hide();
                                           rotateGearIn();
-                                          console.log("Automation: " + automation_on());
                                       }} class={styles.button}>Mining
                                       </button>
                                   </div>

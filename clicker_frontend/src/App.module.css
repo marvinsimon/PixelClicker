@@ -35,11 +35,44 @@
 
 .woodBar {
     grid-area: bar;
-    z-index: 40;
+    z-index: 20;
     display: flex;
     background-image: url("src/assets/img/wood_bar_new.png");
     background-size: contain;
 }
+
+.dropdown {
+    float: right;
+    position: relative;
+    display: inline-block;
+
+}
+
+.dropdowncntnt {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    right: 0;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 60;
+}
+
+.dropdowncntnt a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    z-index: 60;
+}
+
+.dropdowncntnt a:hover {
+    background-color: #ddd;
+    cursor: pointer;
+}
+
+.show {display: block;}
 
 .main {
     grid-area: main;

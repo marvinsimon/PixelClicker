@@ -20,10 +20,12 @@ const App: Component = () => {
 
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
+    let username_field: HTMLInputElement;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
     const [depth, setDepth] = createSignal(0);
+    const [username, setUsername] = createSignal("")
     //PopUp Variable
     const [show, setShow] = createSignal(false);
     const [innershow, setInnerShow] = createSignal(false);
@@ -61,85 +63,104 @@ const App: Component = () => {
         socket = new WebSocket("ws://localhost:3001/game");
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
-            if (typeof event === 'object') {
-                if ("NewState" in event) {
+            const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
+            let arr = (msg.data as string).match(re)![0];
+            switch (arr) {
+                case "NewState":
                     console.log(event.NewState);
                     setOre(event.NewState.ore);
                     setDepth(event.NewState.depth);
                     game.depth = depth();
-                } else if ("ShovelDepthUpgraded" in event) {
+                    break;
+                case "ShovelDepthUpgraded":
                     console.log(event.ShovelDepthUpgraded);
                     setShovelDepth(event.ShovelDepthUpgraded.new_level);
                     if (event.ShovelDepthUpgraded.success) {
                         subtractCost(formatNumbers(shovelDepthPrice()));
                     }
                     setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
-                } else if ("ShovelAmountUpgraded" in event) {
+                    break;
+                case "ShovelAmountUpgraded":
                     console.log(event.ShovelAmountUpgraded);
                     setShovelAmount(event.ShovelAmountUpgraded.new_level);
                     if (event.ShovelAmountUpgraded.success) {
                         subtractCost(formatNumbers(shovelAmountPrice()));
                     }
                     setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
-                } else if ("AutomationDepthUpgraded" in event) {
+                    break;
+                case "AutomationStarted":
+                    setAutomation(event.AutomationStarted.success);
+                    if (event.AutomationStarted.success) {
+                        subtractCost("200");
+                        startAutomation();
+                    }
+                    break;
+                case "AutomationDepthUpgraded":
                     console.log(event.AutomationDepthUpgraded);
                     setAutoDepth(event.AutomationDepthUpgraded.new_level);
                     if (event.AutomationDepthUpgraded.success) {
                         subtractCost(formatNumbers(autoDepthPrice()));
                     }
                     setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
-                } else if ("AutomationAmountUpgraded" in event) {
+                    break;
+                case "AutomationAmountUpgraded":
                     console.log(event.AutomationAmountUpgraded);
                     setAutoAmount(event.AutomationAmountUpgraded.new_level);
                     if (event.AutomationAmountUpgraded.success) {
                         subtractCost(formatNumbers(autoAmountPrice()));
                     }
                     setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
-                } else if ("AttackLevelUpgraded" in event) {
+                    break;
+                case "AttackLevelUpgraded":
                     console.log(event.AttackLevelUpgraded);
                     setAttackLevel(event.AttackLevelUpgraded.new_level);
                     if (event.AttackLevelUpgraded.success) {
                         subtractCost(formatNumbers(attackPrice()));
                     }
                     setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
-                } else if ("DefenceLevelUpgraded" in event) {
+                    break;
+                case "DefenceLevelUpgraded":
                     console.log(event.DefenceLevelUpgraded);
                     setDefenceLevel(event.DefenceLevelUpgraded.new_level);
                     if (event.DefenceLevelUpgraded.success) {
                         subtractCost(formatNumbers(defencePrice()));
                     }
                     setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
-                } else if ("LoginState" in event) {
-                    console.log(event.LoginState);
-                    setLoginStates(event.LoginState);
-                } else if ("CombatElapsed" in event) {
+                    break;
+                case "CombatElapsed":
                     console.log(event.CombatElapsed);
                     lootArrived(event.CombatElapsed);
-                } else if ("LoggedIn" in event) {
-                    console.log("Still logged in");
+                    break;
+                case "LoginState":
+                    console.log(event.LoginState);
+                    setLoginStates(event.LoginState);
+                    break;
+                case "LoggedIn":
+                    console.log("Still logged in")
                     setAuth(true);
                     setLoggedIn(true);
-                } else if ("AutomationStarted" in event) {
-                    setAutomation(event.AutomationStarted.success);
-                    if (event.AutomationStarted.success) {
-                        subtractCost("200");
-                        startAutomation();
-                    }
-                } else if ("MinedOffline" in event) {
-                    console.log("Got offline resources");
+                    break;
+                case "MinedOffline":
+                    console.log("Got offline resources")
                     setTotalDepth(event.MinedOffline.depth);
                     setTotalAmount(event.MinedOffline.ore);
                     setShowOfflineResources(true);
-                } else if ('TreasureFound' in event) {
+                    break;
+                case "SetUsername":
+                    setUsername(event.SetUsername.username);
+                    break;
+                case "TreasureFound":
                     console.log('Treasure found');
                     setOre(event.TreasureFound.ore);
-                } else if ('DiamondFound' in event) {
+                    break;
+                case "DiamondFound":
                     console.log('Diamond found');
                     setDiamond(event.DiamondFound.diamond);
-                } else if ('GameData' in event) {
+                    break;
+                case "GameData":
                     console.log('Load game data');
                     loadGameData(event.GameData.picked_first_diamond);
-                }
+                    break;
             }
         }
         socket.onopen = () => {
@@ -383,18 +404,27 @@ const App: Component = () => {
 
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
+        let username = username_field.value;
+        console.log(username);
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
-            headers: {Authorization: `Basic ${auth}`},
+            headers: {Authorization: `Basic ${auth}`, Username: username}
         });
         console.log(`sign_up: ${response.statusText}`);
-        if (response.ok) {
-            setLoggedIn(true);
-            setAuth(true);
-        } else if (response.status == 400) {
-            badStatusPopup();
-            console.log('Bad Request');
+        switch (response.status) {
+            case 200:   //OK
+                setLoggedIn(true);
+                setAuth(true);
+                setUsername(username);
+                break;
+            case 400:   //Bad_Request
+                setBad_request_bool(true);
+                console.log('Bad Request');
+                break;
+            case 406:   //Not_Acceptable
+                //email did not follow form [abc]@[nop].[xyz] or username was inappropriate
+                break;
         }
     }
 
@@ -408,13 +438,17 @@ const App: Component = () => {
                 headers: {Authorization: `Basic ${auth}`},
             });
             console.log(`login: ${response.statusText}`);
-            if (response.ok) {
-                await connectBackend();
-                setLoggedIn(true);
-                setAuth(true);
-            } else if (response.status == 401) {
-                badStatusPopup();
-                console.log('Unauthorized');
+            switch (response.status) {
+                case 200:
+                    await connectBackend();
+                    setLoggedIn(true);
+                    setAuth(true);
+                    break;
+                case 401:
+                    //credentials did not match any existing user
+                    setUnauthorized(true);
+                    console.log('Unauthorized');
+                    break;
             }
         }
     }
@@ -431,6 +465,7 @@ const App: Component = () => {
                 setLoggedIn(false);
                 setAuth(false);
                 game.events.emit('logOut');
+                setUsername("")
                 await connectBackend();
             }
         } else {
@@ -448,7 +483,7 @@ const App: Component = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
     }
 
-    const unHide = () => {
+    const unhide = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
     }
 
@@ -599,6 +634,9 @@ const App: Component = () => {
     function startAutomation() {
         game.automation = true;
         game.events.emit('startAutomate');
+
+    const dropdown = async () => {
+        document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
     return (
@@ -610,17 +648,21 @@ const App: Component = () => {
                 </div>
                 <div class={styles.header}>
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <label>{username()}</label>
                     <Show when={!loggedIn()}
-                          fallback={<button id="signOut" class={styles.User_symbol} onClick={() => {
-                              void sign_out();
-                              setShow(false);
-                              setInnerShow(false)
-                          }}></button>} keyed>
-                        <button onClick={(e) => {
-                            setShow(true);
-                            void playButtonSound()
-                        }} class={styles.button_sign_up}>Login
-                        </button>
+                      fallback={
+                        <div>
+                            <button class={styles.User_symbol} onClick={() => {
+                                dropdown();
+                            }}></button>
+                            <div id="myDropdown" class={styles.dropdowncntnt}>
+                                <a>Profile</a>
+                                <a>Background</a>
+                                <a onClick={() => {sign_out();setShow(false);setInnerShow(false);}}>Log out</a>
+                            </div>
+                        </div>
+                      }>
+                        <button onClick={(e) => {setShow(true);void playButtonSound()}} class={styles.button_sign_up}>Login</button>
                         <Show when={show()}
                               fallback={""} keyed>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
@@ -628,7 +670,7 @@ const App: Component = () => {
                                     <h3>Login</h3>
                                 </div>
                                 <input type="text" ref={email_field!} style="width: 300px;"
-                                       placeholder="email.."/>
+                                       placeholder="email or username.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Log In" onClick={login}/>
@@ -656,6 +698,8 @@ const App: Component = () => {
                                 </div>
                                 <input type="text" ref={email_field!} style="width: 300px;"
                                        placeholder="email.."/>
+                                <input type="text" ref={username_field!} style="width: 300px;"
+                                       placeholder="username.."/>
                                 <input type="password" ref={password_field!} style="width: 300px;"
                                        placeholder="password.."/>
                                 <input type="submit" value="Sign Up" onClick={sign_up}/>
@@ -721,7 +765,7 @@ const App: Component = () => {
                                     slideOut();
                                     window.setTimeout(function () {
                                         setShowPVP(false);
-                                        unHide();
+                                        unhide();
                                     }, 1300);
                                     rotateGearOut();
                                 }}>
@@ -785,7 +829,7 @@ const App: Component = () => {
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
-                                    unHide();
+                                    unhide();
                                 }, 1300);
                                 rotateGearOut();
                             }}>

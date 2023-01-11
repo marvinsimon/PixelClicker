@@ -15,6 +15,7 @@ pub struct GameState {
     pub automation_started: bool,
     pub diamond: i32,
     pub picked_first_diamond: bool,
+    pub is_dummy: bool,
 }
 
 impl GameState {
@@ -201,6 +202,7 @@ impl GameState {
             automation_started: false,
             diamond: 0,
             picked_first_diamond: false
+            is_dummy: false,
         }
     }
 }

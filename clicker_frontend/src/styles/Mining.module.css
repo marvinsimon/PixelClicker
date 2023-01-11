@@ -2,7 +2,7 @@
 }
 
 .label_mine {
-    font-size: 1.8vw;
+    font-size: 1.7vw;
     top: -8%;
     left: 11%;
 }
@@ -15,10 +15,10 @@
 }
 
 .upgrade_speed {
-    top: 40.25%;
+    top: 43.5%;
     height: 24%;
     width: 77%;
-    left: -3.5%;
+    left: -1.5%;
     font-size: 3.25vw;
     overflow: visible;
 }
@@ -32,8 +32,9 @@
 }
 
 .label_speed_level {
-    top: 49.5%;
-    right: 24%;
+    top: 52.5%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 .icon_upgrade_amount {
@@ -44,10 +45,10 @@
 }
 
 .upgrade_amount {
-    top: 57.75%;
+    top: 58.3%;
     height: 24%;
     width: 77%;
-    left: -3.5%;
+    left: -1.5%;
     font-size: 3.25vw;
     overflow: visible;
 }
@@ -61,16 +62,17 @@
 }
 
 .label_amount_level {
-    top: 66.75%;
-    right: 24%;
+    top: 67.2%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 .automate {
-    top: 75%;
+    top: 73%;
     height: 24%;
     width: 100%;
     font-size: 3.2vw;
-    left: -11.5%;
+    left: -9.5%;
     overflow: visible;
 }
 
@@ -82,39 +84,39 @@
 }
 
 .label_automate_cost {
-    top: 84%;
-    right: 24%;
+    top: 82%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 .label_automate {
-    top: 84.5%;
-    font-size: 1.4vw;
+    top: 82.25%;
+    font-size: 1.3vw;
 }
 
 .auto_label_board {
-    top: 26.5%;
+    top: 24.5%;
     position: absolute;
     background-image: url("src/assets/img/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    width: 35%;
+    width: 33%;
     height: 12%;
-    -webkit-box-shadow: 1px 3px 4px #000;
 }
 
 .label_auto {
-    font-size: 1.4vw;
+    font-size: 1.3vw;
     top: 13%;
     left: 4%;
 }
 
 .upgrade_automate_speed {
     height: 42%;
-    top: 27%;
+    top: 32.5%;
     width: 77%;
-    left: -3.5%;
+    left: -1.5%;
     font-size: 3.25vw;
     overflow: visible;
 }
@@ -135,15 +137,16 @@
 }
 
 .label_speed_automate_level {
-    top: 42.5%;
-    right: 24%;
+    top: 48.5%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 .upgrade_automate_amount {
     height: 42%;
-    top: 57.5%;
+    top: 54.5%;
     width: 77%;
-    left: -3.5%;
+    left: -1.5%;
     font-size: 3.25vw;
     overflow: visible;
 }
@@ -164,17 +167,26 @@
 }
 
 .label_amount_automate_level {
-    top: 72.5%;
-    right: 24%;
+    top: 70.5%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 @media (min-width: 2000px) {
     .label_mine {
-        font-size: 36px;
+        font-size: 34px;
     }
 
     .upgrade_amount {
         font-size: 64px;
+    }
+
+    .label_speed_level {
+        font-size: 30px;
+    }
+
+    .label_amount_level {
+        font-size: 30px;
     }
 
     .upgrade_speed {
@@ -194,10 +206,18 @@
     }
 
     .label_auto {
-        font-size: 28px;
+        font-size: 26px;
     }
 
     .label_automate {
-        font-size: 28px;
+        font-size: 26px;
+    }
+
+    .label_amount_automate_level {
+        font-size: 30px;
+    }
+
+    .label_speed_automate_level {
+        font-size: 30px;
     }
 }

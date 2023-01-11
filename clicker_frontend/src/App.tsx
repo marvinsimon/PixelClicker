@@ -6,9 +6,9 @@ import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/img/ClickerRoyale_Wappen.png";
-import board from "./assets/img/Brettmiticon.png";
-import board_right from "./assets/img/Brett2.png";
-import small_board from "./assets/img/small_brett.png";
+import board from "./assets/img/board_with_icons.png";
+import board_right from "./assets/img/Brett_Neu_test.png";
+import small_board from "./assets/img/board_new_small.png";
 import buttonSound from "./assets/audio/button_click.mp3";
 
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
@@ -524,7 +524,7 @@ const App: Component = () => {
     }
     const startTimer = async () => {
         let seconds: string | number = 9;
-        let minutes: string | number = 1;
+        let minutes: string | number = 10;
         let timeLeft = minutes * seconds;
         let combatTime = setInterval(function () {
             minutes = parseInt(String(timeLeft / 60), 10);
@@ -651,19 +651,27 @@ const App: Component = () => {
                     <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
-                      fallback={
-                        <div>
-                            <button class={styles.User_symbol} onClick={() => {
-                                dropdown();
-                            }}></button>
-                            <div id="myDropdown" class={styles.dropdowncntnt}>
-                                <a>Profile</a>
-                                <a>Background</a>
-                                <a onClick={() => {sign_out();setShow(false);setInnerShow(false);}}>Log out</a>
-                            </div>
-                        </div>
-                      }>
-                        <button onClick={(e) => {setShow(true);void playButtonSound()}} class={styles.button_sign_up}>Login</button>
+                          fallback={
+                              <div>
+                                  <button class={styles.User_symbol} onClick={() => {
+                                      dropdown();
+                                  }}></button>
+                                  <div id="myDropdown" class={styles.dropdowncntnt}>
+                                      <a>Profile</a>
+                                      <a>Background</a>
+                                      <a onClick={() => {
+                                          sign_out();
+                                          setShow(false);
+                                          setInnerShow(false);
+                                      }}>Log out</a>
+                                  </div>
+                              </div>
+                          } keyed>
+                        <button onClick={(e) => {
+                            setShow(true);
+                            void playButtonSound()
+                        }} class={styles.button_sign_up}>Login
+                        </button>
                         <Show when={show()}
                               fallback={""} keyed>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>

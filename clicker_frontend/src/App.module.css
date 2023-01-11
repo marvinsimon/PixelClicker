@@ -55,7 +55,7 @@
     min-width: 160px;
     overflow: auto;
     right: 0;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 60;
 }
 
@@ -72,7 +72,9 @@
     cursor: pointer;
 }
 
-.show {display: block;}
+.show {
+    display: block;
+}
 
 .main {
     grid-area: main;
@@ -297,11 +299,6 @@ input[type=submit]:active {
     border-radius: 13px;
 }
 
-.time {
-    top: 84%;
-    right: 30%;
-}
-
 .label_header {
     position: absolute;
     color: white;
@@ -317,18 +314,22 @@ input[type=submit]:active {
     -1px 0 0 #000;
 }
 
+.time {
+    top: 81.7%;
+    right: 33%;
+    font-size: 1.5vw;
+}
+
 .label_board {
-    top: 40%;
+    top: 38%;
     position: absolute;
     background-image: url("src/assets/img/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    width: 35%;
+    width: 33%;
     height: 7%;
-    justify-content: center;
-    align-items: center;
 }
 
 .icon_upgrade {
@@ -359,7 +360,7 @@ input[type=submit]:active {
 
 .button_close {
     position: absolute;
-    top: 93.3%;
+    top: 94%;
     background-image: url("src/assets/img/wood_label_close.png");
     background-color: transparent;
     background-position: center center;
@@ -420,6 +421,11 @@ input[type=submit]:active {
         position: absolute;
         right: -23.7%;
         bottom: 0;
+    }
+
+    .User_symbol {
+        height: 80px;
+        width: 80px;
     }
 
     .gear_rotate_counterClockwise {
@@ -492,6 +498,10 @@ input[type=submit]:active {
         font-size: 32px;
     }
 
+    .time {
+        font-size: 30px;
+    }
+
     .modal {
         position: absolute;
         left: 1000px;
@@ -559,8 +569,7 @@ input[type=submit]:active {
 }
 
 .board_img_right {
-    height: 100%;
-    width: 75%;
+    width: 65%;
 }
 
 .image_container {
@@ -580,6 +589,7 @@ input[type=submit]:active {
     justify-content: center;
     z-index: 3;
     overflow: visible;
+    top: 3%;
 }
 
 @keyframes slideIn {
@@ -607,6 +617,7 @@ input[type=submit]:active {
     justify-content: center;
     z-index: 3;
     overflow: visible;
+    top: 3%;
 }
 
 @keyframes slideOut {
@@ -684,8 +695,7 @@ input[type=submit]:active {
 }
 
 .board_img_automate {
-    height: 100%;
-    width: 75%;
+    width: 65%;
 }
 
 .image_container_automate {
@@ -704,7 +714,7 @@ input[type=submit]:active {
     display: flex;
     justify-content: center;
     z-index: -2;
-    top: 23%
+    top: 13%;
 }
 
 @keyframes slideInAutomate {
@@ -731,6 +741,7 @@ input[type=submit]:active {
     display: flex;
     justify-content: center;
     z-index: -2;
+    top: -13%;
 }
 
 @keyframes slideOutAutomate {

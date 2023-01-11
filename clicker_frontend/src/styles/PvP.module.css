@@ -15,10 +15,10 @@
 }
 
 .upgrade_attack {
-    top: 40.25%;
+    top: 43.5%;
     height: 24%;
     width: 77%;
-    left: -3.5%;
+    left: -1.5%;
     font-size: 3.25vw;
     overflow: visible;
 }
@@ -32,13 +32,14 @@
 }
 
 .label_attack_level {
-    top: 49%;
-    right: 24%;
+    top: 52.5%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 .attack_ore {
-    top: 50%;
-    left: 78%;
+    top: 53.7%;
+    left: 71%;
 }
 
 .icon_upgrade_defence {
@@ -49,10 +50,10 @@
 }
 
 .upgrade_defence {
-    top: 57.75%;
+    top: 58.3%;
     height: 24%;
     width: 77%;
-    left: -3.5%;
+    left: -1.5%;
     font-size: 3.25vw;
     overflow: visible;
 }
@@ -66,12 +67,13 @@
 }
 
 .label_defence_level {
-    top: 66.25%;
-    right: 24%;
+    top: 67.2%;
+    right: 30%;
+    font-size: 1.5vw;
 }
 
 .pvp_attack {
-    top: 74%;
+    top: 72%;
     background-image: url("src/assets/img/attack_button.png");
     height: 26%;
     width: 122%;
@@ -88,7 +90,7 @@
     justify-content: center;
     align-items: center;
     position: absolute;
-    top: 83.3%;
+    top: 81%;
     left: 33%;
 }
 
@@ -160,5 +162,34 @@
 
     .upgrade_defence {
         font-size: 65px;
+    }
+
+    .label_attack_level {
+        font-size: 30px;
+    }
+
+    .label_defence_level {
+        font-size: 30px;
+    }
+
+    .pvp_clock {
+        width: 50px;
+        height: 50px;
+        border: 3px solid #000;
+    }
+
+    .firstHand {
+        width: 8px;
+        height: 24px;
+    }
+
+    .secondHand:before {
+        width: 22px;
+        height: 4px;
+    }
+
+    .secondHand:after {
+        width: 7px;
+        height: 7px;
     }
 }

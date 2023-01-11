@@ -524,7 +524,7 @@ const App: Component = () => {
     }
     const startTimer = async () => {
         let seconds: string | number = 9;
-        let minutes: string | number = 10;
+        let minutes: string | number = 1;
         let timeLeft = minutes * seconds;
         let combatTime = setInterval(function () {
             minutes = parseInt(String(timeLeft / 60), 10);
@@ -802,6 +802,7 @@ const App: Component = () => {
                                 </button>
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_defence_level}>{formatNumbers(defencePrice())}</label>
+                                <a class={styles.ore + " " + pvpModule.defence_ore}></a>
                                 <Show when={attacked()}
                                       fallback={<button class={styles.button + " " + pvpModule.pvp_attack}
                                                         onClick={attack}></button>} keyed>
@@ -856,7 +857,7 @@ const App: Component = () => {
                             </button>
                             <label
                                 class={styles.label_header + " " + mineModule.label_speed_level}>{formatNumbers(shovelDepthPrice())}</label>
-
+                            <a class={styles.ore + " " + mineModule.shovelDepth_ore}></a>
                             <button shovelAmountLvl={'Lv' + shovelAmount()}
                                     class={styles.button + " " + mineModule.upgrade_amount}
                                     onClick={() => {
@@ -866,7 +867,7 @@ const App: Component = () => {
                             </button>
                             <label
                                 class={styles.label_header + " " + mineModule.label_amount_level}>{formatNumbers(shovelAmountPrice())}</label>
-
+                            <a class={styles.ore + " " + mineModule.shovelAmount_ore}></a>
                             <Show when={automation_on()}
                                   fallback={<>
                                       <button class={styles.button + " " + mineModule.automate}
@@ -877,6 +878,7 @@ const App: Component = () => {
                                       </button>
                                       <label
                                           class={styles.label_header + " " + mineModule.label_automate_cost}>200</label>
+                                      <a class={styles.ore + " " + mineModule.automate_ore}></a>
                                   </>} keyed>
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
@@ -896,7 +898,7 @@ const App: Component = () => {
                                         </button>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{formatNumbers(autoDepthPrice())}</label>
-
+                                        <a class={styles.ore + " " + mineModule.autoDepth_ore}></a>
                                         <button autoAmountLvl={'Lv' + autoAmount()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_amount}
                                                 onClick={() => {
@@ -906,6 +908,7 @@ const App: Component = () => {
                                         </button>
                                         <label
                                             class={styles.label_header + " " + mineModule.label_amount_automate_level}>{formatNumbers(autoAmountPrice())}</label>
+                                        <a class={styles.ore + " " + mineModule.autoAmount_ore}></a>
                                     </div>
                                 </div>
                             </Show>

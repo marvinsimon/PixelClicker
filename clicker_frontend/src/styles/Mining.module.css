@@ -37,6 +37,11 @@
     font-size: 1.5vw;
 }
 
+.shovelDepth_ore {
+    top: 53.8%;
+    left: 71%;
+}
+
 .icon_upgrade_amount {
     top: -116%;
     left: 57%;
@@ -67,6 +72,11 @@
     font-size: 1.5vw;
 }
 
+.shovelAmount_ore {
+    top: 68.5%;
+    left: 71%;
+}
+
 .automate {
     top: 73%;
     height: 24%;
@@ -92,6 +102,11 @@
 .label_automate {
     top: 82.25%;
     font-size: 1.3vw;
+}
+
+.automate_ore {
+    top: 83.3%;
+    left: 71%;
 }
 
 .auto_label_board {
@@ -142,6 +157,12 @@
     font-size: 1.5vw;
 }
 
+.autoDepth_ore {
+    top: 50.5%;
+    left: 71%;
+    height: 5.7%;
+}
+
 .upgrade_automate_amount {
     height: 42%;
     top: 54.5%;
@@ -170,6 +191,12 @@
     top: 70.5%;
     right: 30%;
     font-size: 1.5vw;
+}
+
+.autoAmount_ore {
+    top: 72.5%;
+    left: 71%;
+    height: 5.7%;
 }
 
 @media (min-width: 2000px) {

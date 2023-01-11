@@ -19,6 +19,7 @@ const App: Component = () => {
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
     let username_field: HTMLInputElement;
+    let uploaded_image: any;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
@@ -62,61 +63,66 @@ const App: Component = () => {
             const event: ServerMessages = JSON.parse(msg.data as string);
             const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
             let arr = (msg.data as string).match(re)![0];
-            switch (arr) {
-                case "NewState":
-                    console.log(event.NewState);
-                    setOre(event.NewState.ore);
-                    setDepth(event.NewState.depth);
-                    break;
-                case "ShovelDepthUpgraded":
-                    console.log(event.ShovelDepthUpgraded);
-                    setShovelDepth(event.ShovelDepthUpgraded.new_level);
-                    break;
-                case "ShovelAmountUpgraded":
-                    console.log(event.ShovelAmountUpgraded);
-                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
-                    break;
-                case "AutomationStarted":
-                    setAutomation(event.AutomationStarted.success);
-                    break;
-                case "AutomationDepthUpgraded":
-                    console.log(event.AutomationDepthUpgraded);
-                    setAutoDepth(event.AutomationDepthUpgraded.new_level);
-                    break;
-                case "AutomationAmountUpgraded":
-                    console.log(event.AutomationAmountUpgraded);
-                    setAutoAmount(event.AutomationAmountUpgraded.new_level);
-                    break;
-                case "AttackLevelUpgraded":
-                    console.log(event.AttackLevelUpgraded);
-                    setAttackLevel(event.AttackLevelUpgraded.new_level);
-                    break;
-                case "DefenceLevelUpgraded":
-                    console.log(event.DefenceLevelUpgraded);
-                    setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-                    break;
-                case "CombatElapsed":
-                    console.log(event.CombatElapsed);
-                    lootArrived(event.CombatElapsed);
-                    break;
-                case "LoginState":
-                    console.log(event.LoginState);
-                    setLoginStates(event.LoginState);
-                    break;
-                case "LoggedIn":
-                    console.log("Still logged in")
-                    setAuth(true);
-                    setLoggedIn(true);
-                    break;
-                case "MinedOffline":
-                    console.log("Got offline resources")
-                    setTotalDepth(event.MinedOffline.depth);
-                    setTotalAmount(event.MinedOffline.ore);
-                    setShowOfflineResources(true);
-                    break;
-                case "SetUsername":
-                    setUsername(event.SetUsername.username);
-                    break;
+            if (typeof event === 'object') {
+                switch (arr) {
+                    case "NewState":
+                        console.log(event.NewState);
+                        setOre(event.NewState.ore);
+                        setDepth(event.NewState.depth);
+                        break;
+                    case "ShovelDepthUpgraded":
+                        console.log(event.ShovelDepthUpgraded);
+                        setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                        break;
+                    case "ShovelAmountUpgraded":
+                        console.log(event.ShovelAmountUpgraded);
+                        setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                        break;
+                    case "AutomationStarted":
+                        setAutomation(event.AutomationStarted.success);
+                        break;
+                    case "AutomationDepthUpgraded":
+                        console.log(event.AutomationDepthUpgraded);
+                        setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                        break;
+                    case "AutomationAmountUpgraded":
+                        console.log(event.AutomationAmountUpgraded);
+                        setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                        break;
+                    case "AttackLevelUpgraded":
+                        console.log(event.AttackLevelUpgraded);
+                        setAttackLevel(event.AttackLevelUpgraded.new_level);
+                        break;
+                    case "DefenceLevelUpgraded":
+                        console.log(event.DefenceLevelUpgraded);
+                        setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                        break;
+                    case "CombatElapsed":
+                        console.log(event.CombatElapsed);
+                        lootArrived(event.CombatElapsed);
+                        break;
+                    case "LoginState":
+                        console.log(event.LoginState);
+                        setLoginStates(event.LoginState);
+                        break;
+                    case "LoggedIn":
+                        console.log("Still logged in")
+                        setAuth(true);
+                        setLoggedIn(true);
+                        break;
+                    case "MinedOffline":
+                        console.log("Got offline resources")
+                        setTotalDepth(event.MinedOffline.depth);
+                        setTotalAmount(event.MinedOffline.ore);
+                        setShowOfflineResources(true);
+                        break;
+                    case "SetUsername":
+                        setUsername(event.SetUsername.username);
+                        break;
+                    case "SetProfilePicture":
+                        uploaded_image = event.SetProfilePicture.pfp;
+                        break;
+                }
             }
         }
         socket.onopen = () => {
@@ -310,9 +316,10 @@ const App: Component = () => {
                 setLoggedIn(true);
                 setAuth(true);
                 setUsername(username);
+                uploaded_image = "";
                 break;
             case 400:   //Bad_Request
-                setBad_request_bool(true);
+                //setBad_request_bool(true);
                 console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
@@ -339,7 +346,7 @@ const App: Component = () => {
                     break;
                 case 401:
                     //credentials did not match any existing user
-                    setUnauthorized(true);
+                    //setUnauthorized(true);
                     console.log('Unauthorized');
                     break;
             }
@@ -494,35 +501,18 @@ const App: Component = () => {
     }
 
     const saveImg = async () => {
-        if (document.querySelector("#display_image")!.style.backgroundImage != null){
-            const pfp = document.querySelector("#display_image")!.style.backgroundImage;
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            let u8 =  await imageToUint8Array(pfp, context);
-            let decoder = new TextDecoder('utf8');
-            let b64pfp = btoa(decoder.decode(u8));
-            const response = await fetch("http://localhost:3001/savePfp", {
-                method: "GET",
-                credentials: "include",
-                headers: {pfp: b64pfp},
-            });
-        }
+        const response = await fetch("http://localhost:3001/save_pfp", {
+            method: "GET",
+            credentials: "include",
+            headers: {pfp: uploaded_image},
+        });
     }
 
-    async function imageToUint8Array(image, context) {
-        context.width = image.width;
-        context.height = image.height;
-        context.drawImage(image, 0, 0);
-        const blob = await context.canvas.toBlob(context.canvas, "image/jpeg", 1);
-        return new Uint8Array(await blob.arrayBuffer());
-    }
-
-    function displayPfp() {
+    function loadPfp() {
         const image_input = document.querySelector("#image_input");
-        let uploaded_image;
         image_input!.addEventListener("change", () => {
             const reader = new FileReader();
-            reader.addEventListener("load", ()=>{
+            reader.addEventListener("load", () => {
                 uploaded_image = reader.result;
                 document.querySelector("#display_image")!.style.backgroundImage = `url(${uploaded_image})`;
             });
@@ -530,6 +520,11 @@ const App: Component = () => {
         });
     }
 
+    function displayPfp() {
+        console.log("dispIm: ", uploaded_image);
+        let img = uploaded_image as string;
+        document.querySelector("#display_image")!.style.backgroundImage = `url(${img})`;
+    }
 
     return (
         <div class={styles.App}>
@@ -543,43 +538,51 @@ const App: Component = () => {
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={
-                        <div>
-                            <button class={styles.User_symbol} onClick={() => {
-                                dropdown();
-                            }}></button>
-                            <div id="myDropdown" class={styles.dropdowncntnt}>
-                                <a onClick={(e) => {setShowProfile(true);void playButtonSound()}}>Profile</a>
-                                <a>Background</a>
-                                <a onClick={() => {sign_out();setShow(false);setInnerShow(false);void playButtonSound()}}>Log out</a>
-                            </div>
-                            <Show when={showprofile()}
-                                  fallback={""}>
-                                <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
+                              <div>
+                                  <button class={styles.User_symbol} onClick={() => {
+                                      dropdown();
+                                  }}></button>
+                                  <div id="myDropdown" class={styles.dropdowncntnt}>
+                                      <a onClick={(e) => {
+                                          setShowProfile(true);
+                                          void playButtonSound();
+                                          void displayPfp()
+                                      }}>Profile</a>
+                                      <a>Background</a>
+                                      <a onClick={() => {
+                                          sign_out();
+                                          setShow(false);
+                                          setInnerShow(false);
+                                          void playButtonSound()
+                                      }}>Log out</a>
+                                  </div>
+                                  <Show when={showprofile()}
+                                        fallback={""}>
+                                      <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
+                                          <h3>Profile</h3>
+                                          <div class={styles.flexitem}>
+                                              <input type="file" class={styles.image_input} id="image_input"
+                                                     accept="image/png, image/jpg" onclick={loadPfp}/>
+                                              <div id="display_image" class={styles.displayimage}>
+                                              </div>
+                                              <button onClick={saveImg}>Safe</button>
+                                          </div>
+                                          <div class={styles.flexitem2}>
+                                              <label>Name: Test</label>
+                                              <br/>
+                                              <label>Email: {email_field.value}</label>
+                                          </div>
 
-                                        <h3>Profile</h3>
-                                        <div class={styles.flexitem}>
+                                      </div>
+                                  </Show>
+                              </div>
+                          }>
 
-                                            <input type="file" class={styles.image_input} id="image_input" accept="image/png, image/jpg" onclick={displayPfp}/>
-                                            <div id="display_image" class={styles.displayimage}>
-                                            </div>
-                                            <button onClick={saveImg}>Safe</button>
-
-
-                                        </div>
-
-
-                                        <div class={styles.flexitem2}>
-                                            <label>Name: Test</label>
-                                            <br/>
-                                            <label>Email: {email_field.value}</label>
-                                        </div>
-
-                                </div>
-                            </Show>
-                        </div>
-                    }>
-
-                        <button onClick={(e) => {setShow(true);void playButtonSound()}} class={styles.button_sign_up}>Login</button>
+                        <button onClick={(e) => {
+                            setShow(true);
+                            void playButtonSound()
+                        }} class={styles.button_sign_up}>Login
+                        </button>
                         <Show when={show()}
                               fallback={""}>
                             <div class={styles.modal} use:clickOutside={() => setShow(false)}>
@@ -845,7 +848,8 @@ const App: Component = () => {
                             <label style="font-size:20px"> Your Loot:</label>
                             <div class={styles.grid_loot}>
                                 <div class={styles.grid_loot_icon}></div>
-                                <label class={styles.grid_loot_label} style="font-size:20px">{formatNumbers(loot())}</label>
+                                <label class={styles.grid_loot_label}
+                                       style="font-size:20px">{formatNumbers(loot())}</label>
                             </div>
                         </div>
                     </Show>
@@ -856,11 +860,13 @@ const App: Component = () => {
                             <label style="font-size:20px">Your Offline Loot:</label>
                             <div class={styles.grid_ore}>
                                 <div class={styles.grid_ore_icon}></div>
-                                <label class={styles.grid_ore_label} style="font-size:20px">{formatNumbers(totalAmount())}</label>
+                                <label class={styles.grid_ore_label}
+                                       style="font-size:20px">{formatNumbers(totalAmount())}</label>
                             </div>
                             <div class={styles.grid_depth}>
                                 <div class={styles.grid_depth_icon}></div>
-                                <label class={styles.grid_depth_label} style="font-size:20px">{formatNumbers(totalDepth())}</label>
+                                <label class={styles.grid_depth_label}
+                                       style="font-size:20px">{formatNumbers(totalDepth())}</label>
                             </div>
                         </div>
                     </Show>

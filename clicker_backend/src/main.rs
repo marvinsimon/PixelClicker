@@ -301,6 +301,7 @@ async fn update_profile_picture(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
+    println!("Setting PFP!");
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         let extracted_pfp = pfp.get("pfp").unwrap().to_str().unwrap();
         if (sqlx::query!(

@@ -634,6 +634,7 @@ const App: Component = () => {
     function startAutomation() {
         game.automation = true;
         game.events.emit('startAutomate');
+    }
 
     const dropdown = async () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)

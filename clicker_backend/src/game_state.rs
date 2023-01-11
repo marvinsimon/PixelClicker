@@ -201,7 +201,7 @@ impl GameState {
             defence_level: 1,
             automation_started: false,
             diamond: 0,
-            picked_first_diamond: false
+            picked_first_diamond: false,
             is_dummy: false,
         }
     }

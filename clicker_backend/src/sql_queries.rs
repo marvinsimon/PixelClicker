@@ -91,13 +91,12 @@ pub async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
 pub async fn write_state_diff_to_database(id: i64, ore: f64, depth: f64, pool: &PgPool) {
     let i_ore = ore as i64;
     let i_depth = depth as i64;
-    if (sqlx::query!(
+    sqlx::query!(
         "UPDATE player SET offline_ore = $1, offline_depth = $2 WHERE id = $3;",
         i_ore,
         i_depth,
         id,
-    ).execute(pool)
-        .await).is_ok() {}
+    ).execute(pool).await.expect("DB problems");
 }
 
 pub async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
@@ -111,18 +110,33 @@ pub async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState 
 }
 
 pub async fn save_score_to_database(id: i64, pool: &PgPool, score_value: i64) {
-    if (sqlx::query!(
+    sqlx::query!(
         "UPDATE player SET pvp_score = $1 WHERE id = $2;",
         score_value,
         id,
     ).execute(pool)
-        .await).is_ok() {}
+        .await.expect("DB problem");
 }
 
 pub async fn set_player_as_offline(id: i64, pool: &PgPool) {
-    if (sqlx::query!(
+    sqlx::query!(
         "UPDATE player SET is_online = false WHERE id = $1;",
         id,
-    ).execute(pool)
-        .await).is_ok() {}
+    ).execute(pool).await.expect("DB problem");
+}
+
+pub async fn test_for_new_registry(id: i64, pool: &PgPool) -> bool {
+    sqlx::query!(
+        "SELECT is_new FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await.unwrap().is_new
+}
+
+pub async fn no_players_in_db(pool: &PgPool) -> bool {
+    sqlx::query!(
+        "SELECT * FROM player;"
+    ).fetch_optional(pool)
+        .await.expect("DB failure").is_none()
 }

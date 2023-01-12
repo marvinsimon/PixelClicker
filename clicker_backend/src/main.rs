@@ -1,43 +1,35 @@
-use std::{net::SocketAddr, time::Duration};
-use std::io::{BufReader, Read, Write};
+use std::time::Duration;
 
 use axum::{
     Extension,
     extract::ws::{Message, WebSocket, WebSocketUpgrade},
     http::StatusCode,
     response::Response,
-    Router, routing::get,
 };
 use axum::http::HeaderMap;
-
-use argon2::{
-    password_hash::{
-        rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString,
-    },
-    Argon2,
-};
-
 use axum_auth::AuthBasic;
-use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
+use axum_database_sessions::{AxumPgPool, AxumSession};
 use regex::Regex;
 use rustrict::CensorStr;
-
-use sqlx::{PgPool, Pool};
+use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
 use tokio::time::Instant;
-use tower_http::cors::CorsLayer;
 
+use crate::events::daily_event;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
-use crate::events::daily_event;
-use crate::sql_queries::{insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_for_enemy, set_player_as_offline, set_player_as_online, write_state_diff_to_database};
+use crate::password_management::{hash_password, verify_password};
+use crate::server::{create_session_table, start_server};
+use crate::sql_queries::{insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_for_enemy, set_player_as_offline, set_player_as_online, test_for_new_registry, write_state_diff_to_database};
+use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
 
 mod game_messages;
 mod game_state;
 mod events;
-mod unit_tests;
 mod sql_queries;
+mod password_management;
+mod startup;
+mod server;
 
 const SECONDS_DAY: i64 = 84600;
 
@@ -45,85 +37,21 @@ const PLAYER_AUTH: &str = "player-auth";
 
 #[tokio::main]
 async fn main() {
-    #[cfg(debug_assertions)]
-    {
-        use typescript_type_def::{write_definition_file, DefinitionFileOptions};
-        type Api = (ServerMessages, ClientMessages);
-        let ts_module = {
-            let mut buf = Vec::new();
-            let options = DefinitionFileOptions {
-                root_namespace: None,
-                ..Default::default()
-            };
-            write_definition_file::<_, Api>(&mut buf, options).unwrap();
-            String::from_utf8(buf).unwrap()
-        };
-
-        std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
-    }
-
-    let key = std::fs::File::open("master-key")
-        .ok()
-        .and_then(|file| {
-            let mut reader = BufReader::new(file);
-            let mut buffer = Vec::new();
-            reader.read_to_end(&mut buffer).expect("could not read key");
-            Key::try_from(buffer.as_slice()).ok()
-        })
-        .unwrap_or_else(|| {
-            let key = Key::generate();
-            let file = std::fs::File::options()
-                .create(true)
-                .write(true)
-                .append(false)
-                .open("master-key");
-            if let Ok(mut file) = file {
-                file.write_all(key.master())
-                    .expect("could not write key to file");
-            }
-            key
-        });
 
     let pool = connect_to_database().await.unwrap();
-    let session_config = AxumSessionConfig::default()
-        .with_table_name("session_table")
-        .with_key(key);
 
-    let session_store = AxumSessionStore::<AxumPgPool>::new(Some(pool.clone().into()), session_config);
-
-    //Create the Database table for storing our Session Data.
-    session_store.initiate().await.unwrap();
-    // build our application with a route
-    #[allow(unused_mut)]
-        let mut app = Router::new()
-        // `GET /` goes to `root`
-        .route("/", get(root))
-        .route("/game", get(connect_game))
-        .route("/sign_up", get(sign_up))
-        .route("/login", get(login))
-        .route("/logout", get(logout))
-        .route("/combat", get(attack))
-        .layer(Extension(pool.clone()))
-        .layer(AxumSessionLayer::new(session_store));
-
-    #[cfg(debug_assertions)]
-    {
-        app = app.layer(CorsLayer::very_permissive().allow_credentials(true));
-    }
-    
+    create_game_message_file_type_script();
     //Initialize Events
     daily_event(&pool).await;
 
-    // run our app with hyper
-    // `axum::Server` is a re-export of `hyper::Server`
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3001));
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    //Check for dummy players
+    check_for_players(&pool).await;
+
+    start_server(&pool, create_session_table(create_session_key(), &pool).await).await;
 }
 
-async fn connect_to_database() -> anyhow::Result<Pool<sqlx::Postgres>> {
+
+async fn connect_to_database() -> anyhow::Result<Pool<Postgres>> {
     Ok(Pool::connect("postgresql://admin:clickerroyale@localhost:5432/royal-db").await?)
 }
 
@@ -145,7 +73,7 @@ async fn login(
         .await
     {
         Ok(Some(record)) => {
-            if !check_password(record.password, password.unwrap().as_bytes()) {
+            if !verify_password(record.password, password.unwrap().as_bytes()) {
                 return StatusCode::UNAUTHORIZED;
             }
             session.set(PLAYER_AUTH, record.id);
@@ -178,21 +106,6 @@ async fn login(
 }
 
 
-fn hash_password(password: &[u8]) -> String {
-    let argon2 = Argon2::default();
-    let salt = SaltString::generate(OsRng);
-    let password_hash = argon2.hash_password(password, &salt).unwrap().to_string();
-    let parsed_hash = PasswordHash::new(&password_hash).unwrap();
-    assert!(Argon2::default().verify_password(password, &parsed_hash).is_ok());
-    password_hash
-}
-
-fn check_password(password_hash: String, password: &[u8]) -> bool {
-    let parsed_hash = PasswordHash::new(&password_hash).unwrap();
-    Argon2::default().verify_password(password, &parsed_hash).is_ok()
-}
-
-
 async fn sign_up(
     AuthBasic((email, password)): AuthBasic, username: HeaderMap,
     session: AxumSession<AxumPgPool>,
@@ -212,7 +125,7 @@ async fn sign_up(
             let game_state_value = serde_json::to_value(&game_state).unwrap();
             let extracted_username = username.get("Username").unwrap().to_str().unwrap();
             let inappropriate: bool = extracted_username.is_inappropriate();
-            if email_regex.is_match(&email) && !inappropriate{
+            if email_regex.is_match(&email) && !inappropriate {
                 return match sqlx::query!(
                 "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
                 email,
@@ -282,10 +195,7 @@ async fn attack(
                     if (sqlx::query!(
                 "DELETE FROM PVP WHERE id_att = $1",
                 id
-            )
-                        .execute(&pool)
-                        .await).is_ok()
-                    {
+            ).execute(&pool).await).is_ok() {
                         println!("No match found!");
                         return StatusCode::NO_CONTENT;
                     }
@@ -308,13 +218,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut logged_in = false;
     let mut interval = Instant::now();
 
-    if let Ok(None) = sqlx::query!(
-        "SELECT * FROM player;"
-    ).fetch_optional(&pool)
-        .await {
-            create_dummy_players(&pool).await;
-    }
-    
+
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
@@ -327,27 +231,9 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                         break;
                     }
                     //ask for username
-                    let event = ServerMessages::SetUsername { username: get_username(id, &pool).await };
-                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
-                        .await
-                        .is_err() {
-                        break;
-                    }
+                    ask_for_username(&mut socket, &pool, id).await;
                     //send offline mined resources
-                    if game_state.automation_started {
-                        if let Ok(r) = sqlx::query!(
-                            "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
-                           id,
-                            ).fetch_one(&pool)
-                            .await {
-                            let event = ServerMessages::MinedOffline { ore: r.offline_ore as u64, depth: r.offline_depth as u64 };
-                            if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
-                                .await
-                                .is_err() {
-                                break;
-                            }
-                        }
-                    }
+                    send_offline_resources(&mut socket, &pool, &game_state, id).await;
                 }
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
@@ -382,7 +268,6 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             match tokio::time::timeout(tts, socket.recv()).await {
                 // Message successfully received
                 Ok(Some(Ok(message))) => {
-                    // Todo: Wait the rest of the tts -> update tts to the new value
                     tts = tts.saturating_sub(instant.elapsed());
                     match &message.into_text() {
                         Ok(msg) => {
@@ -413,6 +298,28 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }
+}
+
+async fn send_offline_resources(socket: &mut WebSocket, pool: &PgPool, game_state: &GameState, id: i64) {
+    if game_state.automation_started {
+        if let Ok(r) = sqlx::query!(
+                            "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
+                           id,
+                            ).fetch_one(pool)
+            .await {
+            let event = ServerMessages::MinedOffline { ore: r.offline_ore as u64, depth: r.offline_depth as u64 };
+            if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                .await
+                .is_err() {}
+        }
+    }
+}
+
+async fn ask_for_username(socket: &mut WebSocket, pool: &PgPool, id: i64) {
+    let event = ServerMessages::SetUsername { username: get_username(id, pool).await };
+    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+        .await
+        .is_err() {}
 }
 
 async fn create_dummy_players(pool: &PgPool) {
@@ -468,23 +375,6 @@ async fn get_username(id: i64, pool: &PgPool) -> String {
         }
         Err(_) => {
             "Error".to_string()
-        }
-    }
-}
-
-async fn test_for_new_registry(id: i64, pool: &PgPool) -> bool {
-    match sqlx::query!(
-        "SELECT is_new FROM player WHERE id = $1;",
-        id
-    )
-        .fetch_one(pool)
-        .await
-    {
-        Ok(r) => {
-            r.is_new
-        }
-        Err(_) => {
-            false
         }
     }
 }

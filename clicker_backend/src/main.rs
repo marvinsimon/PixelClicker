@@ -30,11 +30,14 @@ use tower_http::cors::CorsLayer;
 
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
+use crate::events::daily_event;
+use crate::sql_queries::{insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_for_enemy, set_player_as_offline, set_player_as_online, write_state_diff_to_database};
 
 mod game_messages;
 mod game_state;
 mod events;
 mod unit_tests;
+mod sql_queries;
 
 const SECONDS_DAY: i64 = 84600;
 
@@ -107,6 +110,9 @@ async fn main() {
     {
         app = app.layer(CorsLayer::very_permissive().allow_credentials(true));
     }
+    
+    //Initialize Events
+    daily_event(&pool).await;
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -157,9 +163,9 @@ async fn login(
             println!("STATE DIFF\n\
             ore: {}\n\
             depth: {}", ore_diff, depth_diff);
-            write_state_dif_to_database(record.id, ore_diff, depth_diff, &pool).await;
+            write_state_diff_to_database(record.id, ore_diff, depth_diff, &pool).await;
             save_game_state_to_database(record.id, &game_state, &pool).await;
-            save_score_to_database(record.id, &game_state, &pool).await;
+            save_score(record.id, &game_state, &pool).await;
             set_player_as_online(record.id, &pool).await;
             StatusCode::OK
         }
@@ -219,7 +225,7 @@ async fn sign_up(
                 {
                     Ok(r) => {
                         session.set(PLAYER_AUTH, r.id);
-                        save_score_to_database(r.id, &game_state, &pool).await;
+                        save_score(r.id, &game_state, &pool).await;
                         set_player_as_online(r.id, &pool).await;
                         StatusCode::OK
                     }
@@ -346,7 +352,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                 logged_in = true;
             } else if Duration::from_secs(2).saturating_sub(interval.elapsed()).is_zero() {
                 save_game_state_to_database(id, &game_state, &pool).await;
-                save_score_to_database(id, &game_state, &pool).await;
+                save_score(id, &game_state, &pool).await;
                 interval = Instant::now();
             }
             let loot = handle_attacks(id, &pool).await;
@@ -503,106 +509,10 @@ async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
     loot
 }
 
-async fn set_player_as_offline(id: i64, pool: &PgPool) {
-    if (sqlx::query!(
-        "UPDATE player SET is_online = false WHERE id = $1;",
-        id,
-    ).execute(pool)
-        .await).is_ok() {}
-}
-
-async fn set_player_as_online(id: i64, pool: &PgPool) {
-    if (sqlx::query!(
-        "UPDATE player SET is_online = true WHERE id = $1;",
-        id,
-    ).execute(pool)
-        .await).is_ok() {}
-}
-
-async fn save_timestamp_to_database(id: i64, pool: &PgPool) {
-    if (sqlx::query!(
-        "UPDATE player SET timestamp = $1 WHERE id = $2;",
-        Utc::now().timestamp(),
-        id,
-    ).execute(pool)
-        .await).is_ok() {}
-}
-
-async fn write_state_dif_to_database(id: i64, ore: f64, depth: f64, pool: &PgPool) {
-    let i_ore = ore as i64;
-    let i_depth = depth as i64;
-    if (sqlx::query!(
-        "UPDATE player SET offline_ore = $1, offline_depth = $2 WHERE id = $3;",
-        i_ore,
-        i_depth,
-        id,
-    ).execute(pool)
-        .await).is_ok() {}
-}
-
-async fn save_game_state_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
-    let game_state_value = serde_json::to_value(game_state).unwrap();
-    if (sqlx::query!(
-        "UPDATE player SET game_state = $1, is_new = false WHERE id = $2;",
-        game_state_value,
-        id,
-    ).execute(pool)
-        .await).is_ok() {}
-}
-
-async fn save_score_to_database(id: i64, game_state: &GameState, pool: &PgPool) {
+async fn save_score(id: i64, game_state: &GameState, pool: &PgPool) {
     let score_value = serde_json::to_value((game_state.depth / 10.0) as i32
         + game_state.attack_level + game_state.defence_level).unwrap().as_i64();
-    if (sqlx::query!(
-        "UPDATE player SET pvp_score = $1 WHERE id = $2;",
-        score_value,
-        id,
-    ).execute(pool)
-        .await).is_ok() {}
-}
-
-async fn load_game_state_from_database(id: i64, pool: &PgPool) -> GameState {
-    println!("Loading GameState!");
-    match sqlx::query!(
-        "SELECT game_state, is_new FROM player WHERE id = $1;",
-        id
-    ).fetch_one(pool)
-        .await
-    {
-        Ok(r) => {
-            serde_json::from_value(r.game_state).unwrap()
-        }
-        Err(_) => GameState::new(),
-    }
-}
-
-async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
-    match sqlx::query!(
-        "SELECT pvp_score FROM player WHERE id = $1;",
-        id
-    )
-        .fetch_one(pool)
-        .await
-    {
-        Ok(r) => {
-            match sqlx::query!(
-                "SELECT id \
-                FROM player WHERE is_online = false \
-                AND pvp_score >= $1 ORDER BY pvp_score ASC;",
-                r.pvp_score
-            )
-                .fetch_one(pool)
-                .await
-            {
-                Ok(r) => {
-                    println!("Match found: {}", r.id);
-                    r.id
-                }
-                Err(_) => -1,
-            }
-        }
-        Err(_err) => -1,
-    }
+    save_score_to_database(id, pool, score_value.unwrap()).await;
 }
 
 async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
@@ -620,31 +530,9 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
         save_game_state_to_database(id_def, &game_state_def, pool).await;
     }
 
-    if (sqlx::query!(
-        "INSERT INTO PVP (id_att, id_def, loot, timestamp) VALUES ( $1, $2, $3, $4);",
-        id_att,
-        id_def,
-        loot,
-        Utc::now().timestamp()
-    ).execute(pool)
-        .await).is_ok() {
-        println!("COMBAT DATA:\n\
-        Attacker: {}\n\
-        Defender: {}\n\
-        Loot: {}",
-                 id_att, id_def, loot);
-    }
+    insert_pvp_data(id_att, id_def, loot, pool).await;
 }
 
 async fn steal_resources(attacker_id: i64, pool: &PgPool) -> f64 {
-    let mut loot: f64 = 0.0;
-    if let Ok(record_pvp) = sqlx::query!(
-        "SELECT loot FROM PVP WHERE id_att = $1;",
-        attacker_id
-    )
-        .fetch_one(pool)
-        .await {
-        loot = record_pvp.loot;
-    }
-    loot
+    pvp_resource_query(attacker_id, pool).await
 }

@@ -23,13 +23,13 @@ CREATE TABLE PVP
     timestamp BIGINT NOT NULL
 );
 
-CREATE TYPE EVENT_CLASS AS ENUM ('daily', 'weekly', 'seasonal');
+CREATE TYPE event_type AS ENUM ('daily', 'weekly', 'seasonal');
 
 CREATE TABLE Event
 (
     id             BIGSERIAL PRIMARY KEY,
-    event_text     TEXT        NOT NULL,
-    classification EVENT_CLASS NOT NULL
+    event_text     TEXT       NOT NULL,
+    classification event_type NOT NULL
 );
 
 

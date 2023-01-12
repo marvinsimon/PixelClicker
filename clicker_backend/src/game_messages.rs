@@ -13,6 +13,9 @@ pub enum ClientMessages {
     UpgradeAttackLevel,
     UpgradeDefenceLevel,
     GetLoginData,
+    Treasure,
+    Diamond,
+    LoadGame,
 }
 
 #[derive(Serialize, TypeDef)]
@@ -26,9 +29,13 @@ pub enum ServerMessages {
     AutomationAmountUpgraded { success: bool, new_level: i32, new_upgrade_cost: u64 },
     AttackLevelUpgraded { success: bool, new_level: i32, new_upgrade_cost: u64 },
     DefenceLevelUpgraded { success: bool, new_level: i32, new_upgrade_cost: u64 },
-    LoginState { shovel_amount: i32, shovel_depth: i32, automation_depth: i32, automation_amount: i32, attack_level: i32, defence_level: i32, automation_started: bool },
-    CombatElapsed{ loot: u64 },
+    LoginState { shovel_amount: i32, shovel_depth: i32, automation_depth: i32, automation_amount: i32, attack_level: i32, defence_level: i32, automation_started: bool, diamond: i32 },
+    CombatElapsed{loot: u64},
     LoggedIn {},
-    MinedOffline { ore: u64, depth: u64 },
+    MinedOffline{ore: u64, depth: u64},
+    TreasureFound{ore: u64},
+    DiamondFound{diamond: i32},
+    GameData { picked_first_diamond: bool },
     SetUsername { username: String },
+
 }

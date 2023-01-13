@@ -29,6 +29,7 @@ pub async fn start_server(pool: &Pool<Postgres>, session_store: AxumSessionStore
         .route("/login", get(login))
         .route("/logout", get(logout))
         .route("/combat", get(attack))
+        .route("/save_pfp", get(update_profile_picture))
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
@@ -196,6 +197,26 @@ async fn attack(
                 StatusCode::INTERNAL_SERVER_ERROR
             }
         };
+    }
+    StatusCode::BAD_REQUEST
+}
+
+async fn update_profile_picture(
+    pfp: HeaderMap,
+    session: AxumSession<AxumPgPool>,
+    Extension(pool): Extension<PgPool>,
+) -> StatusCode {
+    println!("Setting PFP!");
+    if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
+        let extracted_pfp = pfp.get("pfp").unwrap().to_str().unwrap();
+        if (sqlx::query!(
+        "UPDATE player SET profile_picture = $1 WHERE id = $2;",
+            extracted_pfp,
+            id
+    ).execute(&pool)
+            .await).is_ok() {
+            return StatusCode::OK;
+        }
     }
     StatusCode::BAD_REQUEST
 }

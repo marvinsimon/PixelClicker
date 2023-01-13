@@ -160,3 +160,20 @@ pub async fn get_username(id: i64, pool: &PgPool) -> String {
         id
     ).fetch_one(pool).await.expect("DB failure").username
 }
+
+pub async fn get_profile_picture(id: i64, pool: &PgPool) -> String {
+    match sqlx::query!(
+        "SELECT profile_picture FROM player WHERE id = $1;",
+        id
+    )
+        .fetch_one(pool)
+        .await
+    {
+        Ok(r) => {
+            r.profile_picture
+        }
+        Err(_) => {
+            "Error".to_string()
+        }
+    }
+}

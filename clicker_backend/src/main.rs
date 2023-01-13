@@ -10,7 +10,7 @@ use crate::events::daily_event;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 use crate::server::{create_session_table, start_server};
-use crate::sql_queries::{get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, test_for_new_registry};
+use crate::sql_queries::{get_profile_picture, get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, test_for_new_registry};
 use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
 
 mod game_messages;
@@ -67,6 +67,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                     }
                     //ask for username
                     ask_for_username(&mut socket, &pool, id).await;
+                    //ask for profile picture
+                    ask_for_profile_picture(&mut socket, &pool, id).await;
                     //send offline mined resources
                     send_offline_resources(&mut socket, &pool, &game_state, id).await;
                 }
@@ -151,6 +153,12 @@ async fn send_offline_resources(socket: &mut WebSocket, pool: &PgPool, game_stat
 async fn ask_for_username(socket: &mut WebSocket, pool: &PgPool, id: i64) {
     socket.send(Message::Text(serde_json::to_string(&ServerMessages::SetUsername {
         username: get_username(id, pool).await
+    }).unwrap())).await.unwrap_or(());
+}
+
+async fn ask_for_profile_picture(socket: &mut WebSocket, pool: &PgPool, id: i64) {
+    socket.send(Message::Text(serde_json::to_string(&ServerMessages::SetProfilePicture {
+        pfp: get_profile_picture(id, pool).await
     }).unwrap())).await.unwrap_or(());
 }
 

@@ -1,8 +1,6 @@
 use std::time::Duration;
 
-use axum::{
-    extract::ws::{Message, WebSocket},
-};
+use axum::extract::ws::{Message, WebSocket};
 use axum_database_sessions::{AxumPgPool, AxumSession};
 use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
@@ -12,7 +10,7 @@ use crate::events::daily_event;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 use crate::server::{create_session_table, start_server};
-use crate::sql_queries::{insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database,  test_for_new_registry };
+use crate::sql_queries::{get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, test_for_new_registry};
 use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
 
 mod game_messages;
@@ -57,14 +55,12 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut logged_in = false;
     let mut interval = Instant::now();
 
-
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
                 if !test_for_new_registry(id, &pool).await {
                     game_state = load_game_state_from_database(id, &pool).await;
-                    let event = ServerMessages::LoggedIn {};
-                    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
+                    if socket.send(Message::Text(serde_json::to_string(&ServerMessages::LoggedIn {}).unwrap()))
                         .await
                         .is_err() {
                         break;
@@ -94,9 +90,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             }
         }
         let instant = Instant::now();
-        let event = game_state.tick(1);
         if socket
-            .send(Message::Text(serde_json::to_string(&event).unwrap()))
+            .send(Message::Text(serde_json::to_string(&game_state.tick(1)).unwrap()))
             .await
             .is_err()
         {
@@ -113,9 +108,9 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                             if msg.is_empty() {
                                 break 'outer;
                             }
-                            let event = game_state.handle(serde_json::from_str(msg).unwrap());
                             if socket
-                                .send(Message::Text(serde_json::to_string(&event).unwrap()))
+                                .send(Message::Text(serde_json::to_string(&game_state.handle(serde_json::from_str(msg).unwrap()))
+                                    .unwrap()))
                                 .await
                                 .is_err()
                             {
@@ -142,23 +137,21 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
 async fn send_offline_resources(socket: &mut WebSocket, pool: &PgPool, game_state: &GameState, id: i64) {
     if game_state.automation_started {
         if let Ok(r) = sqlx::query!(
-                            "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
-                           id,
-                            ).fetch_one(pool)
-            .await {
-            let event = ServerMessages::MinedOffline { ore: r.offline_ore as u64, depth: r.offline_depth as u64 };
-            if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
-                .await
-                .is_err() {}
+            "SELECT offline_ore, offline_depth FROM player WHERE id = $1;",
+            id,
+            ).fetch_one(pool).await {
+            socket.send(Message::Text(serde_json::to_string(&ServerMessages::MinedOffline {
+                ore: r.offline_ore as u64,
+                depth: r.offline_depth as u64,
+            }).unwrap())).await.unwrap_or(());
         }
     }
 }
 
 async fn ask_for_username(socket: &mut WebSocket, pool: &PgPool, id: i64) {
-    let event = ServerMessages::SetUsername { username: get_username(id, pool).await };
-    if socket.send(Message::Text(serde_json::to_string(&event).unwrap()))
-        .await
-        .is_err() {}
+    socket.send(Message::Text(serde_json::to_string(&ServerMessages::SetUsername {
+        username: get_username(id, pool).await
+    }).unwrap())).await.unwrap_or(());
 }
 
 async fn create_dummy_players(pool: &PgPool) {
@@ -181,8 +174,7 @@ async fn create_dummy_players(pool: &PgPool) {
                 password,
                 game_state_value,
                 (100 * i) as i64,
-        ).fetch_one(pool)
-            .await {};
+        ).fetch_one(pool).await {};
     }
 
     email = "ChuckNorris";
@@ -201,22 +193,6 @@ async fn create_dummy_players(pool: &PgPool) {
         .await {};
 }
 
-async fn get_username(id: i64, pool: &PgPool) -> String {
-    match sqlx::query!(
-        "SELECT username FROM player WHERE id = $1;",
-        id
-    )
-        .fetch_one(pool)
-        .await
-    {
-        Ok(r) => {
-            r.username
-        }
-        Err(_) => {
-            "Error".to_string()
-        }
-    }
-}
 
 async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
     let mut loot: f64 = 0.0;

@@ -140,3 +140,10 @@ pub async fn no_players_in_db(pool: &PgPool) -> bool {
     ).fetch_optional(pool)
         .await.expect("DB failure").is_none()
 }
+
+pub async fn get_username(id: i64, pool: &PgPool) -> String {
+    sqlx::query!(
+        "SELECT username FROM player WHERE id = $1;",
+        id
+    ).fetch_one(pool).await.expect("DB failure").username
+}

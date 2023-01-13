@@ -1,18 +1,19 @@
 .label_ore {
-    top: 49%;
-    width: 50%;
+    top: 52.7%;
+    width: 44%;
     direction: rtl;
 }
 
 .label_depth {
-    top: 66.5%;
-    width: 50%;
+    top: 67.5%;
+    width: 44%;
     direction: rtl;
 }
 
 .label_diamond {
-    top: 84%;
-    left: 40%;
+    top: 82.3%;
+    width: 44%;
+    direction: rtl;
 }
 
 @media (min-width: 2700px) {

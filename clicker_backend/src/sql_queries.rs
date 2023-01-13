@@ -1,8 +1,21 @@
-use sqlx::{PgPool};
+use serde_json::Value;
+use sqlx::PgPool;
 use sqlx::types::chrono::Utc;
+
 use crate::events::EventType;
 use crate::game_state::GameState;
 
+pub async fn insert_player_into_db(email: String, username: String, password: String, game_state_value: Value, pool: &PgPool) -> i64 {
+    match sqlx::query!(
+        "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
+        email,
+        username,
+        password,
+        game_state_value).fetch_one(pool).await {
+        Ok(r) => r.id,
+        Err(_) => -1,
+    }
+}
 
 pub async fn fill_event_table(events: Vec<&str>, event_type: EventType, pool: &PgPool) {
     for x in events {

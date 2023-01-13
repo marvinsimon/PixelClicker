@@ -13,10 +13,10 @@ use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
 use tower_http::cors::CorsLayer;
 
-use crate::{ calculate_combat, handle_game, PLAYER_AUTH, root, save_score, SECONDS_DAY};
+use crate::{calculate_combat, handle_game, PLAYER_AUTH, root, save_score, SECONDS_DAY};
 use crate::game_state::GameState;
 use crate::password_management::{hash_password, verify_password};
-use crate::sql_queries::{save_game_state_to_database, save_timestamp_to_database, search_for_enemy, set_player_as_offline, set_player_as_online, write_state_diff_to_database};
+use crate::sql_queries::{insert_player_into_db, save_game_state_to_database, save_timestamp_to_database, search_for_enemy, set_player_as_offline, set_player_as_online, write_state_diff_to_database};
 
 pub async fn start_server(pool: &Pool<Postgres>, session_store: AxumSessionStore<AxumPgPool>) {
     // build our application with a route
@@ -62,41 +62,33 @@ async fn sign_up(
     session: AxumSession<AxumPgPool>,
     Extension(pool): Extension<PgPool>,
 ) -> StatusCode {
-    match sqlx::query!(
+    return match sqlx::query!(
         "SELECT id FROM player WHERE email = $1;",
         email
     )
         .fetch_optional(&pool)
         .await
     {
-        Ok(Some(_)) => StatusCode::BAD_REQUEST,
+        Ok(Some(_)) => StatusCode::IM_A_TEAPOT,
         Ok(None) => {
             let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([a-z0-9]+)*\.[a-z]{2,6})").unwrap();
             let game_state = GameState::new();
             let game_state_value = serde_json::to_value(&game_state).unwrap();
-            let extracted_username = username.get("Username").unwrap().to_str().unwrap();
-            let inappropriate: bool = extracted_username.is_inappropriate();
-            if email_regex.is_match(&email) && !inappropriate {
-                return match sqlx::query!(
-                "INSERT INTO player (email, username, password, game_state) VALUES ($1, $2, $3, $4) RETURNING id;",
-                email,
-                extracted_username,
-                hash_password(password.unwrap().as_bytes()),
-                game_state_value
-            )
-                    .fetch_one(&pool)
-                    .await
-                {
-                    Ok(r) => {
-                        session.set(PLAYER_AUTH, r.id);
-                        save_score(r.id, &game_state, &pool).await;
-                        set_player_as_online(r.id, &pool).await;
-                        StatusCode::OK
-                    }
-                    Err(err) => {
-                        println!("{}", err);
-                        StatusCode::INTERNAL_SERVER_ERROR
-                    }
+            let extracted_username = username.get("Username").unwrap().to_str().unwrap().to_string();
+            if email_regex.is_match(&email) && !extracted_username.is_inappropriate() {
+                let id =
+                    insert_player_into_db(email
+                                          , extracted_username
+                                          , hash_password(password.unwrap().as_bytes())
+                                          , game_state_value
+                                          , &pool).await;
+                return if id != -1 {
+                    session.set(PLAYER_AUTH, id);
+                    save_score(id, &game_state, &pool).await;
+                    set_player_as_online(id, &pool).await;
+                    StatusCode::OK
+                } else {
+                    StatusCode::INTERNAL_SERVER_ERROR
                 };
             }
             StatusCode::NOT_ACCEPTABLE
@@ -105,7 +97,7 @@ async fn sign_up(
             println!("{}", err);
             StatusCode::INTERNAL_SERVER_ERROR
         }
-    }
+    };
 }
 
 async fn login(

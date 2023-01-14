@@ -1,2 +1,23 @@
-.rank {
+.rank_label_board {
+    top: 24.5%;
+    position: absolute;
+    background-image: url("src/assets/img/wood_label_new.png");
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 33%;
+    height: 4.7%;
+}
+
+.label_rank {
+    font-size: 0.95vw;
+    top: 15%;
+    left: 2%;
+}
+
+.rank_button_close {
+    height: 4%;
+    width: 10%;
+    top: 96%;
 }

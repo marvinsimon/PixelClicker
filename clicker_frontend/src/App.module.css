@@ -48,7 +48,7 @@
 
 }
 
-.dropdowncntnt {
+.dropdownContent {
     display: none;
     position: absolute;
     background-color: #f1f1f1;
@@ -59,7 +59,7 @@
     z-index: 60;
 }
 
-.dropdowncntnt a {
+.dropdownContent a {
     color: black;
     padding: 12px 16px;
     text-decoration: none;
@@ -67,7 +67,7 @@
     z-index: 60;
 }
 
-.dropdowncntnt a:hover {
+.dropdownContent a:hover {
     background-color: #ddd;
     cursor: pointer;
 }
@@ -91,7 +91,7 @@
     max-height: 45vw;
 }
 
-.buttonitem {
+.buttonItem {
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -195,12 +195,12 @@
     transform: translateY(150%);
 }
 
-.buttonswitch {
+.buttonSwitch {
     background: none;
     border: none;
 }
 
-.buttonswitch:hover {
+.buttonSwitch:hover {
     color: cornflowerblue;
     cursor: pointer;
 }

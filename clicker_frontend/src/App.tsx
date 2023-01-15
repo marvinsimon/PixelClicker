@@ -56,6 +56,9 @@ const App: Component = () => {
     const [costNumber, setCostNumber] = createSignal("");
     const [diamond, setDiamond] = createSignal(0);
     const [showLeaderboard, setShowLeaderboard] = createSignal(false);
+    const [pvpScore, setPvpScore] = createSignal(0);
+
+    let players: string;
 
     let game: ClickerRoyaleGame;
     let socket: WebSocket | undefined;
@@ -194,6 +197,18 @@ const App: Component = () => {
                     if ("GameData" in event) {
                         console.log('Load game data');
                         loadGameData(event.GameData.picked_first_diamond);
+                    }
+                    break;
+                case "SendLeaderboard":
+                    if ("SendLeaderboard" in event) {
+                        console.log('Load Leaderboard');
+                        players = event.SendLeaderboard.players;
+                    }
+                    break;
+                case "SendPvpScore":
+                    if ("SendPvpScore" in event) {
+                        console.log('Load pvp score');
+                        setPvpScore(event.SendPvpScore.pvp_score);
                     }
                     break;
             }
@@ -502,6 +517,7 @@ const App: Component = () => {
                 setAuth(false);
                 game.events.emit('logOut');
                 setUsername("")
+                setPvpScore(0);
                 await connectBackend();
             }
         } else {
@@ -674,6 +690,32 @@ const App: Component = () => {
 
     const dropdown = async () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
+    }
+
+    function showScores() {
+        let allPlayers = JSON.parse(players);
+        let leaderboard = document.querySelector("#leaderboard");
+        leaderboard!.innerHTML = "";
+        let counter = 1;
+        allPlayers.forEach((player: any) => {
+            let name = document.createElement("label");
+            name.innerHTML = counter + ". " + player.username;
+
+            let score = document.createElement("label");
+            score.innerHTML = player.pvp_score;
+            score.style.color = "#b7b7b7";
+            score.style.marginLeft = "20px";
+            score.style.direction = "rtl";
+
+            leaderboard!.appendChild(name);
+            leaderboard!.appendChild(score);
+            counter++;
+        })
+
+        let yourScore = document.querySelector("#pvpScore");
+        let scoreLabel = document.createElement('label');
+        scoreLabel.innerHTML = "Your Score: " + pvpScore().toString();
+        yourScore!.appendChild(scoreLabel);
     }
 
     return (
@@ -961,6 +1003,7 @@ const App: Component = () => {
                                           setShowLeaderboard(true);
                                           hide();
                                           rotateGearIn();
+                                          showScores();
                                       }} class={styles.button}>Rank
                                       </button>
                                   </div>
@@ -969,7 +1012,10 @@ const App: Component = () => {
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
                                 <img src={leaderboard} class={styles.board_img_right} alt={"Control board"}/>
-                                <div></div>
+                                <div id={"leaderboard"}
+                                     class={styles.label_header + " " + rankModule.leaderboard}></div>
+                                <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>
+                                </div>
                                 <button class={styles.button_close + " " + rankModule.rank_button_close}
                                         onClick={() => {
                                             slideOut();
@@ -996,9 +1042,9 @@ const App: Component = () => {
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label style="font-size:30px"> Success! </label>
                             <label style="font-size:20px"> Your Loot:</label>
-                            <div class={styles.grid_loot}>
-                                <div class={styles.grid_loot_icon}></div>
-                                <label class={styles.grid_loot_label}
+                            <div class={styles.grid_ore}>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_ore_icon}></div>
+                                <label class={styles.grid_ore_label}
                                        style="font-size:20px">{formatNumbers(loot())}</label>
                             </div>
                         </div>
@@ -1009,12 +1055,12 @@ const App: Component = () => {
                             <label style="font-size:30px"> Welcome back!</label>
                             <label style="font-size:20px">Your Offline Loot:</label>
                             <div class={styles.grid_ore}>
-                                <div class={styles.grid_ore_icon}></div>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_ore_icon}></div>
                                 <label class={styles.grid_ore_label}
                                        style="font-size:20px">{formatNumbers(totalAmount())}</label>
                             </div>
                             <div class={styles.grid_depth}>
-                                <div class={styles.grid_depth_icon}></div>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_depth_icon}></div>
                                 <label class={styles.grid_depth_label}
                                        style="font-size:20px">{formatNumbers(totalDepth())}</label>
                             </div>

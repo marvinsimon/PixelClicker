@@ -21,3 +21,33 @@
     width: 10%;
     top: 96%;
 }
+
+.leaderboard {
+    display: grid;
+    max-width: 225px;
+    font-size: 0.8vw;
+    top: 40%;
+    column-gap: 20px;
+}
+
+.score {
+    display: grid;
+    max-width: 225px;
+    font-size: 0.8vw;
+    top: 90%;
+    column-gap: 20px;
+}
+
+@media (min-width: 2000px) {
+    .leaderboard {
+        font-size: 16px;
+    }
+
+    .label_rank {
+        font-size: 19px;
+    }
+
+    .score {
+        font-size: 16px;
+    }
+}

@@ -828,6 +828,19 @@ input[type=submit]:active {
     }
 }
 
+.offline_resource_icons {
+    display: flex;
+    position: relative;
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    height: 98.5%;
+    width: 66%;
+    grid-row: 1;
+    grid-column: 1;
+}
+
 .grid_ore {
     display: grid;
     grid-template-rows: 31px;
@@ -843,17 +856,7 @@ input[type=submit]:active {
 }
 
 .grid_ore_icon {
-    display: flex;
-    position: relative;
     background-image: url("src/assets/img/ore.png");
-    background-color: transparent;
-    background-position: center center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    height: 98.5%;
-    width: 66%;
-    grid-row: 1;
-    grid-column: 1;
 }
 
 .grid_depth {
@@ -871,43 +874,5 @@ input[type=submit]:active {
 }
 
 .grid_depth_icon {
-    display: flex;
-    position: relative;
     background-image: url("src/assets/img/pickaxe.png");
-    background-color: transparent;
-    background-position: center center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    height: 98.5%;
-    width: 66%;
-    grid-row: 1;
-    grid-column: 1;
-}
-
-.grid_loot {
-    display: grid;
-    grid-template-rows: 31px;
-    grid-template-columns: 50px auto;
-}
-
-.grid_loot_label {
-    display: flex;
-    grid-row: 1;
-    grid-column: 2/3;
-    justify-content: center;
-    align-items: center;
-}
-
-.grid_loot_icon {
-    display: flex;
-    position: relative;
-    background-image: url("src/assets/img/ore.png");
-    background-color: transparent;
-    background-position: center center;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    height: 98.5%;
-    width: 66%;
-    grid-row: 1;
-    grid-column: 1;
 }

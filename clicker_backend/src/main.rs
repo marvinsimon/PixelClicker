@@ -10,7 +10,7 @@ use crate::events::daily_event;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 use crate::server::{create_session_table, start_server};
-use crate::sql_queries::{get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, test_for_new_registry};
+use crate::sql_queries::{get_top_players, get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_pvp_score, test_for_new_registry};
 use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
 
 mod game_messages;
@@ -54,7 +54,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut game_state = GameState::new();
     let mut logged_in = false;
     let mut interval = Instant::now();
-
+    socket.send(Message::Text(serde_json::to_string(&ServerMessages::SendLeaderboard { players: get_top_players(&pool).await.unwrap_or(String::default()) }).unwrap())).await.unwrap_or(());
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
             if !logged_in {
@@ -88,6 +88,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                     break;
                 }
             }
+            socket.send(Message::Text(serde_json::to_string(&ServerMessages::SendPvpScore { pvp_score: search_pvp_score(id, &pool).await }).unwrap())).await.unwrap_or(());
         }
         let instant = Instant::now();
         if socket

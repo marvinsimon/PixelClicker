@@ -168,7 +168,7 @@ impl GameState {
                     automation_amount: self.auto_amount_level,
                     automation_depth: self.auto_depth_level,
                     shovel_amount: self.shovel_amount_level,
-                    shovel_depth: self.auto_depth_level,
+                    shovel_depth: self.shovel_depth_level,
                     automation_started: self.automation_started,
                     diamond: self.diamond
                 }

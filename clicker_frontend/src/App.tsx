@@ -518,6 +518,7 @@ const App: Component = () => {
                 game.events.emit('logOut');
                 setUsername("")
                 setPvpScore(0);
+                game.automation = false;
                 await connectBackend();
             }
         } else {

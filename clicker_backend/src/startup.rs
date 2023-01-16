@@ -5,6 +5,9 @@ use crate::create_dummy_players;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::sql_queries::no_players_in_db;
 
+//// Initialisation and Setup Methods 
+
+/// Generates a new session key
 pub fn create_session_key() -> Key {
     std::fs::File::open("master-key")
         .ok()
@@ -29,7 +32,7 @@ pub fn create_session_key() -> Key {
         })
 }
 
-
+/// Generates a TypeScript file with all ServerMessages and ClientMessages
 pub fn create_game_message_file_type_script() {
     #[cfg(debug_assertions)]
     {
@@ -49,7 +52,7 @@ pub fn create_game_message_file_type_script() {
     }
 }
 
-
+/// Checks if Player table is empty and creates Dummys if true
 pub async fn check_for_players(pool: &Pool<Postgres>) {
     if no_players_in_db(pool).await {
         create_dummy_players(pool).await;

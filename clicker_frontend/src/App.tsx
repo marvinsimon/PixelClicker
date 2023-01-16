@@ -4,6 +4,7 @@ import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
+import shopModule from "./styles/Shop.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/ClickerRoyale_Wappen.png";
 import board from "./assets/Brettmiticon.png";
@@ -12,6 +13,7 @@ import small_board from "./assets/small_brett.png";
 import game from "./assets/Playground.png";
 import buttonSound from "./assets/button_click.mp3";
 import digSound from "./assets/pick2.mp3";
+import minerFeminine from "./assets/miner_feminine_1.png";
 
 const App: Component = () => {
 
@@ -49,6 +51,7 @@ const App: Component = () => {
     const [autoDepthPrice, setAutoDepthPrice] = createSignal(50);
     const [autoAmountPrice, setAutoAmountPrice] = createSignal(50);
     const [costNumber, setCostNumber] = createSignal("");
+    const [showShop, setShowShop] = createSignal(false);
 
     let socket: WebSocket | undefined;
 
@@ -774,8 +777,61 @@ const App: Component = () => {
                         <button class={styles.button}>Rank</button>
                     </div>
                     <div class={styles.buttonitem}>
-                        <button class={styles.button}>Shop</button>
+                        <button onClick={(e) => {setShowShop(true); void playButtonSound()}} class={styles.button}>Shop</button>
                     </div>
+                        <Show when={showShop()}
+                              fallback={""}>
+                            <div class={shopModule.shop} use:clickOutside={() => setShowShop(false)}>
+                                <div class={shopModule.shop_h}>
+                                    <h3>Shop</h3>
+                                </div>
+                                <div class={shopModule.spacer}>
+                                    <p>Backgrounds</p>
+                                </div>
+                                <div class={shopModule.items_container}>
+                                    <div class={shopModule.item}>
+                                        <div class={shopModule.tag_cherry}>
+                                            <p class={shopModule.tag_p}>Cherry</p>
+                                        </div>
+                                        <div class={styles.buttonitem}>
+                                            <button class={shopModule.button_buy}>1500</button>
+                                        </div>
+                                    </div>
+                                    <div class={shopModule.item}>
+                                        <div class={shopModule.tag_mixed}>
+                                            <p class={shopModule.tag_p}>Mixed</p>
+                                        </div>
+                                        <div class={styles.buttonitem}>
+                                            <button class={shopModule.button_buy}>699</button>
+                                        </div>
+                                    </div>
+                                    <div class={shopModule.item}>
+                                        <div class={shopModule.tag_spruce}>
+                                            <p class={shopModule.tag_p}>Spruce</p>
+                                        </div>
+                                        <div class={styles.buttonitem}>
+                                            <button class={shopModule.button_buy}>1500</button>
+                                        </div>
+                                    </div>
+                                    <div class={shopModule.item}>
+                                        <div class={shopModule.tag_universe_dark}>
+                                            <p class={shopModule.tag_p}>Dark Star</p>
+                                        </div>
+                                        <div class={styles.buttonitem}>
+                                            <button class={shopModule.button_buy}>2690</button>
+                                        </div>
+                                    </div>
+                                    <div class={shopModule.item}>
+                                        <div class={shopModule.tag_universe_light}>
+                                            <p class={shopModule.tag_p}>Light Star</p>
+                                        </div>
+                                        <div class={styles.buttonitem}>
+                                            <button class={shopModule.button_buy}>2690</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Show>
 
                     <Show when={showLoot()}>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>

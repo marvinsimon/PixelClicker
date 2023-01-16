@@ -97,7 +97,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             }
         }
 
-        /// Updates the gamestate and frontend in set intervals
+        // Updates the gamestate and frontend in set intervals
         let instant = Instant::now();
         if socket
             .send(Message::Text(serde_json::to_string(&game_state.tick(1)).unwrap()))
@@ -107,7 +107,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             break;
         }
 
-        /// Checks for and forwards event messages from the game state to the frontend and vice versa
+        // Checks for and forwards event messages from the game state to the frontend and vice versa
         let mut tts = Duration::from_millis(50).saturating_sub(instant.elapsed());
         loop {
             match tokio::time::timeout(tts, socket.recv()).await {
@@ -141,7 +141,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         }
     }
 
-    /// Regularily saves the game state
+    // Regularily saves the game state
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }

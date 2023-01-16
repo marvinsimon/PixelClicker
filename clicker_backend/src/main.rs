@@ -144,13 +144,13 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         }
     }
 
-    // Regularily saves the game state
+    // Regularly saves the game state
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }
 }
 
-/// Updates rescources mined while the player was offline
+/// Updates resources mined while the player was offline
 async fn send_offline_resources(socket: &mut WebSocket, pool: &PgPool, game_state: &GameState, id: i64) {
     if game_state.automation_started {
         if let Ok(r) = sqlx::query!(
@@ -219,7 +219,7 @@ async fn create_dummy_players(pool: &PgPool) {
         .await {};
 }
 
-/// Retrieves an onging attack from the database and calculates the loot if the combat timer is elapsed
+/// Retrieves an ongoing attack from the database and calculates the loot if the combat timer is elapsed
 async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
     let mut loot: f64 = 0.0;
     if let Ok(record) = sqlx::query!(

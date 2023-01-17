@@ -10,7 +10,7 @@ use crate::events::daily_event;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 use crate::server::{create_session_table, start_server};
-use crate::sql_queries::{get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, test_for_new_registry};
+use crate::sql_queries::{get_profile_picture, get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, test_for_new_registry};
 use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
 
 mod game_messages;
@@ -21,6 +21,8 @@ mod password_management;
 mod startup;
 mod server;
 
+//// Main Method, Initialisations and Communication Routings
+
 const SECONDS_DAY: i64 = 84600;
 
 const PLAYER_AUTH: &str = "player-auth";
@@ -30,12 +32,14 @@ async fn main() {
     let pool = connect_to_database().await.unwrap();
 
     create_game_message_file_type_script();
-    //Initialize Events
+
+    // Initialize Events
     daily_event(&pool).await;
 
-    //Check for dummy players
+    // Check for dummy players
     check_for_players(&pool).await;
 
+    // Starts the server and initializes a session table
     start_server(&pool, create_session_table(create_session_key(), &pool).await).await;
 }
 
@@ -44,12 +48,12 @@ async fn connect_to_database() -> anyhow::Result<Pool<Postgres>> {
     Ok(Pool::connect("postgresql://admin:clickerroyale@localhost:5432/royal-db").await?)
 }
 
-/// basic handler that responds with a static string
+/// Basic handler that responds with a static string
 async fn root() -> &'static str {
     "Hello, World!"
 }
 
-
+/// Creates and maintains the game loop and handles the communication from within the game state and the frontend
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {
     let mut game_state = GameState::new();
     let mut logged_in = false;
@@ -57,6 +61,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
 
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
+
+            // Tests if the current user is logged in and either prepares for a new login or saves the current gamestate respectively
             if !logged_in {
                 if !test_for_new_registry(id, &pool).await {
                     game_state = load_game_state_from_database(id, &pool).await;
@@ -65,9 +71,11 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                         .is_err() {
                         break;
                     }
-                    //ask for username
+                    // Ask for username
                     ask_for_username(&mut socket, &pool, id).await;
-                    //send offline mined resources
+                    // Ask for profile picture
+                    ask_for_profile_picture(&mut socket, &pool, id).await;
+                    // Send offline mined resources
                     send_offline_resources(&mut socket, &pool, &game_state, id).await;
                 }
                 logged_in = true;
@@ -76,6 +84,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                 save_score(id, &game_state, &pool).await;
                 interval = Instant::now();
             }
+
+            // Sends an event to frontend at the successful end of a combat instance
             let loot = handle_attacks(id, &pool).await;
             if loot > 0.0 {
                 game_state.ore += loot;
@@ -89,6 +99,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
                 }
             }
         }
+
+        // Updates the gamestate and frontend in set intervals
         let instant = Instant::now();
         if socket
             .send(Message::Text(serde_json::to_string(&game_state.tick(1)).unwrap()))
@@ -97,6 +109,8 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
         {
             break;
         }
+
+        // Checks for and forwards event messages from the game state to the frontend and vice versa
         let mut tts = Duration::from_millis(50).saturating_sub(instant.elapsed());
         loop {
             match tokio::time::timeout(tts, socket.recv()).await {
@@ -129,11 +143,14 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
             }
         }
     }
+
+    // Regularly saves the game state
     if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
         save_timestamp_to_database(id, &pool).await;
     }
 }
 
+/// Updates resources mined while the player was offline
 async fn send_offline_resources(socket: &mut WebSocket, pool: &PgPool, game_state: &GameState, id: i64) {
     if game_state.automation_started {
         if let Ok(r) = sqlx::query!(
@@ -148,12 +165,21 @@ async fn send_offline_resources(socket: &mut WebSocket, pool: &PgPool, game_stat
     }
 }
 
+/// Retrieves the username from the database
 async fn ask_for_username(socket: &mut WebSocket, pool: &PgPool, id: i64) {
     socket.send(Message::Text(serde_json::to_string(&ServerMessages::SetUsername {
         username: get_username(id, pool).await
     }).unwrap())).await.unwrap_or(());
 }
 
+/// Retrieves profile picture from the database
+async fn ask_for_profile_picture(socket: &mut WebSocket, pool: &PgPool, id: i64) {
+    socket.send(Message::Text(serde_json::to_string(&ServerMessages::SetProfilePicture {
+        pfp: get_profile_picture(id, pool).await
+    }).unwrap())).await.unwrap_or(());
+}
+
+/// Creates 10 dummy players with ascending strength
 async fn create_dummy_players(pool: &PgPool) {
     let mut dummy_game_state = GameState::new();
     let mut email = "dummy";
@@ -193,7 +219,7 @@ async fn create_dummy_players(pool: &PgPool) {
         .await {};
 }
 
-
+/// Retrieves an ongoing attack from the database and calculates the loot if the combat timer is elapsed
 async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
     let mut loot: f64 = 0.0;
     if let Ok(record) = sqlx::query!(
@@ -214,12 +240,14 @@ async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
     loot
 }
 
+/// Calculates and saves the combat score to the database
 async fn save_score(id: i64, game_state: &GameState, pool: &PgPool) {
     let score_value = serde_json::to_value((game_state.depth / 10.0) as i32
         + game_state.attack_level + game_state.defence_level).unwrap().as_i64();
     save_score_to_database(id, pool, score_value.unwrap()).await;
 }
 
+/// Calculates the loot of a combat instance, skips subtraction from defending player if that player is a dummy
 async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
     let game_state_att = load_game_state_from_database(id_att, pool).await;
     let mut game_state_def = load_game_state_from_database(id_def, pool).await;
@@ -235,9 +263,11 @@ async fn calculate_combat(id_att: i64, id_def: i64, pool: &PgPool) {
         save_game_state_to_database(id_def, &game_state_def, pool).await;
     }
 
+    // Creates a new entry in the PVP table
     insert_pvp_data(id_att, id_def, loot, pool).await;
 }
 
+/// Transfers loot ore from defending to attacking player
 async fn steal_resources(attacker_id: i64, pool: &PgPool) -> f64 {
     pvp_resource_query(attacker_id, pool).await
 }

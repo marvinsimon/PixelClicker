@@ -16,19 +16,26 @@ import Phaser from "phaser";
 import Preload from "./scenes/preload";
 import Play from "./scenes/play";
 
-const App: Component = () => {
+/**
+ * This is the Frontend of Clicker Royale.
+ */
 
+const App: Component = () => {
+    /*
+    * Variable and signal initialisations/declarations
+    */
     let password_field: HTMLInputElement;
     let email_field: HTMLInputElement;
     let username_field: HTMLInputElement;
+    let uploaded_image: any;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
     const [depth, setDepth] = createSignal(0);
-    const [username, setUsername] = createSignal("")
-    //PopUp Variable
-    const [show, setShow] = createSignal(false);
+    const [username, setUsername] = createSignal("");
+    const [show, setShow] = createSignal(false); //PopUp Variable
     const [innershow, setInnerShow] = createSignal(false);
+    const [showprofile, setShowProfile] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [automation_on, setAutomation] = createSignal(false);
@@ -57,14 +64,26 @@ const App: Component = () => {
     let game: ClickerRoyaleGame;
     let socket: WebSocket | undefined;
 
+    /*
+    * Sets up the Backend connection and handles incoming Event calls
+    */
     const connectBackend = async () => {
         if (socket != null)
             disconnectBackend();
         socket = new WebSocket("ws://localhost:3001/game");
+
+        // Handle incoming messages
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
+
+            // Extract the message type from data string
             const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
             let arr = (msg.data as string).match(re)![0];
+
+            // Switch for event handeling, the IDE might throw a lot of errors here because it doesn't recognize the right content for the cases.
+            // The functionality of the Switch case is not affected by this.
+
+            if (typeof event === 'object') {
             switch (arr) {
                 case "NewState":
                     console.log(event.NewState);
@@ -149,6 +168,9 @@ const App: Component = () => {
                 case "SetUsername":
                     setUsername(event.SetUsername.username);
                     break;
+                case "SetProfilePicture":
+                    uploaded_image = event.SetProfilePicture.pfp;
+                    break;
                 case "TreasureFound":
                     console.log('Treasure found');
                     setOre(event.TreasureFound.ore);
@@ -170,6 +192,7 @@ const App: Component = () => {
             }, 1000);
         }
     }
+}
 
     // @ts-ignore
     window.onload = async () => {
@@ -177,6 +200,9 @@ const App: Component = () => {
         setupPhaserGame();
     }
 
+    /*
+    * Sets up and configures the phaser contents of the game
+    */
     function setupPhaserGame() {
         // Scenes
         let scenes = [];
@@ -231,7 +257,11 @@ const App: Component = () => {
         Play.setGameInstance(game);
     }
 
+    /*
+    * Refreshes and updates game screen in a set interval
+    */
     window.setInterval(function () {
+        // Variable Declarations with Query Selection
         let upgrade_attack_icon = document.querySelector("." + pvpModule.icon_upgrade_attack);
         let upgrade_defence_icon = document.querySelector("." + pvpModule.icon_upgrade_defence);
         let upgrade_shovel_depth_icon = document.querySelector("." + mineModule.icon_upgrade_speed);
@@ -239,6 +269,8 @@ const App: Component = () => {
         let upgrade_auto_depth_icon = document.querySelector("." + mineModule.icon_upgrade_automate_speed);
         let upgrade_auto_amount_icon = document.querySelector("." + mineModule.icon_upgrade_automate_amount);
         let automate = document.querySelector("." + mineModule.icon_automate);
+
+        // Sets icon graphics depending on the current state
         if (upgrade_attack_icon != null) {
             if (ore() >= attackPrice()) {
                 upgrade_attack_icon!.classList.remove(styles.hide);
@@ -288,8 +320,11 @@ const App: Component = () => {
                 automate!.classList.add(styles.hide);
             }
         }
-    }, 30)
+    }, 30);
 
+    /*
+    * Formats numbers to be compacted once they reach a ceartain limit
+    */
     function formatNumbers(formatNumber: number) {
         if (formatNumber < 1000) {
             return formatNumber.toString();
@@ -303,6 +338,9 @@ const App: Component = () => {
         }
     }
 
+    /*
+    * Shows the popup for combat results
+    */
     function lootArrived(CombatElapsed: { loot: number }) {
         window.setTimeout(() => {
             setShowLoot(true);
@@ -311,6 +349,9 @@ const App: Component = () => {
 
     }
 
+    /*
+    * Sets state displays on login to the player's game state values
+    */
     const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean; diamond: number }) => {
         setShovelDepth(LoginState.shovel_depth);
         setShovelAmount(LoginState.shovel_amount);
@@ -328,6 +369,9 @@ const App: Component = () => {
         }
     }
 
+    /*
+    * Sets the game screen to the initial display
+    */
     const resetScreen = () => {
         if (showMining() || showPVP()) {
             slideOutAutomate();
@@ -335,17 +379,38 @@ const App: Component = () => {
             window.setTimeout(function () {
                 setShowMining(false);
                 setShowPVP(false);
-                unHide();
+                unhide();
             }, 1300);
             rotateGearOut();
         }
     }
 
+    /*
+    * Disconnects the Backend and resets the game screen
+    */
     const disconnectBackend = () => {
         resetScreen();
         socket?.close();
     }
 
+    /*
+    * Event Listeners
+    */
+    window.addEventListener('mineEvent', async () => {
+        await mine();
+    })
+
+    window.addEventListener('treasureEvent', async () => {
+        await treasure();
+    });
+
+    window.addEventListener('diamondEvent', async () => {
+        await pickedUpDiamond();
+    });
+
+    /*
+    * Game Events are created and send to the Backend here.
+    */
     const mine = async () => {
         if (socket) {
             const event: ClientMessages = "Mine";
@@ -367,6 +432,7 @@ const App: Component = () => {
         }
     }
 
+    // starts the automation
     const automate = async () => {
         if (socket) {
             const event: ClientMessages = "StartAutomation";
@@ -402,6 +468,39 @@ const App: Component = () => {
         }
     }
 
+    const treasure = async () => {
+        if (socket) {
+            const event: ClientMessages = "Treasure";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const pickedUpDiamond = async () => {
+        if (socket) {
+            const event: ClientMessages = 'Diamond';
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const loadGame = async () => {
+        if (socket) {
+            setTimeout(async () => {
+                const event: ClientMessages = 'LoadGame';
+                await socket?.send(JSON.stringify(event));
+            }, 200);
+        }
+    }
+
+    function loadGameData(picked_first_diamond: boolean) {
+        game.pickedFirstDiamond = picked_first_diamond;
+        game.events.emit('loadGame');
+    }
+
+    function startAutomation() {
+        game.automation = true;
+        game.events.emit('startAutomate');
+    }
+
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         let username = username_field.value;
@@ -417,9 +516,10 @@ const App: Component = () => {
                 setLoggedIn(true);
                 setAuth(true);
                 setUsername(username);
+                uploaded_image = "";
                 break;
             case 400:   //Bad_Request
-                setBad_request_bool(true);
+                //setBad_request_bool(true);
                 console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
@@ -446,7 +546,7 @@ const App: Component = () => {
                     break;
                 case 401:
                     //credentials did not match any existing user
-                    setUnauthorized(true);
+                    //setUnauthorized(true);
                     console.log('Unauthorized');
                     break;
             }
@@ -473,12 +573,33 @@ const App: Component = () => {
         }
     }
 
+    const attack = async () => {
+        const response = await fetch("http://localhost:3001/combat", {
+            method: "GET",
+            credentials: "include",
+        });
+        if (response.status == 200) { //200 == StatusCode OK
+            setAttacked(true);
+            console.log("Start timer");
+            //Start timer
+            await startTimer();
+        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
+            console.log("No match");
+        }
+    }
+
+    /*
+    * Handler for click events outside of assigned element
+    */
     const clickOutside = async (el: { contains: (arg0: any) => any }, accessor: () => { (): any; new(): any }) => {
         const onClick = (e: MouseEvent) => !el.contains(e.target) && accessor()?.();
         document.body.addEventListener("click", onClick);
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
+    /*
+    * Functions to change visibility of elements on the game screen
+    */
     const hide = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
     }
@@ -487,6 +608,9 @@ const App: Component = () => {
         document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
     }
 
+    /*
+    * Functions to handle the slide out menu panels and animations
+    */
     const slideOut = () => {
         let variable = document.querySelector("." + styles.slideIn);
         if (variable) {
@@ -522,6 +646,10 @@ const App: Component = () => {
         right!.classList.remove(styles.gear_rotate_counterClockwise);
         right!.classList.add(styles.gear_rotate_clockwise);
     }
+
+    /*
+    * Starts the combat timer on the pvp tab
+    */
     const startTimer = async () => {
         let seconds: string | number = 9;
         let minutes: string | number = 1;
@@ -543,21 +671,9 @@ const App: Component = () => {
         }, 1000);
     }
 
-    const attack = async () => {
-        const response = await fetch("http://localhost:3001/combat", {
-            method: "GET",
-            credentials: "include",
-        });
-        if (response.status == 200) { //200 == StatusCode OK
-            setAttacked(true);
-            console.log("Start timer");
-            //Start timer
-            await startTimer();
-        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
-            console.log("No match");
-        }
-    }
-
+    /*
+    * Functions for sounds on button click
+    */
     const buttonClick = new Audio(buttonSound);
     buttonClick.preload = "none";
 
@@ -565,6 +681,9 @@ const App: Component = () => {
         await buttonClick.play();
     }
 
+    /*
+    * Updates cost values for upgrades
+    */
     function subtractCost(cost: string) {
         setCostNumber("-" + cost);
         let c = document.getElementById("cost");
@@ -575,6 +694,9 @@ const App: Component = () => {
         }
     }
 
+    /*
+    * Popup for bad status cases
+    */
     function badStatusPopup() {
         let inUse = document.getElementById("inUse");
         let invalid = document.getElementById("invalid");
@@ -591,55 +713,45 @@ const App: Component = () => {
         }
     }
 
-    window.addEventListener('mineEvent', async () => {
-        await mine();
-    })
-
-    window.addEventListener('treasureEvent', async () => {
-        await treasure();
-    });
-
-    const treasure = async () => {
-        if (socket) {
-            const event: ClientMessages = "Treasure";
-            await socket.send(JSON.stringify(event));
-        }
-    }
-
-    window.addEventListener('diamondEvent', async () => {
-        await pickedUpDiamond();
-    })
-
-    const pickedUpDiamond = async () => {
-        if (socket) {
-            const event: ClientMessages = 'Diamond';
-            await socket.send(JSON.stringify(event));
-        }
-    }
-
-    const loadGame = async () => {
-        if (socket) {
-            setTimeout(async () => {
-                const event: ClientMessages = 'LoadGame';
-                await socket?.send(JSON.stringify(event));
-            }, 200);
-        }
-    }
-
-    function loadGameData(picked_first_diamond: boolean) {
-        game.pickedFirstDiamond = picked_first_diamond;
-        game.events.emit('loadGame');
-    }
-
-    function startAutomation() {
-        game.automation = true;
-        game.events.emit('startAutomate');
-    }
-
+    /*
+    * Account dropdown menu
+    */
     const dropdown = async () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
+    const saveImg = async () => {
+        const response = await fetch("http://localhost:3001/save_pfp", {
+            method: "GET",
+            credentials: "include",
+            headers: {pfp: uploaded_image},
+        });
+    }
+
+    /*
+    * Functions to load, save and show a profile picture on the account page
+    */
+    function loadPfp() {
+        const image_input = document.querySelector("#image_input");
+        image_input!.addEventListener("change", () => {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                uploaded_image = reader.result;
+                document.querySelector("#display_image")!.style.backgroundImage = `url(${uploaded_image})`;
+            });
+            reader.readAsDataURL(this.files[0]);
+        });
+    }
+
+    function displayPfp() {
+        console.log("dispIm: ", uploaded_image);
+        let img = uploaded_image as string;
+        document.querySelector("#display_image")!.style.backgroundImage = `url(${img})`;
+    }
+
+    /*
+    * Returns the HTML page of Clicker Royale
+    */
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -657,16 +769,41 @@ const App: Component = () => {
                                       dropdown();
                                   }}></button>
                                   <div id="myDropdown" class={styles.dropdowncntnt}>
-                                      <a>Profile</a>
+                                      <a onClick={(e) => {
+                                          setShowProfile(true);
+                                          void playButtonSound();
+                                          void displayPfp()
+                                      }}>Profile</a>
                                       <a>Background</a>
                                       <a onClick={() => {
                                           sign_out();
                                           setShow(false);
                                           setInnerShow(false);
+                                          void playButtonSound()
                                       }}>Log out</a>
                                   </div>
+                                  <Show when={showprofile()}
+                                        fallback={""}>
+                                      <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
+                                          <h3>Profile</h3>
+                                          <div class={styles.flexitem}>
+                                              <input type="file" class={styles.image_input} id="image_input"
+                                                     accept="image/png, image/jpg" onclick={loadPfp}/>
+                                              <div id="display_image" class={styles.displayimage}>
+                                              </div>
+                                              <button onClick={saveImg}>Safe</button>
+                                          </div>
+                                          <div class={styles.flexitem2}>
+                                              <label>Name: Test</label>
+                                              <br/>
+                                              <label>Email: {email_field.value}</label>
+                                          </div>
+
+                                      </div>
+                                  </Show>
                               </div>
-                          } keyed>
+                          }>
+
                         <button onClick={(e) => {
                             setShow(true);
                             void playButtonSound()

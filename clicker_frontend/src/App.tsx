@@ -7,12 +7,6 @@ import displayModule from "./styles/Display.module.css";
 import shopModule from "./styles/Shop.module.css";
 import rankModule from "./styles/Leaderboard.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
-import clicker_logo from "./assets/img/ClickerRoyale_Wappen.png";
-import board from "./assets/img/board_with_icons.png";
-import board_right from "./assets/img/Brett_Neu_test.png";
-import small_board from "./assets/img/board_new_small.png";
-import leaderboard from "./assets/img/leaderboard4.png";
-import buttonSound from "./assets/audio/button_click.mp3";
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
 import Phaser from "phaser";
 import Preload from "./scenes/preload";
@@ -26,9 +20,9 @@ const App: Component = () => {
     /*
     * Variable and signal initialisations/declarations
     */
-    let password_field: HTMLInputElement;
-    let email_field: HTMLInputElement;
-    let username_field: HTMLInputElement;
+    let password_field: HTMLInputElement = {} as HTMLInputElement;
+    let email_field: HTMLInputElement = {} as HTMLInputElement;
+    let username_field: HTMLInputElement = {} as HTMLInputElement;
     let uploaded_image: any;
 
     const [ore, setOre] = createSignal(0);
@@ -86,7 +80,7 @@ const App: Component = () => {
             const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
             let arr = (msg.data as string).match(re)![0];
 
-            // Switch for event handeling, the IDE might throw a lot of errors here because it doesn't recognize the right content for the cases.
+            // Switch for event handling, the IDE might throw a lot of errors here because it doesn't recognize the right content for the cases.
             // The functionality of the Switch case is not affected by this.
 
             if (typeof event === 'object') {
@@ -376,7 +370,7 @@ const App: Component = () => {
     }, 30);
 
     /*
-    * Formats numbers to be compacted once they reach a ceartain limit
+    * Formats numbers to be compacted once they reach a certain limit
     */
     function formatNumbers(formatNumber: number) {
         if (formatNumber < 1000) {
@@ -730,7 +724,7 @@ const App: Component = () => {
     /*
     * Functions for sounds on button click
     */
-    const buttonClick = new Audio(buttonSound);
+    const buttonClick = new Audio("src/assets/audio/button_click.mp3");
     buttonClick.preload = "none";
 
     const playButtonSound = async () => {
@@ -779,22 +773,21 @@ const App: Component = () => {
     /*
     * Functions to load, save and show a profile picture on the account page
     */
-    function loadPfp() {
+    function loadPfp(this: any) {
         const image_input = document.querySelector("#image_input");
         image_input!.addEventListener("change", () => {
             const reader = new FileReader();
             reader.addEventListener("load", () => {
                 uploaded_image = reader.result;
-                document.querySelector("#display_image")!.style.backgroundImage = `url(${uploaded_image})`;
+                document.querySelector<HTMLDivElement>("#display_image")!.style.backgroundImage = `url(${uploaded_image})`;
             });
             reader.readAsDataURL(this.files[0]);
         });
     }
 
     function displayPfp() {
-        console.log("dispIm: ", uploaded_image);
         let img = uploaded_image as string;
-        document.querySelector("#display_image")!.style.backgroundImage = `url(${img})`;
+        document.querySelector<HTMLDivElement>("#display_image")!.style.backgroundImage = `url(${img})`;
     }
 
     const saveImg = async () => {
@@ -844,7 +837,7 @@ const App: Component = () => {
                     <div class={styles.heil_img}></div>
                 </div>
                 <div class={styles.header}>
-                    <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <img src={"src/assets/img/ClickerRoyale_Wappen.png"} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={
@@ -853,7 +846,7 @@ const App: Component = () => {
                                       void dropdown();
                                   }}></button>
                                   <div id="myDropdown" class={styles.dropdownContent}>
-                                      <a onClick={(e) => {
+                                      <a onClick={() => {
                                           setShowProfile(true);
                                           void playButtonSound();
                                           void displayPfp()
@@ -870,14 +863,14 @@ const App: Component = () => {
                                         fallback={""} keyed>
                                       <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
                                           <h3>Profile</h3>
-                                          <div class={styles.flexitem}>
+                                          <div class={styles.flexItem}>
                                               <input type="file" class={styles.image_input} id="image_input"
                                                      accept="image/png, image/jpg" onclick={loadPfp}/>
                                               <div id="display_image" class={styles.displayimage}>
                                               </div>
                                               <button onClick={saveImg}>Safe</button>
                                           </div>
-                                          <div class={styles.flexitem2}>
+                                          <div class={styles.flexItem2}>
                                               <label>Name: Test</label>
                                               <br/>
                                               <label>Email: {email_field!.value}</label>
@@ -955,7 +948,7 @@ const App: Component = () => {
                 <div class={styles.board}>
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
-                            <img src={board} class={styles.board_img} alt={"Value board"}/>
+                            <img src={"src/assets/img/board_with_icons.png"} class={styles.board_img} alt={"Value board"}/>
                             <div id={"cost"} class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
@@ -990,7 +983,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
                                 <button class={styles.button_close} onClick={() => {
                                     slideOut();
                                     window.setTimeout(function () {
@@ -1052,7 +1045,7 @@ const App: Component = () => {
                               </>
                           } keyed>
                         <div class={styles.slideIn}>
-                            <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                            <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {
                                     slideOutAutomate();
@@ -1104,7 +1097,7 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={small_board} class={styles.board_img_automate}
+                                        <img src={"src/assets/img/board_new_small.png"} class={styles.board_img_automate}
                                              alt={"Automate Board"}/>
                                         <a class={mineModule.auto_label_board}>
                                             <label
@@ -1153,7 +1146,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={leaderboard} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={ "src/assets/img/leaderboard4.png"} class={styles.board_img_right} alt={"Control board"}/>
                                 <div id={"leaderboard"}
                                      class={styles.label_header + " " + rankModule.leaderboard}></div>
                                 <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>
@@ -1177,12 +1170,16 @@ const App: Component = () => {
                     </Show>
 
                     <div class={styles.buttonItem}>
-                        <button onClick={(e) => {setShowShop(true); void playButtonSound()}} class={styles.button}>Shop</button>
+                        <button onClick={() => {
+                            setShowShop(true);
+                            void playButtonSound()
+                        }} class={styles.button}>Shop
+                        </button>
                     </div>
 
                     <Show when={showShop()}
-                          fallback={""}>
-                        <div class={shopModule.shop} use:clickOutside={() => setShowShop(false)}>
+                          fallback={""} keyed>
+                        <div class={styles.modal + " " + shopModule.shop} use:clickOutside={() => setShowShop(false)}>
                             <div class={shopModule.shop_h}>
                                 <h3>Shop</h3>
                             </div>
@@ -1191,42 +1188,42 @@ const App: Component = () => {
                             </div>
                             <div class={shopModule.items_container}>
                                 <div class={shopModule.item}>
-                                    <div class={shopModule.tag_cherry}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_cherry}>
                                         <p class={shopModule.tag_p}>Cherry</p>
                                     </div>
-                                    <div class={styles.buttonitem}>
+                                    <div class={styles.buttonItem}>
                                         <button class={shopModule.button_buy}>1500</button>
                                     </div>
                                 </div>
                                 <div class={shopModule.item}>
-                                    <div class={shopModule.tag_mixed}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_mixed}>
                                         <p class={shopModule.tag_p}>Mixed</p>
                                     </div>
-                                    <div class={styles.buttonitem}>
+                                    <div class={styles.buttonItem}>
                                         <button class={shopModule.button_buy}>699</button>
                                     </div>
                                 </div>
                                 <div class={shopModule.item}>
-                                    <div class={shopModule.tag_spruce}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_spruce}>
                                         <p class={shopModule.tag_p}>Spruce</p>
                                     </div>
-                                    <div class={styles.buttonitem}>
+                                    <div class={styles.buttonItem}>
                                         <button class={shopModule.button_buy}>1500</button>
                                     </div>
                                 </div>
                                 <div class={shopModule.item}>
-                                    <div class={shopModule.tag_universe_dark}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_universe_dark}>
                                         <p class={shopModule.tag_p}>Dark Star</p>
                                     </div>
-                                    <div class={styles.buttonitem}>
+                                    <div class={styles.buttonItem}>
                                         <button class={shopModule.button_buy}>2690</button>
                                     </div>
                                 </div>
                                 <div class={shopModule.item}>
-                                    <div class={shopModule.tag_universe_light}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_universe_light}>
                                         <p class={shopModule.tag_p}>Light Star</p>
                                     </div>
-                                    <div class={styles.buttonitem}>
+                                    <div class={styles.buttonItem}>
                                         <button class={shopModule.button_buy}>2690</button>
                                     </div>
                                 </div>

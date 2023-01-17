@@ -1,6 +1,8 @@
 use crate::{ClientMessages, ServerMessages};
 use serde::{Deserialize, Serialize};
 
+//// Player Stats and Event Calls
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GameState {
     pub ore: f64,
@@ -13,10 +15,14 @@ pub struct GameState {
     pub attack_level: i32,
     pub defence_level: i32,
     pub automation_started: bool,
+    pub diamond: i32,
+    pub picked_first_diamond: bool,
     pub is_dummy: bool,
 }
 
 impl GameState {
+
+    /// Updates the ore and depth and sends an event to the frontend
     pub fn tick(&mut self, ticks: i64) -> ServerMessages {
         if self.ore < 0.0 {
             self.ore = 0.0;
@@ -168,11 +174,25 @@ impl GameState {
                     shovel_amount: self.shovel_amount_level,
                     shovel_depth: self.auto_depth_level,
                     automation_started: self.automation_started,
+                    diamond: self.diamond
                 }
+            }
+            ClientMessages::Treasure => {
+                self.ore += 1000.0;
+                ServerMessages::TreasureFound { ore: self.ore as u64 }
+            }
+            ClientMessages::Diamond => {
+                self.picked_first_diamond = true;
+                self.diamond += 100;
+                ServerMessages::DiamondFound { diamond: self.diamond }
+            }
+            ClientMessages::LoadGame => {
+                ServerMessages::GameData { picked_first_diamond: self.picked_first_diamond }
             }
         }
     }
 
+    /// Initialises a new game state instance
     pub fn new() -> Self {
         GameState {
             ore: 0.0,
@@ -185,6 +205,8 @@ impl GameState {
             attack_level: 1,
             defence_level: 1,
             automation_started: false,
+            diamond: 0,
+            picked_first_diamond: false,
             is_dummy: false,
         }
     }

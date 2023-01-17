@@ -8,7 +8,7 @@
 
 @font-face {
     font-family: 'Retro Pixel Font';
-    src: url("./assets/Retro Gaming.ttf");
+    src: url("src/assets/fonts/RetroGaming.ttf");
 }
 
 .container {
@@ -37,7 +37,7 @@
     grid-area: bar;
     z-index: 20;
     display: flex;
-    background-image: url("assets/wood_bar_new.png");
+    background-image: url("src/assets/img/wood_bar_new.png");
     background-size: contain;
 }
 
@@ -55,7 +55,7 @@
     min-width: 160px;
     overflow: auto;
     right: 0;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     z-index: 60;
 }
 
@@ -72,15 +72,16 @@
     cursor: pointer;
 }
 
-.show {display: block;}
+.show {
+    display: block;
+}
 
 .main {
     grid-area: main;
     z-index: 20;
     display: flex;
+    flex-direction: column;
     position: relative;
-    justify-content: center;
-    align-items: center;
 }
 
 .controls {
@@ -122,7 +123,7 @@
 }
 
 .button_sign_up {
-    background: url("assets/stone_button_light.png") no-repeat;
+    background: url("src/assets/img/stone_button_light.png") no-repeat;
     background-size: 100% 100%;
     height: 80%;
     width: 8%;
@@ -143,7 +144,7 @@
 }
 
 .User_symbol {
-    background: url("assets/User_symbol_new.png") no-repeat center center;
+    background: url("src/assets/img/User_symbol_new.png") no-repeat center center;
     background-size: 100% 100%;
     height: 4vw;
     width: 4vw;
@@ -167,7 +168,7 @@
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
-    cursor: url("assets/pickaxe_small.png"), pointer;
+    cursor: url("src/assets/img/pickaxe_small.png"), pointer;
     position: absolute;
 }
 
@@ -185,9 +186,55 @@
     height: 458px;
     width: 393px;
     padding: 10px;
-    background-image: url("/src/assets/PopUp.png");
+    background-image: url("/src/assets/img/PopUp.png");
     background-repeat: no-repeat;
     background-size: 100% 100%;
+}
+
+.flexitem {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    width: 300px;
+    height: 250px;
+    justify-content: center;
+    align-items: center;
+    border: solid black 2px;
+}
+
+.flexitem2 {
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    width: 300px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+    border: solid black 2px;
+}
+
+.displayimage {
+    width: 200px;
+    height: 200px;
+    color: #04AA6D;
+    border: 2px solid white;
+    background-position: center;
+    background-size: cover;
+    border-radius: 100%;
+}
+
+#image_input{
+    max-width: 100px;
+    border: solid 3px black;
+}
+
+#image{
+    width: 100px;
+    height: auto;
+}
+
+input[type="file"]{
+    background-color: #c0c0c0 !important;
 }
 
 .popup_h {
@@ -255,7 +302,7 @@ input[type=submit]:active {
     transform: scale(.3);
     border: none;
     transition-duration: .4s;
-    background-image: url("src/assets/stone_button_dark_test.png");
+    background-image: url("src/assets/img/stone_button_dark_test.png");
     height: 125%;
     width: 125%;
     font-size: 3.25vw;
@@ -275,7 +322,7 @@ input[type=submit]:active {
 .progressBar {
     position: absolute;
     top: 83%;
-    background-image: url("src/assets/test.png");
+    background-image: url("src/assets/img/test.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -298,11 +345,6 @@ input[type=submit]:active {
     border-radius: 13px;
 }
 
-.time {
-    top: 84%;
-    right: 30%;
-}
-
 .label_header {
     position: absolute;
     color: white;
@@ -318,24 +360,27 @@ input[type=submit]:active {
     -1px 0 0 #000;
 }
 
+.time {
+    top: 81.7%;
+    right: 33%;
+    font-size: 1.5vw;
+}
+
 .label_board {
-    top: 40%;
+    top: 38%;
     position: absolute;
-    background-image: url("src/assets/wood_label_new.png");
+    background-image: url("src/assets/img/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
     background-repeat: no-repeat;
-    width: 35%;
+    width: 33%;
     height: 7%;
-    justify-content: center;
-    align-items: center;
-    /*-webkit-box-shadow: 1px 3px 4px #000;*/
 }
 
 .icon_upgrade {
     position: absolute;
-    background-image: url("src/assets/Arrow_Symbol.png");
+    background-image: url("src/assets/img/Arrow_Symbol.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -349,7 +394,7 @@ input[type=submit]:active {
 
 .ore {
     position: absolute;
-    background-image: url("src/assets/ore.png");
+    background-image: url("src/assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -361,8 +406,8 @@ input[type=submit]:active {
 
 .button_close {
     position: absolute;
-    top: 93.3%;
-    background-image: url("src/assets/wood_label_close.png");
+    top: 94%;
+    background-image: url("src/assets/img/wood_label_close.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -372,7 +417,6 @@ input[type=submit]:active {
     border: none;
     transition-duration: .4s;
     align-items: center;
-    /*-webkit-box-shadow: 1px 3px 4px #000;*/
     display: flex;
 }
 
@@ -415,7 +459,7 @@ input[type=submit]:active {
     }
 
     .heil_img {
-        background-image: url("assets/heilenberg_edit.png");
+        background-image: url("src/assets/img/heilenberg_edit.png");
         background-repeat: no-repeat;
         background-size: 100% 100%;
         height: 954px;
@@ -423,6 +467,11 @@ input[type=submit]:active {
         position: absolute;
         right: -23.7%;
         bottom: 0;
+    }
+
+    .User_symbol {
+        height: 80px;
+        width: 80px;
     }
 
     .gear_rotate_counterClockwise {
@@ -462,7 +511,7 @@ input[type=submit]:active {
         grid-area: vBar;
         z-index: 40;
         display: flex;
-        background-image: url("assets/vBar.png");
+        background-image: url("src/assets/img/vBar.png");
         background-size: contain;
     }
 
@@ -493,6 +542,10 @@ input[type=submit]:active {
 
     .label_header {
         font-size: 32px;
+    }
+
+    .time {
+        font-size: 30px;
     }
 
     .modal {
@@ -562,8 +615,7 @@ input[type=submit]:active {
 }
 
 .board_img_right {
-    height: 100%;
-    width: 75%;
+    width: 65%;
 }
 
 .image_container {
@@ -583,6 +635,7 @@ input[type=submit]:active {
     justify-content: center;
     z-index: 3;
     overflow: visible;
+    top: 3%;
 }
 
 @keyframes slideIn {
@@ -610,6 +663,7 @@ input[type=submit]:active {
     justify-content: center;
     z-index: 3;
     overflow: visible;
+    top: 3%;
 }
 
 @keyframes slideOut {
@@ -634,7 +688,7 @@ input[type=submit]:active {
 .gear_normal {
     overflow: hidden;
     position: fixed;
-    background-image: url("./assets/cog3.png");
+    background-image: url("assets/img/cog3.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -687,8 +741,7 @@ input[type=submit]:active {
 }
 
 .board_img_automate {
-    height: 100%;
-    width: 75%;
+    width: 65%;
 }
 
 .image_container_automate {
@@ -707,7 +760,7 @@ input[type=submit]:active {
     display: flex;
     justify-content: center;
     z-index: -2;
-    top: 23%
+    top: 13%;
 }
 
 @keyframes slideInAutomate {
@@ -734,6 +787,7 @@ input[type=submit]:active {
     display: flex;
     justify-content: center;
     z-index: -2;
+    top: -13%;
 }
 
 @keyframes slideOutAutomate {
@@ -749,18 +803,6 @@ input[type=submit]:active {
     100% {
         transform: translateY(50%);
     }
-}
-
-.miner {
-    background-image: url("assets/miner_masculine_1.png");
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    position: relative;
-    height: 6vw;
-    width: 5vw;
-    left: 2%;
-    z-index: 100;
-    top: -6%;
 }
 
 .cost {
@@ -849,7 +891,7 @@ input[type=submit]:active {
 .grid_ore_icon {
     display: flex;
     position: relative;
-    background-image: url("src/assets/ore.png");
+    background-image: url("src/assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -877,7 +919,7 @@ input[type=submit]:active {
 .grid_depth_icon {
     display: flex;
     position: relative;
-    background-image: url("src/assets/pickaxe.png");
+    background-image: url("src/assets/img/pickaxe.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -905,7 +947,7 @@ input[type=submit]:active {
 .grid_loot_icon {
     display: flex;
     position: relative;
-    background-image: url("src/assets/ore.png");
+    background-image: url("src/assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;

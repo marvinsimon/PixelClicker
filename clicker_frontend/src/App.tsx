@@ -1031,7 +1031,7 @@ const App: Component = () => {
                                         <div class={pvpModule.firstHand}></div>
                                         <div class={pvpModule.secondHand}></div>
                                     </div>
-                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>00:10</span>
+                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>10:00</span>
                                 </Show>
                             </div>
                         </div>

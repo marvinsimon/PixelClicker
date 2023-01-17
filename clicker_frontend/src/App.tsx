@@ -4,11 +4,13 @@ import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
+import rankModule from "./styles/Leaderboard.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/img/ClickerRoyale_Wappen.png";
 import board from "./assets/img/board_with_icons.png";
 import board_right from "./assets/img/Brett_Neu_test.png";
 import small_board from "./assets/img/board_new_small.png";
+import leaderboard from "./assets/img/leaderboard4.png";
 import buttonSound from "./assets/audio/button_click.mp3";
 
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
@@ -34,7 +36,7 @@ const App: Component = () => {
     const [depth, setDepth] = createSignal(0);
     const [username, setUsername] = createSignal("");
     const [show, setShow] = createSignal(false); //PopUp Variable
-    const [innershow, setInnerShow] = createSignal(false);
+    const [innerShow, setInnerShow] = createSignal(false);
     const [showprofile, setShowProfile] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
@@ -60,6 +62,10 @@ const App: Component = () => {
     const [autoAmountPrice, setAutoAmountPrice] = createSignal(50);
     const [costNumber, setCostNumber] = createSignal("");
     const [diamond, setDiamond] = createSignal(0);
+    const [showLeaderboard, setShowLeaderboard] = createSignal(false);
+    const [pvpScore, setPvpScore] = createSignal(0);
+
+    let players: string;
 
     let game: ClickerRoyaleGame;
     let socket: WebSocket | undefined;
@@ -86,111 +92,158 @@ const App: Component = () => {
             if (typeof event === 'object') {
             switch (arr) {
                 case "NewState":
-                    console.log(event.NewState);
-                    setOre(event.NewState.ore);
-                    setDepth(event.NewState.depth);
-                    game.depth = depth();
+                    if ('NewState' in event) {
+                        console.log(event.NewState);
+                        setOre(event.NewState.ore);
+                        setDepth(event.NewState.depth);
+                        game.depth = depth();
+                    }
                     break;
                 case "ShovelDepthUpgraded":
-                    console.log(event.ShovelDepthUpgraded);
-                    setShovelDepth(event.ShovelDepthUpgraded.new_level);
-                    if (event.ShovelDepthUpgraded.success) {
-                        subtractCost(formatNumbers(shovelDepthPrice()));
+                    if ("ShovelDepthUpgraded" in event) {
+                        console.log(event.ShovelDepthUpgraded);
+                        setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                        if (event.ShovelDepthUpgraded.success) {
+                            subtractCost(formatNumbers(shovelDepthPrice()));
+                        }
+                        setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
                     }
-                    setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
                     break;
                 case "ShovelAmountUpgraded":
-                    console.log(event.ShovelAmountUpgraded);
-                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
-                    if (event.ShovelAmountUpgraded.success) {
-                        subtractCost(formatNumbers(shovelAmountPrice()));
+                    if ("ShovelAmountUpgraded" in event) {
+                        console.log(event.ShovelAmountUpgraded);
+                        setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                        if (event.ShovelAmountUpgraded.success) {
+                            subtractCost(formatNumbers(shovelAmountPrice()));
+                        }
+                        setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
                     }
-                    setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
                     break;
                 case "AutomationStarted":
-                    setAutomation(event.AutomationStarted.success);
-                    if (event.AutomationStarted.success) {
-                        subtractCost("200");
-                        startAutomation();
+                    if ("AutomationStarted" in event) {
+                        setAutomation(event.AutomationStarted.success);
+                        if (event.AutomationStarted.success) {
+                            subtractCost("200");
+                            startAutomation();
+                        }
                     }
                     break;
                 case "AutomationDepthUpgraded":
-                    console.log(event.AutomationDepthUpgraded);
-                    setAutoDepth(event.AutomationDepthUpgraded.new_level);
-                    if (event.AutomationDepthUpgraded.success) {
-                        subtractCost(formatNumbers(autoDepthPrice()));
+                    if ("AutomationDepthUpgraded" in event) {
+                        console.log(event.AutomationDepthUpgraded);
+                        setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                        if (event.AutomationDepthUpgraded.success) {
+                            subtractCost(formatNumbers(autoDepthPrice()));
+                        }
+                        setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
                     }
-                    setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
                     break;
                 case "AutomationAmountUpgraded":
-                    console.log(event.AutomationAmountUpgraded);
-                    setAutoAmount(event.AutomationAmountUpgraded.new_level);
-                    if (event.AutomationAmountUpgraded.success) {
-                        subtractCost(formatNumbers(autoAmountPrice()));
+                    if ("AutomationAmountUpgraded" in event) {
+                        console.log(event.AutomationAmountUpgraded);
+                        setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                        if (event.AutomationAmountUpgraded.success) {
+                            subtractCost(formatNumbers(autoAmountPrice()));
+                        }
+                        setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
                     }
-                    setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
                     break;
                 case "AttackLevelUpgraded":
-                    console.log(event.AttackLevelUpgraded);
-                    setAttackLevel(event.AttackLevelUpgraded.new_level);
-                    if (event.AttackLevelUpgraded.success) {
-                        subtractCost(formatNumbers(attackPrice()));
+                    if ("AttackLevelUpgraded" in event) {
+                        console.log(event.AttackLevelUpgraded);
+                        setAttackLevel(event.AttackLevelUpgraded.new_level);
+                        if (event.AttackLevelUpgraded.success) {
+                            subtractCost(formatNumbers(attackPrice()));
+                        }
+                        setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
                     }
-                    setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
                     break;
                 case "DefenceLevelUpgraded":
-                    console.log(event.DefenceLevelUpgraded);
-                    setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-                    if (event.DefenceLevelUpgraded.success) {
-                        subtractCost(formatNumbers(defencePrice()));
+                    if ("DefenceLevelUpgraded" in event) {
+                        console.log(event.DefenceLevelUpgraded);
+                        setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                        if (event.DefenceLevelUpgraded.success) {
+                            subtractCost(formatNumbers(defencePrice()));
+                        }
+                        setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
                     }
-                    setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
                     break;
                 case "CombatElapsed":
-                    console.log(event.CombatElapsed);
-                    lootArrived(event.CombatElapsed);
-                    break;
-                case "LoginState":
-                    console.log(event.LoginState);
-                    setLoginStates(event.LoginState);
+                    if ("CombatElapsed" in event) {
+                        console.log(event.CombatElapsed);
+                        lootArrived(event.CombatElapsed);
+                    }
                     break;
                 case "LoggedIn":
-                    console.log("Still logged in")
-                    setAuth(true);
-                    setLoggedIn(true);
+                    if ("LoggedIn" in event) {
+                        console.log("Still logged in");
+                        setAuth(true);
+                        setLoggedIn(true);
+                    }
+                    break;
+                case "LoginState":
+                    if ("LoginState" in event) {
+                        console.log(event.LoginState);
+                        setLoginStates(event.LoginState);
+                    }
                     break;
                 case "MinedOffline":
-                    console.log("Got offline resources")
-                    setTotalDepth(event.MinedOffline.depth);
-                    setTotalAmount(event.MinedOffline.ore);
-                    setShowOfflineResources(true);
+                    if ("MinedOffline" in event) {
+                        console.log("Got offline resources");
+                        setTotalDepth(event.MinedOffline.depth);
+                        setTotalAmount(event.MinedOffline.ore);
+                        setShowOfflineResources(true);
+                    }
                     break;
                 case "SetUsername":
-                    setUsername(event.SetUsername.username);
+                    if ("SetUsername" in event) {
+                        setUsername(event.SetUsername.username);
+                    }
                     break;
                 case "SetProfilePicture":
-                    uploaded_image = event.SetProfilePicture.pfp;
+                    if ("SetProfilePicture" in event) {
+                        uploaded_image = event.SetProfilePicture.pfp;
+                    }
                     break;
                 case "TreasureFound":
-                    console.log('Treasure found');
-                    setOre(event.TreasureFound.ore);
+                    if ("TreasureFound" in event) {
+                        console.log('Treasure found');
+                        setOre(event.TreasureFound.ore);
+                    }
                     break;
                 case "DiamondFound":
-                    console.log('Diamond found');
-                    setDiamond(event.DiamondFound.diamond);
+                    if ("DiamondFound" in event) {
+                        console.log('Diamond found');
+                        setDiamond(event.DiamondFound.diamond);
+                    }
                     break;
                 case "GameData":
-                    console.log('Load game data');
-                    loadGameData(event.GameData.picked_first_diamond);
+                    if ("GameData" in event) {
+                        console.log('Load game data');
+                        loadGameData(event.GameData.picked_first_diamond);
+                    }
+                    break;
+                case "SendLeaderboard":
+                    if ("SendLeaderboard" in event) {
+                        console.log('Load Leaderboard');
+                        players = event.SendLeaderboard.players;
+                    }
+                    break;
+                case "SendPvpScore":
+                    if ("SendPvpScore" in event) {
+                        console.log('Load pvp score');
+                        setPvpScore(event.SendPvpScore.pvp_score);
+                    }
                     break;
             }
         }
-        socket.onopen = () => {
-            const event: ClientMessages = "GetLoginData";
-            window.setTimeout(() => {
-                socket?.send(JSON.stringify(event));
-            }, 1000);
-        }
+    }
+
+    socket.onopen = () => {
+        const event: ClientMessages = "GetLoginData";
+        window.setTimeout(() => {
+            socket?.send(JSON.stringify(event));
+        }, 1000);
     }
 }
 
@@ -373,13 +426,14 @@ const App: Component = () => {
     * Sets the game screen to the initial display
     */
     const resetScreen = () => {
-        if (showMining() || showPVP()) {
+        if (showMining() || showPVP() || showLeaderboard()) {
             slideOutAutomate();
             slideOut();
             window.setTimeout(function () {
                 setShowMining(false);
                 setShowPVP(false);
-                unhide();
+                setShowLeaderboard(false);
+                unHide();
             }, 1300);
             rotateGearOut();
         }
@@ -519,7 +573,7 @@ const App: Component = () => {
                 uploaded_image = "";
                 break;
             case 400:   //Bad_Request
-                //setBad_request_bool(true);
+                badStatusPopup();
                 console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
@@ -546,7 +600,7 @@ const App: Component = () => {
                     break;
                 case 401:
                     //credentials did not match any existing user
-                    //setUnauthorized(true);
+                    badStatusPopup();
                     console.log('Unauthorized');
                     break;
             }
@@ -566,6 +620,8 @@ const App: Component = () => {
                 setAuth(false);
                 game.events.emit('logOut');
                 setUsername("")
+                setPvpScore(0);
+                game.automation = false;
                 await connectBackend();
             }
         } else {
@@ -601,11 +657,11 @@ const App: Component = () => {
     * Functions to change visibility of elements on the game screen
     */
     const hide = () => {
-        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
+        document.querySelectorAll("." + styles.buttonItem).forEach(value => value.classList.add(styles.hide));
     }
 
-    const unhide = () => {
-        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
+    const unHide = () => {
+        document.querySelectorAll("." + styles.buttonItem).forEach(value => value.classList.remove(styles.hide));
     }
 
     /*
@@ -720,14 +776,6 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
-    const saveImg = async () => {
-        const response = await fetch("http://localhost:3001/save_pfp", {
-            method: "GET",
-            credentials: "include",
-            headers: {pfp: uploaded_image},
-        });
-    }
-
     /*
     * Functions to load, save and show a profile picture on the account page
     */
@@ -749,6 +797,42 @@ const App: Component = () => {
         document.querySelector("#display_image")!.style.backgroundImage = `url(${img})`;
     }
 
+    const saveImg = async () => {
+        const response = await fetch("http://localhost:3001/save_pfp", {
+            method: "GET",
+            credentials: "include",
+            headers: {pfp: uploaded_image},
+        });
+    }
+
+    /*
+    * Functions to show the leaderboard field
+    */
+    function showScores() {
+        let allPlayers = JSON.parse(players);
+        let leaderboard = document.querySelector("#leaderboard");
+        leaderboard!.innerHTML = "";
+        let counter = 1;
+        allPlayers.forEach((player: any) => {
+            let name = document.createElement("label");
+            name.innerHTML = counter + ". " + player.username;
+
+            let score = document.createElement("label");
+            score.innerHTML = player.pvp_score;
+            score.style.color = "#b7b7b7";
+            score.style.marginLeft = "20px";
+            score.style.direction = "rtl";
+            leaderboard!.appendChild(name);
+            leaderboard!.appendChild(score);
+            counter++;
+        })
+
+        let yourScore = document.querySelector("#pvpScore");
+        let scoreLabel = document.createElement('label');
+        scoreLabel.innerHTML = "Your Score: " + pvpScore().toString();
+        yourScore!.appendChild(scoreLabel);
+    }
+
     /*
     * Returns the HTML page of Clicker Royale
     */
@@ -766,9 +850,9 @@ const App: Component = () => {
                           fallback={
                               <div>
                                   <button class={styles.User_symbol} onClick={() => {
-                                      dropdown();
+                                      void dropdown();
                                   }}></button>
-                                  <div id="myDropdown" class={styles.dropdowncntnt}>
+                                  <div id="myDropdown" class={styles.dropdownContent}>
                                       <a onClick={(e) => {
                                           setShowProfile(true);
                                           void playButtonSound();
@@ -776,7 +860,7 @@ const App: Component = () => {
                                       }}>Profile</a>
                                       <a>Background</a>
                                       <a onClick={() => {
-                                          sign_out();
+                                          void sign_out();
                                           setShow(false);
                                           setInnerShow(false);
                                           void playButtonSound()
@@ -796,15 +880,15 @@ const App: Component = () => {
                                           <div class={styles.flexitem2}>
                                               <label>Name: Test</label>
                                               <br/>
-                                              <label>Email: {email_field.value}</label>
+                                              <label>Email: {email_field!.value}</label>
                                           </div>
 
                                       </div>
                                   </Show>
                               </div>
-                          }>
+                          } keyed>
 
-                        <button onClick={(e) => {
+                        <button onClick={() => {
                             setShow(true);
                             void playButtonSound()
                         }} class={styles.button_sign_up}>Login
@@ -827,7 +911,7 @@ const App: Component = () => {
                                     <p>Not registered?</p>
                                 </div>
                                 <div class={styles.switch}>
-                                    <button class={styles.buttonswitch} onClick={() => {
+                                    <button class={styles.buttonSwitch} onClick={() => {
                                         setShow(false);
                                         setInnerShow(true)
                                     }}>Sign Up
@@ -836,7 +920,7 @@ const App: Component = () => {
                             </div>
                         </Show>
 
-                        <Show when={innershow()}
+                        <Show when={innerShow()}
                               fallback={""} keyed>
                             <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                 <div class={styles.popup_h}>
@@ -856,7 +940,7 @@ const App: Component = () => {
                                     <p>Already signed up?</p>
                                 </div>
                                 <div class={styles.switch}>
-                                    <button class={styles.buttonswitch} onClick={() => {
+                                    <button class={styles.buttonSwitch} onClick={() => {
                                         setShow(true);
                                         setInnerShow(false)
                                     }}>Login
@@ -890,11 +974,12 @@ const App: Component = () => {
                 <div class={styles.controls}>
                     <a class={styles.gear_normal + " " + styles.gear_left}/>
                     <a class={styles.gear_normal + " " + styles.gear_right}></a>
+
                     <Show when={showPVP()}
                           fallback={
                               <>
-                                  <div class={styles.buttonitem}>
-                                      <button onClick={(e) => {
+                                  <div class={styles.buttonItem}>
+                                      <button onClick={() => {
                                           void playButtonSound();
                                           setShowPVP(true);
                                           hide();
@@ -911,7 +996,7 @@ const App: Component = () => {
                                     slideOut();
                                     window.setTimeout(function () {
                                         setShowPVP(false);
-                                        unhide();
+                                        unHide();
                                     }, 1300);
                                     rotateGearOut();
                                 }}>
@@ -920,7 +1005,7 @@ const App: Component = () => {
                                 <a class={styles.label_board}>
                                     <label class={styles.label_header + " " + pvpModule.label_pvp}>PVP</label>
                                 </a>
-                                <button attLvl={'Lv' + attackLevel()}
+                                <button data-attLvl={'Lv' + attackLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_attack}
                                         onClick={() => {
                                             void upgradeAttackLevel();
@@ -930,7 +1015,7 @@ const App: Component = () => {
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_attack_level}>{formatNumbers(attackPrice())}</label>
                                 <a class={styles.ore + " " + pvpModule.attack_ore}></a>
-                                <button defLvl={'Lv' + defenceLevel()}
+                                <button data-defLvl={'Lv' + defenceLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_defence}
                                         onClick={() => {
                                             void upgradeDefenceLevel();
@@ -956,8 +1041,8 @@ const App: Component = () => {
                     <Show when={showMining()}
                           fallback={
                               <>
-                                  <div class={styles.buttonitem}>
-                                      <button onClick={(e) => {
+                                  <div class={styles.buttonItem}>
+                                      <button onClick={() => {
                                           void playButtonSound();
                                           setShowMining(true);
                                           hide();
@@ -976,7 +1061,7 @@ const App: Component = () => {
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
-                                    unhide();
+                                    unHide();
                                 }, 1300);
                                 rotateGearOut();
                             }}>
@@ -985,7 +1070,7 @@ const App: Component = () => {
                             <a class={styles.label_board}>
                                 <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
                             </a>
-                            <button shovelSpeedLvl={'Lv' + shovelDepth()}
+                            <button data-shovelSpeedLvl={'Lv' + shovelDepth()}
                                     class={styles.button + " " + mineModule.upgrade_speed}
                                     onClick={() => {
                                         void upgradeShovelDepth();
@@ -995,7 +1080,7 @@ const App: Component = () => {
                             <label
                                 class={styles.label_header + " " + mineModule.label_speed_level}>{formatNumbers(shovelDepthPrice())}</label>
                             <a class={styles.ore + " " + mineModule.shovelDepth_ore}></a>
-                            <button shovelAmountLvl={'Lv' + shovelAmount()}
+                            <button data-shovelAmountLvl={'Lv' + shovelAmount()}
                                     class={styles.button + " " + mineModule.upgrade_amount}
                                     onClick={() => {
                                         void upgradeShovelAmount();
@@ -1026,7 +1111,7 @@ const App: Component = () => {
                                             <label
                                                 class={styles.label_header + " " + mineModule.label_auto}>Automate</label>
                                         </a>
-                                        <button autoDepthLvl={'Lv' + autoDepth()}
+                                        <button data-autoDepthLvl={'Lv' + autoDepth()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_speed}
                                                 onClick={() => {
                                                     void upgradeAutoDepth();
@@ -1036,7 +1121,7 @@ const App: Component = () => {
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{formatNumbers(autoDepthPrice())}</label>
                                         <a class={styles.ore + " " + mineModule.autoDepth_ore}></a>
-                                        <button autoAmountLvl={'Lv' + autoAmount()}
+                                        <button data-autoAmountLvl={'Lv' + autoAmount()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_amount}
                                                 onClick={() => {
                                                     void upgradeAutoAmount();
@@ -1051,10 +1136,48 @@ const App: Component = () => {
                             </Show>
                         </div>
                     </Show>
-                    <div class={styles.buttonitem}>
-                        <button class={styles.button}>Rank</button>
-                    </div>
-                    <div class={styles.buttonitem}>
+
+                    <Show when={showLeaderboard()}
+                          fallback={
+                              <>
+                                  <div class={styles.buttonItem}>
+                                      <button onClick={() => {
+                                          void playButtonSound();
+                                          setShowLeaderboard(true);
+                                          hide();
+                                          rotateGearIn();
+                                          showScores();
+                                      }} class={styles.button}>Rank
+                                      </button>
+                                  </div>
+                              </>
+                          } keyed>
+                        <div class={styles.slideIn}>
+                            <div class={styles.image_container}>
+                                <img src={leaderboard} class={styles.board_img_right} alt={"Control board"}/>
+                                <div id={"leaderboard"}
+                                     class={styles.label_header + " " + rankModule.leaderboard}></div>
+                                <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>
+                                </div>
+                                <button class={styles.button_close + " " + rankModule.rank_button_close}
+                                        onClick={() => {
+                                            slideOut();
+                                            window.setTimeout(function () {
+                                                setShowLeaderboard(false);
+                                                unHide();
+                                            }, 1300);
+                                            rotateGearOut();
+                                        }}>
+                                    <label class={styles.label_header + " " + styles.label_close}>X</label>
+                                </button>
+                                <a class={rankModule.rank_label_board}>
+                                    <label class={styles.label_header + " " + rankModule.label_rank}>Leaderboard</label>
+                                </a>
+                            </div>
+                        </div>
+                    </Show>
+
+                    <div class={styles.buttonItem}>
                         <button class={styles.button}>Shop</button>
                     </div>
 
@@ -1062,9 +1185,9 @@ const App: Component = () => {
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label style="font-size:30px"> Success! </label>
                             <label style="font-size:20px"> Your Loot:</label>
-                            <div class={styles.grid_loot}>
-                                <div class={styles.grid_loot_icon}></div>
-                                <label class={styles.grid_loot_label}
+                            <div class={styles.grid_ore}>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_ore_icon}></div>
+                                <label class={styles.grid_ore_label}
                                        style="font-size:20px">{formatNumbers(loot())}</label>
                             </div>
                         </div>
@@ -1075,12 +1198,12 @@ const App: Component = () => {
                             <label style="font-size:30px"> Welcome back!</label>
                             <label style="font-size:20px">Your Offline Loot:</label>
                             <div class={styles.grid_ore}>
-                                <div class={styles.grid_ore_icon}></div>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_ore_icon}></div>
                                 <label class={styles.grid_ore_label}
                                        style="font-size:20px">{formatNumbers(totalAmount())}</label>
                             </div>
                             <div class={styles.grid_depth}>
-                                <div class={styles.grid_depth_icon}></div>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_depth_icon}></div>
                                 <label class={styles.grid_depth_label}
                                        style="font-size:20px">{formatNumbers(totalDepth())}</label>
                             </div>
@@ -1089,8 +1212,7 @@ const App: Component = () => {
                 </div>
             </div>
         </div>
-    )
-        ;
+    );
 };
 
 export default App;

@@ -58,7 +58,7 @@ async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, po
     let mut game_state = GameState::new();
     let mut logged_in = false;
     let mut interval = Instant::now();
-    socket.send(Message::Text(serde_json::to_string(&ServerMessages::SendLeaderboard { players: get_top_players(&pool).await.unwrap_or(String::default()) }).unwrap())).await.unwrap_or(());
+    socket.send(Message::Text(serde_json::to_string(&ServerMessages::SendLeaderboard { players: get_top_players(&pool).await.unwrap_or_default() }).unwrap())).await.unwrap_or(());
     'outer: loop {
         if let Some(id) = session.get::<i64>(PLAYER_AUTH) {
 

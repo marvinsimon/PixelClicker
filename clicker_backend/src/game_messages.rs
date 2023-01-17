@@ -37,5 +37,7 @@ pub enum ServerMessages {
     DiamondFound{diamond: i32},
     GameData { picked_first_diamond: bool },
     SetUsername { username: String },
-    SetProfilePicture {pfp: String},
+    SetProfilePicture {pfp: String},    
+    SendLeaderboard { players: String },
+    SendPvpScore { pvp_score: i64 }
 }

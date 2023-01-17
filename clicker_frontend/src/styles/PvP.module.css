@@ -28,7 +28,7 @@
 }
 
 .upgrade_attack:hover:before {
-    content: attr(attLvl);
+    content: attr(data-attLvl);
 }
 
 .label_attack_level {
@@ -63,7 +63,7 @@
 }
 
 .upgrade_defence:hover:before {
-    content: attr(defLvl);
+    content: attr(data-defLvl);
 }
 
 .label_defence_level {

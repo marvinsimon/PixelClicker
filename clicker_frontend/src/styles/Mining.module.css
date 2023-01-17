@@ -28,7 +28,7 @@
 }
 
 .upgrade_speed:hover:before {
-    content: attr(shovelSpeedLvl);
+    content: attr(data-shovelSpeedLvl);
 }
 
 .label_speed_level {
@@ -63,7 +63,7 @@
 }
 
 .upgrade_amount:hover:before {
-    content: attr(shovelAmountLvl);
+    content: attr(data-shovelAmountLvl);
 }
 
 .label_amount_level {
@@ -148,7 +148,7 @@
 }
 
 .upgrade_automate_speed:hover:before {
-    content: attr(autoDepthLvl);
+    content: attr(data-autoDepthLvl);
 }
 
 .label_speed_automate_level {
@@ -184,7 +184,7 @@
 }
 
 .upgrade_automate_amount:hover:before {
-    content: attr(autoAmountLvl);
+    content: attr(data-autoAmountLvl);
 }
 
 .label_amount_automate_level {

@@ -1,5 +1,7 @@
+use serde::Serialize;
 use serde_json::Value;
-use sqlx::PgPool;
+use sqlx::{PgPool, Row, FromRow, Error};
+use sqlx::postgres::PgRow;
 use sqlx::types::chrono::Utc;
 
 use crate::events::EventType;
@@ -84,7 +86,7 @@ pub async fn search_for_enemy(id: i64, pool: &PgPool) -> i64 {
 }
 
 /// Selects pvp score of a Player from the Player table
-async fn search_pvp_score(id: i64, pool: &PgPool) -> i64 {
+pub async fn search_pvp_score(id: i64, pool: &PgPool) -> i64 {
     sqlx::query!(
         "SELECT pvp_score FROM player WHERE id = $1;",
         id
@@ -179,6 +181,7 @@ pub async fn get_username(id: i64, pool: &PgPool) -> String {
     ).fetch_one(pool).await.expect("DB failure").username
 }
 
+/// Gets the profile picture of a player
 pub async fn get_profile_picture(id: i64, pool: &PgPool) -> String {
     match sqlx::query!(
         "SELECT profile_picture FROM player WHERE id = $1;",
@@ -194,4 +197,25 @@ pub async fn get_profile_picture(id: i64, pool: &PgPool) -> String {
             "Error".to_string()
         }
     }
+}
+
+/// Selects the top players by pvp score
+pub async fn get_top_players(pool: &PgPool) -> Result<String, Error> {
+    #[derive(Serialize, FromRow)]
+    pub struct Player {
+        username: String,
+        pvp_score: i64,
+    }
+    let select_query = sqlx::query(
+        "SELECT username, pvp_score FROM player ORDER BY pvp_score DESC LIMIT 10;"
+    );
+    let players: Vec<Player> = select_query
+        .map(|row: PgRow| Player {
+            username: row.get("username"),
+            pvp_score: row.get("pvp_score"),
+        })
+        .fetch_all(pool)
+        .await?;
+    let json = serde_json::to_string(&players).unwrap();
+    Ok(json)
 }

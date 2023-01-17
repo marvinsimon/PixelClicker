@@ -4,6 +4,7 @@ import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
+import shopModule from "./styles/Shop.module.css";
 import rankModule from "./styles/Leaderboard.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
 import clicker_logo from "./assets/img/ClickerRoyale_Wappen.png";
@@ -12,7 +13,6 @@ import board_right from "./assets/img/Brett_Neu_test.png";
 import small_board from "./assets/img/board_new_small.png";
 import leaderboard from "./assets/img/leaderboard4.png";
 import buttonSound from "./assets/audio/button_click.mp3";
-
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
 import Phaser from "phaser";
 import Preload from "./scenes/preload";
@@ -37,7 +37,7 @@ const App: Component = () => {
     const [username, setUsername] = createSignal("");
     const [show, setShow] = createSignal(false); //PopUp Variable
     const [innerShow, setInnerShow] = createSignal(false);
-    const [showprofile, setShowProfile] = createSignal(false);
+    const [showProfile, setShowProfile] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [automation_on, setAutomation] = createSignal(false);
@@ -64,9 +64,9 @@ const App: Component = () => {
     const [diamond, setDiamond] = createSignal(0);
     const [showLeaderboard, setShowLeaderboard] = createSignal(false);
     const [pvpScore, setPvpScore] = createSignal(0);
+    const [showShop, setShowShop] = createSignal(false);
 
     let players: string;
-
     let game: ClickerRoyaleGame;
     let socket: WebSocket | undefined;
 
@@ -90,162 +90,162 @@ const App: Component = () => {
             // The functionality of the Switch case is not affected by this.
 
             if (typeof event === 'object') {
-            switch (arr) {
-                case "NewState":
-                    if ('NewState' in event) {
-                        console.log(event.NewState);
-                        setOre(event.NewState.ore);
-                        setDepth(event.NewState.depth);
-                        game.depth = depth();
-                    }
-                    break;
-                case "ShovelDepthUpgraded":
-                    if ("ShovelDepthUpgraded" in event) {
-                        console.log(event.ShovelDepthUpgraded);
-                        setShovelDepth(event.ShovelDepthUpgraded.new_level);
-                        if (event.ShovelDepthUpgraded.success) {
-                            subtractCost(formatNumbers(shovelDepthPrice()));
+                switch (arr) {
+                    case "NewState":
+                        if ('NewState' in event) {
+                            console.log(event.NewState);
+                            setOre(event.NewState.ore);
+                            setDepth(event.NewState.depth);
+                            game.depth = depth();
                         }
-                        setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
-                    }
-                    break;
-                case "ShovelAmountUpgraded":
-                    if ("ShovelAmountUpgraded" in event) {
-                        console.log(event.ShovelAmountUpgraded);
-                        setShovelAmount(event.ShovelAmountUpgraded.new_level);
-                        if (event.ShovelAmountUpgraded.success) {
-                            subtractCost(formatNumbers(shovelAmountPrice()));
+                        break;
+                    case "ShovelDepthUpgraded":
+                        if ("ShovelDepthUpgraded" in event) {
+                            console.log(event.ShovelDepthUpgraded);
+                            setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                            if (event.ShovelDepthUpgraded.success) {
+                                subtractCost(formatNumbers(shovelDepthPrice()));
+                            }
+                            setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
                         }
-                        setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
-                    }
-                    break;
-                case "AutomationStarted":
-                    if ("AutomationStarted" in event) {
-                        setAutomation(event.AutomationStarted.success);
-                        if (event.AutomationStarted.success) {
-                            subtractCost("200");
-                            startAutomation();
+                        break;
+                    case "ShovelAmountUpgraded":
+                        if ("ShovelAmountUpgraded" in event) {
+                            console.log(event.ShovelAmountUpgraded);
+                            setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                            if (event.ShovelAmountUpgraded.success) {
+                                subtractCost(formatNumbers(shovelAmountPrice()));
+                            }
+                            setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
                         }
-                    }
-                    break;
-                case "AutomationDepthUpgraded":
-                    if ("AutomationDepthUpgraded" in event) {
-                        console.log(event.AutomationDepthUpgraded);
-                        setAutoDepth(event.AutomationDepthUpgraded.new_level);
-                        if (event.AutomationDepthUpgraded.success) {
-                            subtractCost(formatNumbers(autoDepthPrice()));
+                        break;
+                    case "AutomationStarted":
+                        if ("AutomationStarted" in event) {
+                            setAutomation(event.AutomationStarted.success);
+                            if (event.AutomationStarted.success) {
+                                subtractCost("200");
+                                startAutomation();
+                            }
                         }
-                        setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
-                    }
-                    break;
-                case "AutomationAmountUpgraded":
-                    if ("AutomationAmountUpgraded" in event) {
-                        console.log(event.AutomationAmountUpgraded);
-                        setAutoAmount(event.AutomationAmountUpgraded.new_level);
-                        if (event.AutomationAmountUpgraded.success) {
-                            subtractCost(formatNumbers(autoAmountPrice()));
+                        break;
+                    case "AutomationDepthUpgraded":
+                        if ("AutomationDepthUpgraded" in event) {
+                            console.log(event.AutomationDepthUpgraded);
+                            setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                            if (event.AutomationDepthUpgraded.success) {
+                                subtractCost(formatNumbers(autoDepthPrice()));
+                            }
+                            setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
                         }
-                        setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
-                    }
-                    break;
-                case "AttackLevelUpgraded":
-                    if ("AttackLevelUpgraded" in event) {
-                        console.log(event.AttackLevelUpgraded);
-                        setAttackLevel(event.AttackLevelUpgraded.new_level);
-                        if (event.AttackLevelUpgraded.success) {
-                            subtractCost(formatNumbers(attackPrice()));
+                        break;
+                    case "AutomationAmountUpgraded":
+                        if ("AutomationAmountUpgraded" in event) {
+                            console.log(event.AutomationAmountUpgraded);
+                            setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                            if (event.AutomationAmountUpgraded.success) {
+                                subtractCost(formatNumbers(autoAmountPrice()));
+                            }
+                            setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
                         }
-                        setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
-                    }
-                    break;
-                case "DefenceLevelUpgraded":
-                    if ("DefenceLevelUpgraded" in event) {
-                        console.log(event.DefenceLevelUpgraded);
-                        setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-                        if (event.DefenceLevelUpgraded.success) {
-                            subtractCost(formatNumbers(defencePrice()));
+                        break;
+                    case "AttackLevelUpgraded":
+                        if ("AttackLevelUpgraded" in event) {
+                            console.log(event.AttackLevelUpgraded);
+                            setAttackLevel(event.AttackLevelUpgraded.new_level);
+                            if (event.AttackLevelUpgraded.success) {
+                                subtractCost(formatNumbers(attackPrice()));
+                            }
+                            setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
                         }
-                        setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
-                    }
-                    break;
-                case "CombatElapsed":
-                    if ("CombatElapsed" in event) {
-                        console.log(event.CombatElapsed);
-                        lootArrived(event.CombatElapsed);
-                    }
-                    break;
-                case "LoggedIn":
-                    if ("LoggedIn" in event) {
-                        console.log("Still logged in");
-                        setAuth(true);
-                        setLoggedIn(true);
-                    }
-                    break;
-                case "LoginState":
-                    if ("LoginState" in event) {
-                        console.log(event.LoginState);
-                        setLoginStates(event.LoginState);
-                    }
-                    break;
-                case "MinedOffline":
-                    if ("MinedOffline" in event) {
-                        console.log("Got offline resources");
-                        setTotalDepth(event.MinedOffline.depth);
-                        setTotalAmount(event.MinedOffline.ore);
-                        setShowOfflineResources(true);
-                    }
-                    break;
-                case "SetUsername":
-                    if ("SetUsername" in event) {
-                        setUsername(event.SetUsername.username);
-                    }
-                    break;
-                case "SetProfilePicture":
-                    if ("SetProfilePicture" in event) {
-                        uploaded_image = event.SetProfilePicture.pfp;
-                    }
-                    break;
-                case "TreasureFound":
-                    if ("TreasureFound" in event) {
-                        console.log('Treasure found');
-                        setOre(event.TreasureFound.ore);
-                    }
-                    break;
-                case "DiamondFound":
-                    if ("DiamondFound" in event) {
-                        console.log('Diamond found');
-                        setDiamond(event.DiamondFound.diamond);
-                    }
-                    break;
-                case "GameData":
-                    if ("GameData" in event) {
-                        console.log('Load game data');
-                        loadGameData(event.GameData.picked_first_diamond);
-                    }
-                    break;
-                case "SendLeaderboard":
-                    if ("SendLeaderboard" in event) {
-                        console.log('Load Leaderboard');
-                        players = event.SendLeaderboard.players;
-                    }
-                    break;
-                case "SendPvpScore":
-                    if ("SendPvpScore" in event) {
-                        console.log('Load pvp score');
-                        setPvpScore(event.SendPvpScore.pvp_score);
-                    }
-                    break;
+                        break;
+                    case "DefenceLevelUpgraded":
+                        if ("DefenceLevelUpgraded" in event) {
+                            console.log(event.DefenceLevelUpgraded);
+                            setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                            if (event.DefenceLevelUpgraded.success) {
+                                subtractCost(formatNumbers(defencePrice()));
+                            }
+                            setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "CombatElapsed":
+                        if ("CombatElapsed" in event) {
+                            console.log(event.CombatElapsed);
+                            lootArrived(event.CombatElapsed);
+                        }
+                        break;
+                    case "LoggedIn":
+                        if ("LoggedIn" in event) {
+                            console.log("Still logged in");
+                            setAuth(true);
+                            setLoggedIn(true);
+                        }
+                        break;
+                    case "LoginState":
+                        if ("LoginState" in event) {
+                            console.log(event.LoginState);
+                            setLoginStates(event.LoginState);
+                        }
+                        break;
+                    case "MinedOffline":
+                        if ("MinedOffline" in event) {
+                            console.log("Got offline resources");
+                            setTotalDepth(event.MinedOffline.depth);
+                            setTotalAmount(event.MinedOffline.ore);
+                            setShowOfflineResources(true);
+                        }
+                        break;
+                    case "SetUsername":
+                        if ("SetUsername" in event) {
+                            setUsername(event.SetUsername.username);
+                        }
+                        break;
+                    case "SetProfilePicture":
+                        if ("SetProfilePicture" in event) {
+                            uploaded_image = event.SetProfilePicture.pfp;
+                        }
+                        break;
+                    case "TreasureFound":
+                        if ("TreasureFound" in event) {
+                            console.log('Treasure found');
+                            setOre(event.TreasureFound.ore);
+                        }
+                        break;
+                    case "DiamondFound":
+                        if ("DiamondFound" in event) {
+                            console.log('Diamond found');
+                            setDiamond(event.DiamondFound.diamond);
+                        }
+                        break;
+                    case "GameData":
+                        if ("GameData" in event) {
+                            console.log('Load game data');
+                            loadGameData(event.GameData.picked_first_diamond);
+                        }
+                        break;
+                    case "SendLeaderboard":
+                        if ("SendLeaderboard" in event) {
+                            console.log('Load Leaderboard');
+                            players = event.SendLeaderboard.players;
+                        }
+                        break;
+                    case "SendPvpScore":
+                        if ("SendPvpScore" in event) {
+                            console.log('Load pvp score');
+                            setPvpScore(event.SendPvpScore.pvp_score);
+                        }
+                        break;
+                }
             }
         }
-    }
 
-    socket.onopen = () => {
-        const event: ClientMessages = "GetLoginData";
-        window.setTimeout(() => {
-            socket?.send(JSON.stringify(event));
-        }, 1000);
+        socket.onopen = () => {
+            const event: ClientMessages = "GetLoginData";
+            window.setTimeout(() => {
+                socket?.send(JSON.stringify(event));
+            }, 1000);
+        }
     }
-}
 
     // @ts-ignore
     window.onload = async () => {
@@ -707,8 +707,8 @@ const App: Component = () => {
     * Starts the combat timer on the pvp tab
     */
     const startTimer = async () => {
-        let seconds: string | number = 9;
-        let minutes: string | number = 1;
+        let seconds: string | number = 100;
+        let minutes: string | number = 6;
         let timeLeft = minutes * seconds;
         let combatTime = setInterval(function () {
             minutes = parseInt(String(timeLeft / 60), 10);
@@ -798,7 +798,7 @@ const App: Component = () => {
     }
 
     const saveImg = async () => {
-        const response = await fetch("http://localhost:3001/save_pfp", {
+        await fetch("http://localhost:3001/save_pfp", {
             method: "GET",
             credentials: "include",
             headers: {pfp: uploaded_image},
@@ -866,8 +866,8 @@ const App: Component = () => {
                                           void playButtonSound()
                                       }}>Log out</a>
                                   </div>
-                                  <Show when={showprofile()}
-                                        fallback={""}>
+                                  <Show when={showProfile()}
+                                        fallback={""} keyed>
                                       <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
                                           <h3>Profile</h3>
                                           <div class={styles.flexitem}>
@@ -974,7 +974,6 @@ const App: Component = () => {
                 <div class={styles.controls}>
                     <a class={styles.gear_normal + " " + styles.gear_left}/>
                     <a class={styles.gear_normal + " " + styles.gear_right}></a>
-
                     <Show when={showPVP()}
                           fallback={
                               <>
@@ -1032,7 +1031,7 @@ const App: Component = () => {
                                         <div class={pvpModule.firstHand}></div>
                                         <div class={pvpModule.secondHand}></div>
                                     </div>
-                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>00:10</span>
+                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>10:00</span>
                                 </Show>
                             </div>
                         </div>
@@ -1178,8 +1177,62 @@ const App: Component = () => {
                     </Show>
 
                     <div class={styles.buttonItem}>
-                        <button class={styles.button}>Shop</button>
+                        <button onClick={(e) => {setShowShop(true); void playButtonSound()}} class={styles.button}>Shop</button>
                     </div>
+
+                    <Show when={showShop()}
+                          fallback={""}>
+                        <div class={shopModule.shop} use:clickOutside={() => setShowShop(false)}>
+                            <div class={shopModule.shop_h}>
+                                <h3>Shop</h3>
+                            </div>
+                            <div class={shopModule.spacer}>
+                                <p>Backgrounds</p>
+                            </div>
+                            <div class={shopModule.items_container}>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tag_cherry}>
+                                        <p class={shopModule.tag_p}>Cherry</p>
+                                    </div>
+                                    <div class={styles.buttonitem}>
+                                        <button class={shopModule.button_buy}>1500</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tag_mixed}>
+                                        <p class={shopModule.tag_p}>Mixed</p>
+                                    </div>
+                                    <div class={styles.buttonitem}>
+                                        <button class={shopModule.button_buy}>699</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tag_spruce}>
+                                        <p class={shopModule.tag_p}>Spruce</p>
+                                    </div>
+                                    <div class={styles.buttonitem}>
+                                        <button class={shopModule.button_buy}>1500</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tag_universe_dark}>
+                                        <p class={shopModule.tag_p}>Dark Star</p>
+                                    </div>
+                                    <div class={styles.buttonitem}>
+                                        <button class={shopModule.button_buy}>2690</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tag_universe_light}>
+                                        <p class={shopModule.tag_p}>Light Star</p>
+                                    </div>
+                                    <div class={styles.buttonitem}>
+                                        <button class={shopModule.button_buy}>2690</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Show>
 
                     <Show when={showLoot()} keyed>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>

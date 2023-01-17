@@ -228,7 +228,7 @@ async fn handle_attacks(id_att: i64, pool: &PgPool) -> f64 {
         id_att
     ).fetch_one(pool)
         .await {
-        if Utc::now().timestamp() - record.timestamp >= 10 {
+        if Utc::now().timestamp() - record.timestamp >= 600 {
             loot = steal_resources(id_att, pool).await;
             if (sqlx::query!(
                 "DELETE FROM PVP WHERE id_att = $1",

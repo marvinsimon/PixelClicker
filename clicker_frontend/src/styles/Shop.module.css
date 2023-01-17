@@ -1,2 +1,227 @@
 .shop {
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    height: 550px;
+    width: 800px;
+    padding: 10px;
+    background-image: url("/src/assets/img/PopUp_Shop.png");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+.shop_h {
+    transform: translateY(-300%);
+    font-size: 20px;
+}
+
+.spacer {
+    position: absolute;
+    background: url("/src/assets/img/wood_bar_new.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    top: 20%;
+    height: 36px;
+    width: 500px;
+    display: flex;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.spacer p {
+    margin-top: 5px;
+    color: white;
+    font-family: Retro Pixel Font, monospace;
+    font-size: 16px;
+    text-shadow: -1px -1px 0 #000,
+    0 -1px 0 #000,
+    1px -1px 0 #000,
+    1px 0 0 #000,
+    1px 1px 0 #000,
+    0 1px 0 #000,
+    -1px 1px 0 #000,
+    -1px 0 0 #000;
+}
+
+.items_container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    transform: translateY(-150%);
+    position: relative;
+    overflow: visible;
+}
+
+.item {
+    background-image: linear-gradient(to top, #000000, #0e0a0c, #161316, #1c191f, #202028, #24252f, #272b36, #2a313d, #2f3743, #343c49, #394250, #3e4856);
+    background-size: cover;
+    border: black 1px solid;
+    border-radius: 5px;
+    height: 100px;
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+
+.item:nth-of-type(1) {
+    background: url("/src/assets/img/background_wood_cherry.png");
+    background-size: contain;
+}
+
+.item:nth-of-type(2) {
+    background: url("/src/assets/img/background_wood_mixed.png");
+    background-size: contain;
+}
+
+.item:nth-of-type(3) {
+    background: url("/src/assets/img/background_wood_spruce.png");
+    background-size: contain;
+}
+
+.item:nth-of-type(4) {
+    background: url("/src/assets/img/background_universe_dark.png");
+    background-size: contain;
+}
+
+.item:nth-of-type(5) {
+    background: url("/src/assets/img/background_universe_light.png");
+    background-size: contain;
+}
+
+.button_buy {
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.5);
+    border: none;
+    transition-duration: .4s;
+    background-image: url("/src/assets/img/stone_button_light.png");
+    height: 125%;
+    width: 125%;
+    font-size: 2vw;
+}
+
+.button_buy:hover {
+    transform: scale(.55);
+    cursor: pointer;
+}
+
+.tag_cherry {
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.13);
+    border: none;
+    transition-duration: .4s;
+    background-image: url("/src/assets/img/wood_label_new.png");
+    height: 225%;
+    width: 125%;
+    font-size: 2vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: -106%;
+    left: -52.6%;
+}
+
+.tag_mixed {
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.13);
+    border: none;
+    transition-duration: .4s;
+    background-image: url("/src/assets/img/wood_label_new.png");
+    height: 225%;
+    width: 125%;
+    font-size: 2vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: -106%;
+    left: -32.5%;
+}
+
+.tag_spruce {
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.13);
+    border: none;
+    transition-duration: .4s;
+    background-image: url("/src/assets/img/wood_label_new.png");
+    height: 225%;
+    width: 125%;
+    font-size: 2vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: -106%;
+    left: -12.4%;
+}
+
+
+.tag_universe_dark {
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.13);
+    border: none;
+    transition-duration: .4s;
+    background-image: url("/src/assets/img/wood_label_new.png");
+    height: 225%;
+    width: 125%;
+    font-size: 2vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: -106%;
+    left: 7.7%;
+}
+
+.tag_universe_light {
+    background-color: transparent;
+    background-position: center center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: scale(.13);
+    border: none;
+    transition-duration: .4s;
+    background-image: url("/src/assets/img/wood_label_new.png");
+    height: 225%;
+    width: 125%;
+    font-size: 2vw;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: -106%;
+    left: 27.8%;
+}
+
+.tag_p {
+    margin-top: 30px;
+    color: white;
+    font-family: Retro Pixel Font, monospace;
+    font-size: 120px;
+    text-shadow: -7.5px -7.5px 0 #000,
+    0 -7.5px 0 #000,
+    7.5px -7.5px 0 #000,
+    7.5px 0 0 #000,
+    7.5px 7.5px 0 #000,
+    0 7.5px 0 #000,
+    -7.5px 7.5px 0 #000,
+    -7.5px 0 0 #000;
 }

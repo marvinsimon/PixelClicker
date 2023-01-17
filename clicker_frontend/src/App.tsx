@@ -36,7 +36,7 @@ const App: Component = () => {
     const [depth, setDepth] = createSignal(0);
     const [username, setUsername] = createSignal("");
     const [show, setShow] = createSignal(false); //PopUp Variable
-    const [innershow, setInnerShow] = createSignal(false);
+    const [innerShow, setInnerShow] = createSignal(false);
     const [showprofile, setShowProfile] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
@@ -174,17 +174,17 @@ const App: Component = () => {
                         lootArrived(event.CombatElapsed);
                     }
                     break;
-                case "LoginState":
-                    if ("LoginState" in event) {
-                        console.log(event.LoginState);
-                        setLoginStates(event.LoginState);
-                    }
-                    break;
                 case "LoggedIn":
                     if ("LoggedIn" in event) {
                         console.log("Still logged in");
                         setAuth(true);
                         setLoggedIn(true);
+                    }
+                    break;
+                case "LoginState":
+                    if ("LoginState" in event) {
+                        console.log(event.LoginState);
+                        setLoginStates(event.LoginState);
                     }
                     break;
                 case "MinedOffline":
@@ -237,12 +237,13 @@ const App: Component = () => {
                     break;
             }
         }
-        socket.onopen = () => {
-            const event: ClientMessages = "GetLoginData";
-            window.setTimeout(() => {
-                socket?.send(JSON.stringify(event));
-            }, 1000);
-        }
+    }
+
+    socket.onopen = () => {
+        const event: ClientMessages = "GetLoginData";
+        window.setTimeout(() => {
+            socket?.send(JSON.stringify(event));
+        }, 1000);
     }
 }
 
@@ -432,7 +433,7 @@ const App: Component = () => {
                 setShowMining(false);
                 setShowPVP(false);
                 setShowLeaderboard(false);
-                unhide();
+                unHide();
             }, 1300);
             rotateGearOut();
         }
@@ -775,14 +776,6 @@ const App: Component = () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
-    const saveImg = async () => {
-        const response = await fetch("http://localhost:3001/save_pfp", {
-            method: "GET",
-            credentials: "include",
-            headers: {pfp: uploaded_image},
-        });
-    }
-
     /*
     * Functions to load, save and show a profile picture on the account page
     */
@@ -802,6 +795,14 @@ const App: Component = () => {
         console.log("dispIm: ", uploaded_image);
         let img = uploaded_image as string;
         document.querySelector("#display_image")!.style.backgroundImage = `url(${img})`;
+    }
+
+    const saveImg = async () => {
+        const response = await fetch("http://localhost:3001/save_pfp", {
+            method: "GET",
+            credentials: "include",
+            headers: {pfp: uploaded_image},
+        });
     }
 
     /*
@@ -851,7 +852,7 @@ const App: Component = () => {
                                   <button class={styles.User_symbol} onClick={() => {
                                       void dropdown();
                                   }}></button>
-                                  <div id="myDropdown" class={styles.dropdowncntnt}>
+                                  <div id="myDropdown" class={styles.dropdownContent}>
                                       <a onClick={(e) => {
                                           setShowProfile(true);
                                           void playButtonSound();
@@ -879,13 +880,13 @@ const App: Component = () => {
                                           <div class={styles.flexitem2}>
                                               <label>Name: Test</label>
                                               <br/>
-                                              <label>Email: {email_field.value}</label>
+                                              <label>Email: {email_field!.value}</label>
                                           </div>
 
                                       </div>
                                   </Show>
                               </div>
-                          }>
+                          } keyed>
 
                         <button onClick={() => {
                             setShow(true);

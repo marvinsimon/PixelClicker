@@ -48,7 +48,7 @@ pub fn create_game_message_file_type_script() {
             String::from_utf8(buf).unwrap()
         };
 
-        std::fs::write("../clicker_frontend/src/game_messages.ts", ts_module).unwrap();
+        std::fs::write("shared_volume/game_messages.ts", ts_module).unwrap();
     }
 }
 

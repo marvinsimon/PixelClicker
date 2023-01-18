@@ -45,7 +45,7 @@ async fn main() {
 
 
 async fn connect_to_database() -> anyhow::Result<Pool<Postgres>> {
-    Ok(Pool::connect("postgresql://admin:clickerroyale@clicker-db:5432/royal-db").await?)
+    Ok(Pool::connect("postgresql://admin:clickerroyale@clicker_db:5432/royal-db").await?)
 }
 
 /// Basic handler that responds with a static string

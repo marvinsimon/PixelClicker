@@ -178,7 +178,7 @@ impl GameState {
                 }
             }
             ClientMessages::Treasure => {
-                self.ore += self.depth as i32 * 2;
+                self.ore += (self.depth * 2) as i32;
                 ServerMessages::TreasureFound { ore: self.ore as u64 }
             }
             ClientMessages::Diamond => {

@@ -178,12 +178,12 @@ impl GameState {
                 }
             }
             ClientMessages::Treasure => {
-                self.ore += 1000.0;
+                self.ore += self.depth * 2;
                 ServerMessages::TreasureFound { ore: self.ore as u64 }
             }
             ClientMessages::Diamond => {
                 self.picked_first_diamond = true;
-                self.diamond += 100;
+                self.diamond += 600;
                 ServerMessages::DiamondFound { diamond: self.diamond }
             }
             ClientMessages::LoadGame => {

@@ -521,7 +521,7 @@ export default class Generator {
         if (this.scene.depth >= 500 && this.randomDiamond == 1) {
             this.randomDiamond = Math.floor(Math.random() * (randomDiamond - 1 + 1)) + 1;
             spr = this.scene.add.sprite(x, y, 'diamond');
-            spr.setInteractive({cursor: 'url(src/assets/img/hand_cursor_small.png), pointer'});
+            spr.setInteractive({cursor: 'url(../assets/img/hand_cursor_small.png), pointer'});
             spr.on('pointerdown', (event: any) => {
                 this.pickedFirstDiamond = true;
                 let diamondEvent = new CustomEvent('diamondEvent');
@@ -536,7 +536,7 @@ export default class Generator {
             });
         } else if (Math.floor(Math.random() * (randomTreasure - 1 + 1)) + 1 === 10) {
             spr = this.scene.add.sprite(x, y, 'bones1');
-            spr.setInteractive({cursor: 'url(src/assets/img/hand_cursor_small.png), pointer'});
+            spr.setInteractive({cursor: 'url(../assets/img/hand_cursor_small.png), pointer'});
             spr.on('pointerdown', (event: any) => {
                 let treasureEvent = new CustomEvent('treasureEvent');
                 window.dispatchEvent(treasureEvent);

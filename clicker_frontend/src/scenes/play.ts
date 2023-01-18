@@ -28,7 +28,7 @@ export default class Play extends ClickerRoyaleScene {
         this.loadLogOut();
         // Create floor
         this.generator.setup();
-        this.input.setDefaultCursor('url(src/assets/img/pickaxe_small.png), pointer');
+        this.input.setDefaultCursor('url(../assets/img/pickaxe_small.png), pointer');
     }
 
     update() {

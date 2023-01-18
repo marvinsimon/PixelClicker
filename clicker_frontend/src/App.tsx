@@ -699,7 +699,7 @@ const App: Component = () => {
     /*
     * Functions for sounds on button click
     */
-    const buttonClick = new Audio("src/assets/audio/button_click.mp3");
+    const buttonClick = new Audio("./assets/audio/button_click.mp3");
     buttonClick.preload = "none";
 
     const playButtonSound = async () => {
@@ -812,7 +812,7 @@ const App: Component = () => {
                     <div class={styles.heil_img}></div>
                 </div>
                 <div class={styles.header}>
-                    <img src={"src/assets/img/ClickerRoyale_Wappen.png"} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <img src={"./assets/img/ClickerRoyale_Wappen.png"} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={
@@ -923,7 +923,7 @@ const App: Component = () => {
                 <div class={styles.board}>
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
-                            <img src={"src/assets/img/board_with_icons.png"} class={styles.board_img} alt={"Value board"}/>
+                            <img src={"./assets/img/board_with_icons.png"} class={styles.board_img} alt={"Value board"}/>
                             <div id={"cost"} class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
@@ -958,7 +958,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={"./assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
                                 <button class={styles.button_close} onClick={() => {
                                     slideOut();
                                     window.setTimeout(function () {
@@ -1020,7 +1020,7 @@ const App: Component = () => {
                               </>
                           } keyed>
                         <div class={styles.slideIn}>
-                            <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
+                            <img src={"./assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {
                                     slideOutAutomate();
@@ -1072,7 +1072,7 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={"src/assets/img/board_new_small.png"} class={styles.board_img_automate}
+                                        <img src={"./assets/img/board_new_small.png"} class={styles.board_img_automate}
                                              alt={"Automate Board"}/>
                                         <a class={mineModule.auto_label_board}>
                                             <label
@@ -1121,7 +1121,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={ "src/assets/img/leaderboard4.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={ "./assets/img/leaderboard4.png"} class={styles.board_img_right} alt={"Control board"}/>
                                 <div id={"leaderboard"}
                                      class={styles.label_header + " " + rankModule.leaderboard}></div>
                                 <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>

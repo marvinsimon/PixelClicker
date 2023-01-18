@@ -8,7 +8,7 @@
 
 @font-face {
     font-family: 'Retro Pixel Font';
-    src: url("src/assets/fonts/RetroGaming.ttf");
+    src: url("./assets/fonts/RetroGaming.ttf");
 }
 
 .container {
@@ -37,7 +37,7 @@
     grid-area: bar;
     z-index: 20;
     display: flex;
-    background-image: url("src/assets/img/wood_bar_new.png");
+    background-image: url("./assets/img/wood_bar_new.png");
     background-size: contain;
 }
 
@@ -123,7 +123,7 @@
 }
 
 .button_sign_up {
-    background: url("src/assets/img/stone_button_light.png") no-repeat;
+    background: url("./assets/img/stone_button_light.png") no-repeat;
     background-size: 100% 100%;
     height: 80%;
     width: 8%;
@@ -144,7 +144,7 @@
 }
 
 .User_symbol {
-    background: url("src/assets/img/User_symbol_new.png") no-repeat center center;
+    background: url("./assets/img/User_symbol_new.png") no-repeat center center;
     background-size: 100% 100%;
     height: 4vw;
     width: 4vw;
@@ -168,7 +168,7 @@
     height: 100%;
     border: #282c34 2px solid;
     border-radius: 3px;
-    cursor: url("src/assets/img/pickaxe_small.png"), pointer;
+    cursor: url("./assets/img/pickaxe_small.png"), pointer;
     position: absolute;
 }
 
@@ -186,7 +186,7 @@
     height: 458px;
     width: 393px;
     padding: 10px;
-    background-image: url("/src/assets/img/PopUp.png");
+    background-image: url("/./assets/img/PopUp.png");
     background-repeat: no-repeat;
     background-size: 100% 100%;
 }
@@ -302,7 +302,7 @@ input[type=submit]:active {
     transform: scale(.3);
     border: none;
     transition-duration: .4s;
-    background-image: url("src/assets/img/stone_button_dark_test.png");
+    background-image: url("./assets/img/stone_button_dark_test.png");
     height: 125%;
     width: 125%;
     font-size: 3.25vw;
@@ -322,7 +322,7 @@ input[type=submit]:active {
 .progressBar {
     position: absolute;
     top: 83%;
-    background-image: url("src/assets/img/test.png");
+    background-image: url("./assets/img/test.png");
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-color: transparent;
@@ -369,7 +369,7 @@ input[type=submit]:active {
 .label_board {
     top: 38%;
     position: absolute;
-    background-image: url("src/assets/img/wood_label_new.png");
+    background-image: url("./assets/img/wood_label_new.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -380,7 +380,7 @@ input[type=submit]:active {
 
 .icon_upgrade {
     position: absolute;
-    background-image: url("src/assets/img/Arrow_Symbol.png");
+    background-image: url("./assets/img/Arrow_Symbol.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -394,7 +394,7 @@ input[type=submit]:active {
 
 .ore {
     position: absolute;
-    background-image: url("src/assets/img/ore.png");
+    background-image: url("./assets/img/ore.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -407,7 +407,7 @@ input[type=submit]:active {
 .button_close {
     position: absolute;
     top: 94%;
-    background-image: url("src/assets/img/wood_label_close.png");
+    background-image: url("./assets/img/wood_label_close.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;
@@ -463,7 +463,7 @@ input[type=submit]:active {
     }
 
     .heil_img {
-        background-image: url("src/assets/img/heilenberg_edit.png");
+        background-image: url("./assets/img/heilenberg_edit.png");
         background-repeat: no-repeat;
         background-size: 100% 100%;
         height: 954px;
@@ -515,7 +515,7 @@ input[type=submit]:active {
         grid-area: vBar;
         z-index: 40;
         display: flex;
-        background-image: url("src/assets/img/vBar.png");
+        background-image: url("./assets/img/vBar.png");
         background-size: contain;
     }
 
@@ -906,7 +906,7 @@ input[type=submit]:active {
 }
 
 .grid_ore_icon {
-    background-image: url("src/assets/img/ore.png");
+    background-image: url("./assets/img/ore.png");
 }
 
 .grid_depth {
@@ -924,5 +924,5 @@ input[type=submit]:active {
 }
 
 .grid_depth_icon {
-    background-image: url("src/assets/img/pickaxe.png");
+    background-image: url("./assets/img/pickaxe.png");
 }

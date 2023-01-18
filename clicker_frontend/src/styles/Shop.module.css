@@ -1,5 +1,5 @@
 .shop {
-    background-image: url("/src/assets/img/PopUp_Shop.png");
+    background-image: url("../assets/img/PopUp_Shop.png");
     height: 550px;
     width: 800px;
 }
@@ -11,7 +11,7 @@
 
 .spacer {
     position: absolute;
-    background: url("/src/assets/img/wood_bar_new.png") no-repeat;
+    background: url("../assets/img/wood_bar_new.png") no-repeat;
     background-size: contain;
     top: 20%;
     height: 36px;
@@ -58,27 +58,27 @@
 }
 
 .item:nth-of-type(1) {
-    background: url("/src/assets/img/background_wood_cherry.png");
+    background: url("../assets/img/background_wood_cherry.png");
     background-size: contain;
 }
 
 .item:nth-of-type(2) {
-    background: url("/src/assets/img/background_wood_mixed.png");
+    background: url("../assets/img/background_wood_mixed.png");
     background-size: contain;
 }
 
 .item:nth-of-type(3) {
-    background: url("/src/assets/img/background_wood_spruce.png");
+    background: url("../assets/img/background_wood_spruce.png");
     background-size: contain;
 }
 
 .item:nth-of-type(4) {
-    background: url("/src/assets/img/background_universe_dark.png");
+    background: url("../assets/img/background_universe_dark.png");
     background-size: contain;
 }
 
 .item:nth-of-type(5) {
-    background: url("/src/assets/img/background_universe_light.png");
+    background: url("../assets/img/background_universe_light.png");
     background-size: contain;
 }
 
@@ -90,7 +90,7 @@
     transform: scale(.5);
     border: none;
     transition-duration: .4s;
-    background-image: url("/src/assets/img/stone_button_light.png");
+    background-image: url("../assets/img/stone_button_light.png");
     height: 60px;
     width: 118px;
     font-size: 32px;
@@ -109,7 +109,7 @@
     transform: scale(.13);
     border: none;
     transition-duration: .4s;
-    background-image: url("/src/assets/img/wood_label_new.png");
+    background-image: url("../assets/img/wood_label_new.png");
     height: 225%;
     width: 125%;
     font-size: 2vw;

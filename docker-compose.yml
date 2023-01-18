@@ -38,7 +38,7 @@ services:
     expose:
       - 3000
     volumes:
-      - sharedVolume:/clicker_frontend/src
+      - sharedVolume:/clicker_frontend/shared_volume
       - ./clicker_frontend/src:/clicker_frontend/src
 volumes:
   sharedVolume:

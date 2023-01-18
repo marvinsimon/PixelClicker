@@ -6,7 +6,7 @@ import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
 import shopModule from "./styles/Shop.module.css";
 import rankModule from "./styles/Leaderboard.module.css";
-import {ClientMessages, ServerMessages} from "./game_messages";
+import {ClientMessages, ServerMessages} from "../shared_volume/game_messages";
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
 import Phaser from "phaser";
 import Preload from "./scenes/preload";

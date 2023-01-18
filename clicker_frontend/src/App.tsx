@@ -87,7 +87,6 @@ const App: Component = () => {
                 switch (arr) {
                     case "NewState":
                         if ('NewState' in event) {
-                            console.log(event.NewState);
                             setOre(event.NewState.ore);
                             setDepth(event.NewState.depth);
                             game.depth = depth();
@@ -95,7 +94,6 @@ const App: Component = () => {
                         break;
                     case "ShovelDepthUpgraded":
                         if ("ShovelDepthUpgraded" in event) {
-                            console.log(event.ShovelDepthUpgraded);
                             setShovelDepth(event.ShovelDepthUpgraded.new_level);
                             if (event.ShovelDepthUpgraded.success) {
                                 subtractCost(formatNumbers(shovelDepthPrice()));
@@ -105,7 +103,6 @@ const App: Component = () => {
                         break;
                     case "ShovelAmountUpgraded":
                         if ("ShovelAmountUpgraded" in event) {
-                            console.log(event.ShovelAmountUpgraded);
                             setShovelAmount(event.ShovelAmountUpgraded.new_level);
                             if (event.ShovelAmountUpgraded.success) {
                                 subtractCost(formatNumbers(shovelAmountPrice()));
@@ -124,7 +121,6 @@ const App: Component = () => {
                         break;
                     case "AutomationDepthUpgraded":
                         if ("AutomationDepthUpgraded" in event) {
-                            console.log(event.AutomationDepthUpgraded);
                             setAutoDepth(event.AutomationDepthUpgraded.new_level);
                             if (event.AutomationDepthUpgraded.success) {
                                 subtractCost(formatNumbers(autoDepthPrice()));
@@ -134,7 +130,6 @@ const App: Component = () => {
                         break;
                     case "AutomationAmountUpgraded":
                         if ("AutomationAmountUpgraded" in event) {
-                            console.log(event.AutomationAmountUpgraded);
                             setAutoAmount(event.AutomationAmountUpgraded.new_level);
                             if (event.AutomationAmountUpgraded.success) {
                                 subtractCost(formatNumbers(autoAmountPrice()));
@@ -144,7 +139,6 @@ const App: Component = () => {
                         break;
                     case "AttackLevelUpgraded":
                         if ("AttackLevelUpgraded" in event) {
-                            console.log(event.AttackLevelUpgraded);
                             setAttackLevel(event.AttackLevelUpgraded.new_level);
                             if (event.AttackLevelUpgraded.success) {
                                 subtractCost(formatNumbers(attackPrice()));
@@ -154,7 +148,6 @@ const App: Component = () => {
                         break;
                     case "DefenceLevelUpgraded":
                         if ("DefenceLevelUpgraded" in event) {
-                            console.log(event.DefenceLevelUpgraded);
                             setDefenceLevel(event.DefenceLevelUpgraded.new_level);
                             if (event.DefenceLevelUpgraded.success) {
                                 subtractCost(formatNumbers(defencePrice()));
@@ -164,26 +157,22 @@ const App: Component = () => {
                         break;
                     case "CombatElapsed":
                         if ("CombatElapsed" in event) {
-                            console.log(event.CombatElapsed);
                             lootArrived(event.CombatElapsed);
                         }
                         break;
                     case "LoggedIn":
                         if ("LoggedIn" in event) {
-                            console.log("Still logged in");
                             setAuth(true);
                             setLoggedIn(true);
                         }
                         break;
                     case "LoginState":
                         if ("LoginState" in event) {
-                            console.log(event.LoginState);
                             setLoginStates(event.LoginState);
                         }
                         break;
                     case "MinedOffline":
                         if ("MinedOffline" in event) {
-                            console.log("Got offline resources");
                             setTotalDepth(event.MinedOffline.depth);
                             setTotalAmount(event.MinedOffline.ore);
                             setShowOfflineResources(true);
@@ -201,31 +190,26 @@ const App: Component = () => {
                         break;
                     case "TreasureFound":
                         if ("TreasureFound" in event) {
-                            console.log('Treasure found');
                             setOre(event.TreasureFound.ore);
                         }
                         break;
                     case "DiamondFound":
                         if ("DiamondFound" in event) {
-                            console.log('Diamond found');
                             setDiamond(event.DiamondFound.diamond);
                         }
                         break;
                     case "GameData":
                         if ("GameData" in event) {
-                            console.log('Load game data');
                             loadGameData(event.GameData.picked_first_diamond);
                         }
                         break;
                     case "SendLeaderboard":
                         if ("SendLeaderboard" in event) {
-                            console.log('Load Leaderboard');
                             players = event.SendLeaderboard.players;
                         }
                         break;
                     case "SendPvpScore":
                         if ("SendPvpScore" in event) {
-                            console.log('Load pvp score');
                             setPvpScore(event.SendPvpScore.pvp_score);
                         }
                         break;
@@ -552,13 +536,11 @@ const App: Component = () => {
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         let username = username_field.value;
-        console.log(username);
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
             headers: {Authorization: `Basic ${auth}`, Username: username}
         });
-        console.log(`sign_up: ${response.statusText}`);
         switch (response.status) {
             case 200:   //OK
                 setLoggedIn(true);
@@ -568,7 +550,6 @@ const App: Component = () => {
                 break;
             case 400:   //Bad_Request
                 badStatusPopup();
-                console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
                 //email did not follow form [abc]@[nop].[xyz] or username was inappropriate
@@ -585,7 +566,6 @@ const App: Component = () => {
                 credentials: "include",
                 headers: {Authorization: `Basic ${auth}`},
             });
-            console.log(`login: ${response.statusText}`);
             switch (response.status) {
                 case 200:
                     await connectBackend();
@@ -595,7 +575,6 @@ const App: Component = () => {
                 case 401:
                     //credentials did not match any existing user
                     badStatusPopup();
-                    console.log('Unauthorized');
                     break;
             }
         }
@@ -607,7 +586,6 @@ const App: Component = () => {
                 method: "GET",
                 credentials: "include",
             });
-            console.log(`sign_out: ${response.statusText}`);
             if (response.ok) {
                 disconnectBackend();
                 setLoggedIn(false);
@@ -619,7 +597,6 @@ const App: Component = () => {
                 await connectBackend();
             }
         } else {
-            console.log(`sign_out: failed`);
         }
     }
 
@@ -630,11 +607,9 @@ const App: Component = () => {
         });
         if (response.status == 200) { //200 == StatusCode OK
             setAttacked(true);
-            console.log("Start timer");
             //Start timer
             await startTimer();
         } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
-            console.log("No match");
         }
     }
 

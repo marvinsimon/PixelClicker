@@ -6,7 +6,7 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     services:
-      postgres:
+      clicker-db:
         image: postgres:14.5-alpine
         env:
           POSTGRES_DB: royal-db

@@ -6,4 +6,4 @@ COPY . .
 
 RUN npm install
 
-ENTRYPOINT [ "bash", "docker-entrypoint.sh" ]
+ENTRYPOINT [ "npm", "run", "build"]

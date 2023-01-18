@@ -9,6 +9,11 @@ services:
       - POSTGRES_DB=royal-db
       - POSTGRES_PASSWORD=clickerroyale
       - POSTGRES_USER=admin
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   clicker-backend:
     container_name: clicker_backend
@@ -16,14 +21,15 @@ services:
       context: ./clicker_backend
       dockerfile: Dockerfile
     depends_on:
-      - clicker-db
-    links:
-      - clicker-db
+      clicker-db:
+        condition: service_healthy
     expose:
       - 3001
+    ports:
+      - "3001:3001"
     volumes:
       - sharedVolume:/clicker_backend/shared_volume
-      - ./clicker_backend/src:/clicker_backend/src
+      - staticAssets:/clicker_backend/dist
     environment:
       - DATABASE_URL=postgresql://admin:clickerroyale@clicker_db:5432/royal-db
       - POSTGRES_HOST=clicker_db
@@ -32,12 +38,12 @@ services:
     container_name: clicker_frontend
     build:
       context: ./clicker_frontend
-    ports:
-      - '3000:3000'
     depends_on:
       - clicker-backend
     volumes:
       - sharedVolume:/clicker_frontend/shared_volume
-      - ./clicker_frontend/src:/clicker_frontend/src
+      - staticAssets:/clicker_frontend/dist
 volumes:
   sharedVolume:
+  staticAssets:
+  

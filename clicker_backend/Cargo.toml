@@ -23,10 +23,12 @@ serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
 sqlx = { version = "0.6.2", features = ["json", "chrono", "postgres"] }
 tokio = { version = "1.24.1", features = ["full"] }
-tower-http = { version = "0.3.5", features = ["cors"] }
+tower-http = { version = "0.3.5", features = ["cors", "fs", "trace"] }
 typescript-type-def = "0.5.5"
 argon2 = "0.4.1"
 rand_core = { version = "0.6.4", features = ["std"] }
 regex = "1.7.1"
 rustrict = "0.5.10"
 dotenv = "0.15.0"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

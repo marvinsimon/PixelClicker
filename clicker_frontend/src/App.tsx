@@ -11,11 +11,15 @@ import ClickerRoyaleGame from "./ClickerRoyaleGame";
 import Phaser from "phaser";
 import Preload from "./scenes/preload";
 import Play from "./scenes/play";
-
+import ClickerRoyale_Wappen from "./assets/img/ClickerRoyale_Wappen.png";
+import board_with_icons from "./assets/img/board_with_icons.png";
+import Brett_Neu_test from "./assets/img/Brett_Neu_test.png";
+import board_new_small from "./assets/img/board_new_small.png";
+import leaderboard4 from "./assets/img/leaderboard4.png";
+import button_click from "./assets/audio/button_click.mp3";
 /**
  * This is the Frontend of Clicker Royale.
  */
-
 const App: Component = () => {
     /*
     * Variable and signal initialisations/declarations
@@ -699,7 +703,7 @@ const App: Component = () => {
     /*
     * Functions for sounds on button click
     */
-    const buttonClick = new Audio("./assets/audio/button_click.mp3");
+    const buttonClick = new Audio(button_click);
     buttonClick.preload = "none";
 
     const playButtonSound = async () => {
@@ -812,7 +816,7 @@ const App: Component = () => {
                     <div class={styles.heil_img}></div>
                 </div>
                 <div class={styles.header}>
-                    <img src={"./assets/img/ClickerRoyale_Wappen.png"} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <img src={ClickerRoyale_Wappen} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={
@@ -923,7 +927,7 @@ const App: Component = () => {
                 <div class={styles.board}>
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
-                            <img src={"./assets/img/board_with_icons.png"} class={styles.board_img} alt={"Value board"}/>
+                            <img src={board_with_icons} class={styles.board_img} alt={"Value board"}/>
                             <div id={"cost"} class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
@@ -958,7 +962,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={"./assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={Brett_Neu_test} class={styles.board_img_right} alt={"Control board"}/>
                                 <button class={styles.button_close} onClick={() => {
                                     slideOut();
                                     window.setTimeout(function () {
@@ -1020,7 +1024,7 @@ const App: Component = () => {
                               </>
                           } keyed>
                         <div class={styles.slideIn}>
-                            <img src={"./assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
+                            <img src={Brett_Neu_test} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {
                                     slideOutAutomate();
@@ -1072,7 +1076,7 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={"./assets/img/board_new_small.png"} class={styles.board_img_automate}
+                                        <img src={board_new_small} class={styles.board_img_automate}
                                              alt={"Automate Board"}/>
                                         <a class={mineModule.auto_label_board}>
                                             <label
@@ -1121,7 +1125,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={ "./assets/img/leaderboard4.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={ leaderboard4} class={styles.board_img_right} alt={"Control board"}/>
                                 <div id={"leaderboard"}
                                      class={styles.label_header + " " + rankModule.leaderboard}></div>
                                 <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>

@@ -1,7 +1,7 @@
 import Generator from "../prefabs/Generator";
 import ClickerRoyaleScene from "../ClickerRoyaleScene";
 import ClickerRoyaleGame from "../ClickerRoyaleGame";
-
+import pickaxe_small from "../assets/img/pickaxe_small.png";
 export default class Play extends ClickerRoyaleScene {
     CONFIG: any;
     PRIORITY!: { sky: number; background: number, floor: number; miner: number; objects: number; debris: number };
@@ -28,7 +28,7 @@ export default class Play extends ClickerRoyaleScene {
         this.loadLogOut();
         // Create floor
         this.generator.setup();
-        this.input.setDefaultCursor('url(../assets/img/pickaxe_small.png), pointer');
+        this.input.setDefaultCursor(`url(${pickaxe_small}), pointer`);
     }
 
     update() {

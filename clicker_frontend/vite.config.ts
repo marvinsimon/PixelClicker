@@ -9,5 +9,7 @@ export default defineConfig({
     },
     build: {
         target: 'esnext',
+        assetsInlineLimit: 0,
     },
+    base: "./"
 });

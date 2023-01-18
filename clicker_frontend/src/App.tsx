@@ -553,7 +553,7 @@ const App: Component = () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         let username = username_field.value;
         console.log(username);
-        const response = await fetch("http://clicker_backend:3001/sign_up", {
+        const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
             headers: {Authorization: `Basic ${auth}`, Username: username}
@@ -580,7 +580,7 @@ const App: Component = () => {
         if (!auth()) {
             disconnectBackend();
             let auth = btoa(`${email_field.value}:${password_field.value}`);
-            const response = await fetch("http://clicker_backend:3001/login", {
+            const response = await fetch("http://localhost:3001/login", {
                 method: "GET",
                 credentials: "include",
                 headers: {Authorization: `Basic ${auth}`},
@@ -603,7 +603,7 @@ const App: Component = () => {
 
     const sign_out = async () => {
         if (auth()) {
-            const response = await fetch("http://clicker_backend:3001/logout", {
+            const response = await fetch("http://localhost:3001/logout", {
                 method: "GET",
                 credentials: "include",
             });
@@ -624,7 +624,7 @@ const App: Component = () => {
     }
 
     const attack = async () => {
-        const response = await fetch("http://clicker_backend:3001/combat", {
+        const response = await fetch("http://localhost:3001/combat", {
             method: "GET",
             credentials: "include",
         });
@@ -791,7 +791,7 @@ const App: Component = () => {
     }
 
     const saveImg = async () => {
-        await fetch("http://clicker_backend:3001/save_pfp", {
+        await fetch("http://localhost:3001/save_pfp", {
             method: "GET",
             credentials: "include",
             headers: {pfp: uploaded_image},

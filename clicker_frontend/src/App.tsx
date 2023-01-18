@@ -17,6 +17,7 @@ import Brett_Neu_test from "./assets/img/Brett_Neu_test.png";
 import board_new_small from "./assets/img/board_new_small.png";
 import leaderboard4 from "./assets/img/leaderboard4.png";
 import button_click from "./assets/audio/button_click.mp3";
+
 /**
  * This is the Frontend of Clicker Royale.
  */

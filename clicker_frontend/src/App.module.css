@@ -186,7 +186,7 @@
     height: 458px;
     width: 393px;
     padding: 10px;
-    background-image: url("/./assets/img/PopUp.png");
+    background-image: url("./assets/img/PopUp.png");
     background-repeat: no-repeat;
     background-size: 100% 100%;
 }
@@ -692,7 +692,7 @@ input[type=submit]:active {
 .gear_normal {
     overflow: hidden;
     position: fixed;
-    background-image: url("assets/img/cog3.png");
+    background-image: url("./assets/img/cog3.png");
     background-color: transparent;
     background-position: center center;
     background-size: 100% 100%;

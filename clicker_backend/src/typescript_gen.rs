@@ -1,8 +1,8 @@
-use crate::game_messages::{ClientMessages, ServerMessages};
 
 /// Generates a TypeScript file with all ServerMessages and ClientMessages
 #[allow(dead_code)]
 pub fn create_game_message_file_type_script() {
+    use crate::game_messages::{ClientMessages, ServerMessages};
     use typescript_type_def::{DefinitionFileOptions, write_definition_file};
     type Api = (ServerMessages, ClientMessages);
     let ts_module = {

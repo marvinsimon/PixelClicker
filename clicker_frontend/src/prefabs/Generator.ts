@@ -512,7 +512,7 @@ export default class Generator {
     appendPickups(x: number, y: number) {
         let spr;
         let randomBones = 50;
-        let randomTreasure = 50;
+        let randomTreasure = 90;
         let randomDiamond = 1000;
         let pointer = this.scene.input.mousePointer;
         if (this.pickedFirstDiamond) {

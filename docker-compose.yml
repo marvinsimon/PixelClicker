@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=clickerroyale
       - POSTGRES_USER=admin
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U royal-db"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 5s
       timeout: 5s
       retries: 5

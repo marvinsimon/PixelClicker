@@ -70,7 +70,7 @@ const App: Component = () => {
     const connectBackend = async () => {
         if (socket != null)
             disconnectBackend();
-        socket = new WebSocket("ws://clicker_backend:3001/game");
+        socket = new WebSocket("ws://localhost:3001/game");
 
         // Handle incoming messages
         socket.onmessage = (msg) => {
@@ -263,7 +263,7 @@ const App: Component = () => {
             //@ts-ignore
             parent: document.getElementById('main'),
             title: 'Clicker Royale',
-            url: 'http://clicker_backend:3000',
+            url: 'http://localhost:3000',
             width: 1000,
             height: 830,
             physics: {

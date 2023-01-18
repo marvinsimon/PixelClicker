@@ -11,7 +11,8 @@ use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 use crate::server::{create_session_table, start_server};
 use crate::sql_queries::{get_top_players, get_profile_picture, get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_pvp_score, test_for_new_registry};
-use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
+use crate::startup::{check_for_players, create_session_key};
+use crate::typescript_gen::create_game_message_file_type_script;
 
 mod game_messages;
 mod game_state;
@@ -20,7 +21,7 @@ mod sql_queries;
 mod password_management;
 mod startup;
 mod server;
-
+mod typescript_gen;
 //// Main Method, Initialisations and Communication Routings
 
 const SECONDS_DAY: i64 = 84600;
@@ -29,9 +30,13 @@ const PLAYER_AUTH: &str = "player-auth";
 
 #[tokio::main]
 async fn main() {
-    let pool = connect_to_database().await.unwrap();
+    #[cfg(debug_assertions)]
+    {
+        dotenv::dotenv().ok();
+        create_game_message_file_type_script();
+    }
 
-    create_game_message_file_type_script();
+    let pool = connect_to_database().await.unwrap();
 
     // Initialize Events
     daily_event(&pool).await;
@@ -45,8 +50,7 @@ async fn main() {
 
 
 async fn connect_to_database() -> anyhow::Result<Pool<Postgres>> {
-
-    let url = format!("postgresql://admin:clickerroyale@{}:5432/royal-db", std::env::var("POSTGRES_HOST"));
+    let url = format!("postgresql://admin:clickerroyale@{}:5432/royal-db", std::env::var("POSTGRES_HOST")?);
 
     println!("Connecting to: {}", url);
 

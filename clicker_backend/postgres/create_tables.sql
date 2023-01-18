@@ -1,17 +1,18 @@
 -- DROP TABLE IF EXISTS Player;
 CREATE TABLE Player
 (
-    id            BIGSERIAL PRIMARY KEY,
-    email         TEXT    NOT NULL,
-    password      TEXT    NOT NULL,
-    username      TEXT    NOT NULL,
-    game_state    JSON    NOT NULL,
-    timestamp     BIGINT,
-    pvp_score     BIGINT,
-    is_online     BOOLEAN NOT NULL DEFAULT false,
-    is_new        BOOLEAN NOT NULL DEFAULT true,
-    offline_ore   BIGINT  NOT NULL DEFAULT 0,
-    offline_depth BIGINT  NOT NULL DEFAULT 0
+    id              BIGSERIAL PRIMARY KEY,
+    email           text    NOT NULL,
+    username        text    NOT NULL,
+    password        text    NOT NULL,
+    game_state      JSON    NOT NULL,
+    profile_picture text    NOT NULL DEFAULT 404,
+    timestamp       BIGINT,
+    pvp_score       BIGINT,
+    is_online       BOOLEAN NOT NULL DEFAULT false,
+    is_new          BOOLEAN NOT NULL DEFAULT true,
+    offline_ore     BIGINT  NOT NULL DEFAULT 0,
+    offline_depth   BIGINT  NOT NULL DEFAULT 0
 );
 
 -- DROP TABLE IF EXISTS PVP;

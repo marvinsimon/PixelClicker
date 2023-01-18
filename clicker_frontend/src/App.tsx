@@ -4,31 +4,34 @@ import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
+import shopModule from "./styles/Shop.module.css";
+import rankModule from "./styles/Leaderboard.module.css";
 import {ClientMessages, ServerMessages} from "./game_messages";
-import clicker_logo from "./assets/img/ClickerRoyale_Wappen.png";
-import board from "./assets/img/board_with_icons.png";
-import board_right from "./assets/img/Brett_Neu_test.png";
-import small_board from "./assets/img/board_new_small.png";
-import buttonSound from "./assets/audio/button_click.mp3";
-
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
 import Phaser from "phaser";
 import Preload from "./scenes/preload";
 import Play from "./scenes/play";
 
-const App: Component = () => {
+/**
+ * This is the Frontend of Clicker Royale.
+ */
 
-    let password_field: HTMLInputElement;
-    let email_field: HTMLInputElement;
-    let username_field: HTMLInputElement;
+const App: Component = () => {
+    /*
+    * Variable and signal initialisations/declarations
+    */
+    let password_field: HTMLInputElement = {} as HTMLInputElement;
+    let email_field: HTMLInputElement = {} as HTMLInputElement;
+    let username_field: HTMLInputElement = {} as HTMLInputElement;
+    let uploaded_image: any;
 
     const [ore, setOre] = createSignal(0);
     const [auth, setAuth] = createSignal(false);
     const [depth, setDepth] = createSignal(0);
-    const [username, setUsername] = createSignal("")
-    //PopUp Variable
-    const [show, setShow] = createSignal(false);
-    const [innershow, setInnerShow] = createSignal(false);
+    const [username, setUsername] = createSignal("");
+    const [show, setShow] = createSignal(false); //PopUp Variable
+    const [innerShow, setInnerShow] = createSignal(false);
+    const [showProfile, setShowProfile] = createSignal(false);
     const [shovelDepth, setShovelDepth] = createSignal(1);
     const [shovelAmount, setShovelAmount] = createSignal(1);
     const [automation_on, setAutomation] = createSignal(false);
@@ -53,116 +56,183 @@ const App: Component = () => {
     const [autoAmountPrice, setAutoAmountPrice] = createSignal(50);
     const [costNumber, setCostNumber] = createSignal("");
     const [diamond, setDiamond] = createSignal(0);
+    const [showLeaderboard, setShowLeaderboard] = createSignal(false);
+    const [pvpScore, setPvpScore] = createSignal(0);
+    const [showShop, setShowShop] = createSignal(false);
 
+    let players: string;
     let game: ClickerRoyaleGame;
     let socket: WebSocket | undefined;
 
+    /*
+    * Sets up the Backend connection and handles incoming Event calls
+    */
     const connectBackend = async () => {
         if (socket != null)
             disconnectBackend();
         socket = new WebSocket("ws://localhost:3001/game");
+
+        // Handle incoming messages
         socket.onmessage = (msg) => {
             const event: ServerMessages = JSON.parse(msg.data as string);
+
+            // Extract the message type from data string
             const re: RegExp = /(([A-Z]([a-z]*[a-z])?)*([A-Z]([a-z]*[a-z])))/
             let arr = (msg.data as string).match(re)![0];
-            switch (arr) {
-                case "NewState":
-                    console.log(event.NewState);
-                    setOre(event.NewState.ore);
-                    setDepth(event.NewState.depth);
-                    game.depth = depth();
-                    break;
-                case "ShovelDepthUpgraded":
-                    console.log(event.ShovelDepthUpgraded);
-                    setShovelDepth(event.ShovelDepthUpgraded.new_level);
-                    if (event.ShovelDepthUpgraded.success) {
-                        subtractCost(formatNumbers(shovelDepthPrice()));
-                    }
-                    setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
-                    break;
-                case "ShovelAmountUpgraded":
-                    console.log(event.ShovelAmountUpgraded);
-                    setShovelAmount(event.ShovelAmountUpgraded.new_level);
-                    if (event.ShovelAmountUpgraded.success) {
-                        subtractCost(formatNumbers(shovelAmountPrice()));
-                    }
-                    setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
-                    break;
-                case "AutomationStarted":
-                    setAutomation(event.AutomationStarted.success);
-                    if (event.AutomationStarted.success) {
-                        subtractCost("200");
-                        startAutomation();
-                    }
-                    break;
-                case "AutomationDepthUpgraded":
-                    console.log(event.AutomationDepthUpgraded);
-                    setAutoDepth(event.AutomationDepthUpgraded.new_level);
-                    if (event.AutomationDepthUpgraded.success) {
-                        subtractCost(formatNumbers(autoDepthPrice()));
-                    }
-                    setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
-                    break;
-                case "AutomationAmountUpgraded":
-                    console.log(event.AutomationAmountUpgraded);
-                    setAutoAmount(event.AutomationAmountUpgraded.new_level);
-                    if (event.AutomationAmountUpgraded.success) {
-                        subtractCost(formatNumbers(autoAmountPrice()));
-                    }
-                    setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
-                    break;
-                case "AttackLevelUpgraded":
-                    console.log(event.AttackLevelUpgraded);
-                    setAttackLevel(event.AttackLevelUpgraded.new_level);
-                    if (event.AttackLevelUpgraded.success) {
-                        subtractCost(formatNumbers(attackPrice()));
-                    }
-                    setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
-                    break;
-                case "DefenceLevelUpgraded":
-                    console.log(event.DefenceLevelUpgraded);
-                    setDefenceLevel(event.DefenceLevelUpgraded.new_level);
-                    if (event.DefenceLevelUpgraded.success) {
-                        subtractCost(formatNumbers(defencePrice()));
-                    }
-                    setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
-                    break;
-                case "CombatElapsed":
-                    console.log(event.CombatElapsed);
-                    lootArrived(event.CombatElapsed);
-                    break;
-                case "LoginState":
-                    console.log(event.LoginState);
-                    setLoginStates(event.LoginState);
-                    break;
-                case "LoggedIn":
-                    console.log("Still logged in")
-                    setAuth(true);
-                    setLoggedIn(true);
-                    break;
-                case "MinedOffline":
-                    console.log("Got offline resources")
-                    setTotalDepth(event.MinedOffline.depth);
-                    setTotalAmount(event.MinedOffline.ore);
-                    setShowOfflineResources(true);
-                    break;
-                case "SetUsername":
-                    setUsername(event.SetUsername.username);
-                    break;
-                case "TreasureFound":
-                    console.log('Treasure found');
-                    setOre(event.TreasureFound.ore);
-                    break;
-                case "DiamondFound":
-                    console.log('Diamond found');
-                    setDiamond(event.DiamondFound.diamond);
-                    break;
-                case "GameData":
-                    console.log('Load game data');
-                    loadGameData(event.GameData.picked_first_diamond);
-                    break;
+
+            // Switch for event handling, the IDE might throw a lot of errors here because it doesn't recognize the right content for the cases.
+            // The functionality of the Switch case is not affected by this.
+
+            if (typeof event === 'object') {
+                switch (arr) {
+                    case "NewState":
+                        if ('NewState' in event) {
+                            console.log(event.NewState);
+                            setOre(event.NewState.ore);
+                            setDepth(event.NewState.depth);
+                            game.depth = depth();
+                        }
+                        break;
+                    case "ShovelDepthUpgraded":
+                        if ("ShovelDepthUpgraded" in event) {
+                            console.log(event.ShovelDepthUpgraded);
+                            setShovelDepth(event.ShovelDepthUpgraded.new_level);
+                            if (event.ShovelDepthUpgraded.success) {
+                                subtractCost(formatNumbers(shovelDepthPrice()));
+                            }
+                            setShovelDepthPrice(event.ShovelDepthUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "ShovelAmountUpgraded":
+                        if ("ShovelAmountUpgraded" in event) {
+                            console.log(event.ShovelAmountUpgraded);
+                            setShovelAmount(event.ShovelAmountUpgraded.new_level);
+                            if (event.ShovelAmountUpgraded.success) {
+                                subtractCost(formatNumbers(shovelAmountPrice()));
+                            }
+                            setShovelAmountPrice(event.ShovelAmountUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "AutomationStarted":
+                        if ("AutomationStarted" in event) {
+                            setAutomation(event.AutomationStarted.success);
+                            if (event.AutomationStarted.success) {
+                                subtractCost("200");
+                                startAutomation();
+                            }
+                        }
+                        break;
+                    case "AutomationDepthUpgraded":
+                        if ("AutomationDepthUpgraded" in event) {
+                            console.log(event.AutomationDepthUpgraded);
+                            setAutoDepth(event.AutomationDepthUpgraded.new_level);
+                            if (event.AutomationDepthUpgraded.success) {
+                                subtractCost(formatNumbers(autoDepthPrice()));
+                            }
+                            setAutoDepthPrice(event.AutomationDepthUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "AutomationAmountUpgraded":
+                        if ("AutomationAmountUpgraded" in event) {
+                            console.log(event.AutomationAmountUpgraded);
+                            setAutoAmount(event.AutomationAmountUpgraded.new_level);
+                            if (event.AutomationAmountUpgraded.success) {
+                                subtractCost(formatNumbers(autoAmountPrice()));
+                            }
+                            setAutoAmountPrice(event.AutomationAmountUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "AttackLevelUpgraded":
+                        if ("AttackLevelUpgraded" in event) {
+                            console.log(event.AttackLevelUpgraded);
+                            setAttackLevel(event.AttackLevelUpgraded.new_level);
+                            if (event.AttackLevelUpgraded.success) {
+                                subtractCost(formatNumbers(attackPrice()));
+                            }
+                            setAttackPrice(event.AttackLevelUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "DefenceLevelUpgraded":
+                        if ("DefenceLevelUpgraded" in event) {
+                            console.log(event.DefenceLevelUpgraded);
+                            setDefenceLevel(event.DefenceLevelUpgraded.new_level);
+                            if (event.DefenceLevelUpgraded.success) {
+                                subtractCost(formatNumbers(defencePrice()));
+                            }
+                            setDefencePrice(event.DefenceLevelUpgraded.new_upgrade_cost);
+                        }
+                        break;
+                    case "CombatElapsed":
+                        if ("CombatElapsed" in event) {
+                            console.log(event.CombatElapsed);
+                            lootArrived(event.CombatElapsed);
+                        }
+                        break;
+                    case "LoggedIn":
+                        if ("LoggedIn" in event) {
+                            console.log("Still logged in");
+                            setAuth(true);
+                            setLoggedIn(true);
+                        }
+                        break;
+                    case "LoginState":
+                        if ("LoginState" in event) {
+                            console.log(event.LoginState);
+                            setLoginStates(event.LoginState);
+                        }
+                        break;
+                    case "MinedOffline":
+                        if ("MinedOffline" in event) {
+                            console.log("Got offline resources");
+                            setTotalDepth(event.MinedOffline.depth);
+                            setTotalAmount(event.MinedOffline.ore);
+                            setShowOfflineResources(true);
+                        }
+                        break;
+                    case "SetUsername":
+                        if ("SetUsername" in event) {
+                            setUsername(event.SetUsername.username);
+                        }
+                        break;
+                    case "SetProfilePicture":
+                        if ("SetProfilePicture" in event) {
+                            uploaded_image = event.SetProfilePicture.pfp;
+                        }
+                        break;
+                    case "TreasureFound":
+                        if ("TreasureFound" in event) {
+                            console.log('Treasure found');
+                            setOre(event.TreasureFound.ore);
+                        }
+                        break;
+                    case "DiamondFound":
+                        if ("DiamondFound" in event) {
+                            console.log('Diamond found');
+                            setDiamond(event.DiamondFound.diamond);
+                        }
+                        break;
+                    case "GameData":
+                        if ("GameData" in event) {
+                            console.log('Load game data');
+                            loadGameData(event.GameData.picked_first_diamond);
+                        }
+                        break;
+                    case "SendLeaderboard":
+                        if ("SendLeaderboard" in event) {
+                            console.log('Load Leaderboard');
+                            players = event.SendLeaderboard.players;
+                        }
+                        break;
+                    case "SendPvpScore":
+                        if ("SendPvpScore" in event) {
+                            console.log('Load pvp score');
+                            setPvpScore(event.SendPvpScore.pvp_score);
+                        }
+                        break;
+                }
             }
         }
+
         socket.onopen = () => {
             const event: ClientMessages = "GetLoginData";
             window.setTimeout(() => {
@@ -177,6 +247,9 @@ const App: Component = () => {
         setupPhaserGame();
     }
 
+    /*
+    * Sets up and configures the phaser contents of the game
+    */
     function setupPhaserGame() {
         // Scenes
         let scenes = [];
@@ -231,7 +304,11 @@ const App: Component = () => {
         Play.setGameInstance(game);
     }
 
+    /*
+    * Refreshes and updates game screen in a set interval
+    */
     window.setInterval(function () {
+        // Variable Declarations with Query Selection
         let upgrade_attack_icon = document.querySelector("." + pvpModule.icon_upgrade_attack);
         let upgrade_defence_icon = document.querySelector("." + pvpModule.icon_upgrade_defence);
         let upgrade_shovel_depth_icon = document.querySelector("." + mineModule.icon_upgrade_speed);
@@ -239,6 +316,8 @@ const App: Component = () => {
         let upgrade_auto_depth_icon = document.querySelector("." + mineModule.icon_upgrade_automate_speed);
         let upgrade_auto_amount_icon = document.querySelector("." + mineModule.icon_upgrade_automate_amount);
         let automate = document.querySelector("." + mineModule.icon_automate);
+
+        // Sets icon graphics depending on the current state
         if (upgrade_attack_icon != null) {
             if (ore() >= attackPrice()) {
                 upgrade_attack_icon!.classList.remove(styles.hide);
@@ -288,8 +367,11 @@ const App: Component = () => {
                 automate!.classList.add(styles.hide);
             }
         }
-    }, 30)
+    }, 30);
 
+    /*
+    * Formats numbers to be compacted once they reach a certain limit
+    */
     function formatNumbers(formatNumber: number) {
         if (formatNumber < 1000) {
             return formatNumber.toString();
@@ -303,6 +385,9 @@ const App: Component = () => {
         }
     }
 
+    /*
+    * Shows the popup for combat results
+    */
     function lootArrived(CombatElapsed: { loot: number }) {
         window.setTimeout(() => {
             setShowLoot(true);
@@ -311,6 +396,9 @@ const App: Component = () => {
 
     }
 
+    /*
+    * Sets state displays on login to the player's game state values
+    */
     const setLoginStates = (LoginState: { shovel_amount: number; shovel_depth: number; automation_depth: number; automation_amount: number; attack_level: number; defence_level: number; automation_started: boolean; diamond: number }) => {
         setShovelDepth(LoginState.shovel_depth);
         setShovelAmount(LoginState.shovel_amount);
@@ -328,24 +416,49 @@ const App: Component = () => {
         }
     }
 
+    /*
+    * Sets the game screen to the initial display
+    */
     const resetScreen = () => {
-        if (showMining() || showPVP()) {
+        if (showMining() || showPVP() || showLeaderboard()) {
             slideOutAutomate();
             slideOut();
             window.setTimeout(function () {
                 setShowMining(false);
                 setShowPVP(false);
+                setShowLeaderboard(false);
                 unHide();
             }, 1300);
             rotateGearOut();
         }
     }
 
+    /*
+    * Disconnects the Backend and resets the game screen
+    */
     const disconnectBackend = () => {
         resetScreen();
         socket?.close();
     }
 
+    /*
+    * Event Listeners
+    */
+    window.addEventListener('mineEvent', async () => {
+        await mine();
+    })
+
+    window.addEventListener('treasureEvent', async () => {
+        await treasure();
+    });
+
+    window.addEventListener('diamondEvent', async () => {
+        await pickedUpDiamond();
+    });
+
+    /*
+    * Game Events are created and send to the Backend here.
+    */
     const mine = async () => {
         if (socket) {
             const event: ClientMessages = "Mine";
@@ -367,6 +480,7 @@ const App: Component = () => {
         }
     }
 
+    // starts the automation
     const automate = async () => {
         if (socket) {
             const event: ClientMessages = "StartAutomation";
@@ -402,6 +516,39 @@ const App: Component = () => {
         }
     }
 
+    const treasure = async () => {
+        if (socket) {
+            const event: ClientMessages = "Treasure";
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const pickedUpDiamond = async () => {
+        if (socket) {
+            const event: ClientMessages = 'Diamond';
+            await socket.send(JSON.stringify(event));
+        }
+    }
+
+    const loadGame = async () => {
+        if (socket) {
+            setTimeout(async () => {
+                const event: ClientMessages = 'LoadGame';
+                await socket?.send(JSON.stringify(event));
+            }, 200);
+        }
+    }
+
+    function loadGameData(picked_first_diamond: boolean) {
+        game.pickedFirstDiamond = picked_first_diamond;
+        game.events.emit('loadGame');
+    }
+
+    function startAutomation() {
+        game.automation = true;
+        game.events.emit('startAutomate');
+    }
+
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         let username = username_field.value;
@@ -417,9 +564,10 @@ const App: Component = () => {
                 setLoggedIn(true);
                 setAuth(true);
                 setUsername(username);
+                uploaded_image = "";
                 break;
             case 400:   //Bad_Request
-                setBad_request_bool(true);
+                badStatusPopup();
                 console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
@@ -446,7 +594,7 @@ const App: Component = () => {
                     break;
                 case 401:
                     //credentials did not match any existing user
-                    setUnauthorized(true);
+                    badStatusPopup();
                     console.log('Unauthorized');
                     break;
             }
@@ -466,6 +614,8 @@ const App: Component = () => {
                 setAuth(false);
                 game.events.emit('logOut');
                 setUsername("")
+                setPvpScore(0);
+                game.automation = false;
                 await connectBackend();
             }
         } else {
@@ -473,20 +623,44 @@ const App: Component = () => {
         }
     }
 
+    const attack = async () => {
+        const response = await fetch("http://localhost:3001/combat", {
+            method: "GET",
+            credentials: "include",
+        });
+        if (response.status == 200) { //200 == StatusCode OK
+            setAttacked(true);
+            console.log("Start timer");
+            //Start timer
+            await startTimer();
+        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
+            console.log("No match");
+        }
+    }
+
+    /*
+    * Handler for click events outside of assigned element
+    */
     const clickOutside = async (el: { contains: (arg0: any) => any }, accessor: () => { (): any; new(): any }) => {
         const onClick = (e: MouseEvent) => !el.contains(e.target) && accessor()?.();
         document.body.addEventListener("click", onClick);
         onCleanup(() => document.body.removeEventListener("click", onClick));
     }
 
+    /*
+    * Functions to change visibility of elements on the game screen
+    */
     const hide = () => {
-        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.add(styles.hide));
+        document.querySelectorAll("." + styles.buttonItem).forEach(value => value.classList.add(styles.hide));
     }
 
-    const unhide = () => {
-        document.querySelectorAll("." + styles.buttonitem).forEach(value => value.classList.remove(styles.hide));
+    const unHide = () => {
+        document.querySelectorAll("." + styles.buttonItem).forEach(value => value.classList.remove(styles.hide));
     }
 
+    /*
+    * Functions to handle the slide out menu panels and animations
+    */
     const slideOut = () => {
         let variable = document.querySelector("." + styles.slideIn);
         if (variable) {
@@ -522,9 +696,13 @@ const App: Component = () => {
         right!.classList.remove(styles.gear_rotate_counterClockwise);
         right!.classList.add(styles.gear_rotate_clockwise);
     }
+
+    /*
+    * Starts the combat timer on the pvp tab
+    */
     const startTimer = async () => {
-        let seconds: string | number = 9;
-        let minutes: string | number = 1;
+        let seconds: string | number = 100;
+        let minutes: string | number = 6;
         let timeLeft = minutes * seconds;
         let combatTime = setInterval(function () {
             minutes = parseInt(String(timeLeft / 60), 10);
@@ -543,28 +721,19 @@ const App: Component = () => {
         }, 1000);
     }
 
-    const attack = async () => {
-        const response = await fetch("http://localhost:3001/combat", {
-            method: "GET",
-            credentials: "include",
-        });
-        if (response.status == 200) { //200 == StatusCode OK
-            setAttacked(true);
-            console.log("Start timer");
-            //Start timer
-            await startTimer();
-        } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
-            console.log("No match");
-        }
-    }
-
-    const buttonClick = new Audio(buttonSound);
+    /*
+    * Functions for sounds on button click
+    */
+    const buttonClick = new Audio("src/assets/audio/button_click.mp3");
     buttonClick.preload = "none";
 
     const playButtonSound = async () => {
         await buttonClick.play();
     }
 
+    /*
+    * Updates cost values for upgrades
+    */
     function subtractCost(cost: string) {
         setCostNumber("-" + cost);
         let c = document.getElementById("cost");
@@ -575,6 +744,9 @@ const App: Component = () => {
         }
     }
 
+    /*
+    * Popup for bad status cases
+    */
     function badStatusPopup() {
         let inUse = document.getElementById("inUse");
         let invalid = document.getElementById("invalid");
@@ -591,55 +763,72 @@ const App: Component = () => {
         }
     }
 
-    window.addEventListener('mineEvent', async () => {
-        await mine();
-    })
-
-    window.addEventListener('treasureEvent', async () => {
-        await treasure();
-    });
-
-    const treasure = async () => {
-        if (socket) {
-            const event: ClientMessages = "Treasure";
-            await socket.send(JSON.stringify(event));
-        }
-    }
-
-    window.addEventListener('diamondEvent', async () => {
-        await pickedUpDiamond();
-    })
-
-    const pickedUpDiamond = async () => {
-        if (socket) {
-            const event: ClientMessages = 'Diamond';
-            await socket.send(JSON.stringify(event));
-        }
-    }
-
-    const loadGame = async () => {
-        if (socket) {
-            setTimeout(async () => {
-                const event: ClientMessages = 'LoadGame';
-                await socket?.send(JSON.stringify(event));
-            }, 200);
-        }
-    }
-
-    function loadGameData(picked_first_diamond: boolean) {
-        game.pickedFirstDiamond = picked_first_diamond;
-        game.events.emit('loadGame');
-    }
-
-    function startAutomation() {
-        game.automation = true;
-        game.events.emit('startAutomate');
-    }
-
+    /*
+    * Account dropdown menu
+    */
     const dropdown = async () => {
         document.querySelector("#myDropdown")!.classList.toggle(styles.show)
     }
 
+    /*
+    * Functions to load, save and show a profile picture on the account page
+    */
+    function loadPfp(this: any) {
+        const image_input = document.querySelector("#image_input");
+        image_input!.addEventListener("change", () => {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                uploaded_image = reader.result;
+                document.querySelector<HTMLDivElement>("#display_image")!.style.backgroundImage = `url(${uploaded_image})`;
+            });
+            reader.readAsDataURL(this.files[0]);
+        });
+    }
+
+    function displayPfp() {
+        let img = uploaded_image as string;
+        document.querySelector<HTMLDivElement>("#display_image")!.style.backgroundImage = `url(${img})`;
+    }
+
+    const saveImg = async () => {
+        await fetch("http://localhost:3001/save_pfp", {
+            method: "GET",
+            credentials: "include",
+            headers: {pfp: uploaded_image},
+        });
+    }
+
+    /*
+    * Functions to show the leaderboard field
+    */
+    function showScores() {
+        let allPlayers = JSON.parse(players);
+        let leaderboard = document.querySelector("#leaderboard");
+        leaderboard!.innerHTML = "";
+        let counter = 1;
+        allPlayers.forEach((player: any) => {
+            let name = document.createElement("label");
+            name.innerHTML = counter + ". " + player.username;
+
+            let score = document.createElement("label");
+            score.innerHTML = player.pvp_score;
+            score.style.color = "#b7b7b7";
+            score.style.marginLeft = "20px";
+            score.style.direction = "rtl";
+            leaderboard!.appendChild(name);
+            leaderboard!.appendChild(score);
+            counter++;
+        })
+
+        let yourScore = document.querySelector("#pvpScore");
+        let scoreLabel = document.createElement('label');
+        scoreLabel.innerHTML = "Your Score: " + pvpScore().toString();
+        yourScore!.appendChild(scoreLabel);
+    }
+
+    /*
+    * Returns the HTML page of Clicker Royale
+    */
     return (
         <div class={styles.App}>
             <div class={styles.container}>
@@ -648,26 +837,51 @@ const App: Component = () => {
                     <div class={styles.heil_img}></div>
                 </div>
                 <div class={styles.header}>
-                    <img src={clicker_logo} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <img src={"src/assets/img/ClickerRoyale_Wappen.png"} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={
                               <div>
                                   <button class={styles.User_symbol} onClick={() => {
-                                      dropdown();
+                                      void dropdown();
                                   }}></button>
-                                  <div id="myDropdown" class={styles.dropdowncntnt}>
-                                      <a>Profile</a>
+                                  <div id="myDropdown" class={styles.dropdownContent}>
+                                      <a onClick={() => {
+                                          setShowProfile(true);
+                                          void playButtonSound();
+                                          void displayPfp()
+                                      }}>Profile</a>
                                       <a>Background</a>
                                       <a onClick={() => {
-                                          sign_out();
+                                          void sign_out();
                                           setShow(false);
                                           setInnerShow(false);
+                                          void playButtonSound()
                                       }}>Log out</a>
                                   </div>
+                                  <Show when={showProfile()}
+                                        fallback={""} keyed>
+                                      <div class={styles.modal} use:clickOutside={() => setShowProfile(false)}>
+                                          <h3>Profile</h3>
+                                          <div class={styles.flexItem}>
+                                              <input type="file" class={styles.image_input} id="image_input"
+                                                     accept="image/png, image/jpg" onclick={loadPfp}/>
+                                              <div id="display_image" class={styles.displayimage}>
+                                              </div>
+                                              <button onClick={saveImg}>Safe</button>
+                                          </div>
+                                          <div class={styles.flexItem2}>
+                                              <label>Name: Test</label>
+                                              <br/>
+                                              <label>Email: {email_field!.value}</label>
+                                          </div>
+
+                                      </div>
+                                  </Show>
                               </div>
                           } keyed>
-                        <button onClick={(e) => {
+
+                        <button onClick={() => {
                             setShow(true);
                             void playButtonSound()
                         }} class={styles.button_sign_up}>Login
@@ -690,7 +904,7 @@ const App: Component = () => {
                                     <p>Not registered?</p>
                                 </div>
                                 <div class={styles.switch}>
-                                    <button class={styles.buttonswitch} onClick={() => {
+                                    <button class={styles.buttonSwitch} onClick={() => {
                                         setShow(false);
                                         setInnerShow(true)
                                     }}>Sign Up
@@ -699,7 +913,7 @@ const App: Component = () => {
                             </div>
                         </Show>
 
-                        <Show when={innershow()}
+                        <Show when={innerShow()}
                               fallback={""} keyed>
                             <div class={styles.modal} use:clickOutside={() => setInnerShow(false)}>
                                 <div class={styles.popup_h}>
@@ -719,7 +933,7 @@ const App: Component = () => {
                                     <p>Already signed up?</p>
                                 </div>
                                 <div class={styles.switch}>
-                                    <button class={styles.buttonswitch} onClick={() => {
+                                    <button class={styles.buttonSwitch} onClick={() => {
                                         setShow(true);
                                         setInnerShow(false)
                                     }}>Login
@@ -734,7 +948,7 @@ const App: Component = () => {
                 <div class={styles.board}>
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
-                            <img src={board} class={styles.board_img} alt={"Value board"}/>
+                            <img src={"src/assets/img/board_with_icons.png"} class={styles.board_img} alt={"Value board"}/>
                             <div id={"cost"} class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
@@ -756,8 +970,8 @@ const App: Component = () => {
                     <Show when={showPVP()}
                           fallback={
                               <>
-                                  <div class={styles.buttonitem}>
-                                      <button onClick={(e) => {
+                                  <div class={styles.buttonItem}>
+                                      <button onClick={() => {
                                           void playButtonSound();
                                           setShowPVP(true);
                                           hide();
@@ -769,12 +983,12 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
                                 <button class={styles.button_close} onClick={() => {
                                     slideOut();
                                     window.setTimeout(function () {
                                         setShowPVP(false);
-                                        unhide();
+                                        unHide();
                                     }, 1300);
                                     rotateGearOut();
                                 }}>
@@ -783,7 +997,7 @@ const App: Component = () => {
                                 <a class={styles.label_board}>
                                     <label class={styles.label_header + " " + pvpModule.label_pvp}>PVP</label>
                                 </a>
-                                <button attLvl={'Lv' + attackLevel()}
+                                <button data-attLvl={'Lv' + attackLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_attack}
                                         onClick={() => {
                                             void upgradeAttackLevel();
@@ -793,7 +1007,7 @@ const App: Component = () => {
                                 <label
                                     class={styles.label_header + " " + pvpModule.label_attack_level}>{formatNumbers(attackPrice())}</label>
                                 <a class={styles.ore + " " + pvpModule.attack_ore}></a>
-                                <button defLvl={'Lv' + defenceLevel()}
+                                <button data-defLvl={'Lv' + defenceLevel()}
                                         class={styles.button + " " + pvpModule.upgrade_defence}
                                         onClick={() => {
                                             void upgradeDefenceLevel();
@@ -810,7 +1024,7 @@ const App: Component = () => {
                                         <div class={pvpModule.firstHand}></div>
                                         <div class={pvpModule.secondHand}></div>
                                     </div>
-                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>00:10</span>
+                                    <span id={"timer"} class={styles.label_header + " " + styles.time}>10:00</span>
                                 </Show>
                             </div>
                         </div>
@@ -819,8 +1033,8 @@ const App: Component = () => {
                     <Show when={showMining()}
                           fallback={
                               <>
-                                  <div class={styles.buttonitem}>
-                                      <button onClick={(e) => {
+                                  <div class={styles.buttonItem}>
+                                      <button onClick={() => {
                                           void playButtonSound();
                                           setShowMining(true);
                                           hide();
@@ -831,7 +1045,7 @@ const App: Component = () => {
                               </>
                           } keyed>
                         <div class={styles.slideIn}>
-                            <img src={board_right} class={styles.board_img_right} alt={"Control board"}/>
+                            <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {
                                     slideOutAutomate();
@@ -839,7 +1053,7 @@ const App: Component = () => {
                                 slideOut();
                                 window.setTimeout(function () {
                                     setShowMining(false);
-                                    unhide();
+                                    unHide();
                                 }, 1300);
                                 rotateGearOut();
                             }}>
@@ -848,7 +1062,7 @@ const App: Component = () => {
                             <a class={styles.label_board}>
                                 <label class={styles.label_header + " " + mineModule.label_mine}>Mining</label>
                             </a>
-                            <button shovelSpeedLvl={'Lv' + shovelDepth()}
+                            <button data-shovelSpeedLvl={'Lv' + shovelDepth()}
                                     class={styles.button + " " + mineModule.upgrade_speed}
                                     onClick={() => {
                                         void upgradeShovelDepth();
@@ -858,7 +1072,7 @@ const App: Component = () => {
                             <label
                                 class={styles.label_header + " " + mineModule.label_speed_level}>{formatNumbers(shovelDepthPrice())}</label>
                             <a class={styles.ore + " " + mineModule.shovelDepth_ore}></a>
-                            <button shovelAmountLvl={'Lv' + shovelAmount()}
+                            <button data-shovelAmountLvl={'Lv' + shovelAmount()}
                                     class={styles.button + " " + mineModule.upgrade_amount}
                                     onClick={() => {
                                         void upgradeShovelAmount();
@@ -883,13 +1097,13 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={small_board} class={styles.board_img_automate}
+                                        <img src={"src/assets/img/board_new_small.png"} class={styles.board_img_automate}
                                              alt={"Automate Board"}/>
                                         <a class={mineModule.auto_label_board}>
                                             <label
                                                 class={styles.label_header + " " + mineModule.label_auto}>Automate</label>
                                         </a>
-                                        <button autoDepthLvl={'Lv' + autoDepth()}
+                                        <button data-autoDepthLvl={'Lv' + autoDepth()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_speed}
                                                 onClick={() => {
                                                     void upgradeAutoDepth();
@@ -899,7 +1113,7 @@ const App: Component = () => {
                                         <label
                                             class={styles.label_header + " " + mineModule.label_speed_automate_level}>{formatNumbers(autoDepthPrice())}</label>
                                         <a class={styles.ore + " " + mineModule.autoDepth_ore}></a>
-                                        <button autoAmountLvl={'Lv' + autoAmount()}
+                                        <button data-autoAmountLvl={'Lv' + autoAmount()}
                                                 class={styles.button + " " + mineModule.upgrade_automate_amount}
                                                 onClick={() => {
                                                     void upgradeAutoAmount();
@@ -914,20 +1128,116 @@ const App: Component = () => {
                             </Show>
                         </div>
                     </Show>
-                    <div class={styles.buttonitem}>
-                        <button class={styles.button}>Rank</button>
+
+                    <Show when={showLeaderboard()}
+                          fallback={
+                              <>
+                                  <div class={styles.buttonItem}>
+                                      <button onClick={() => {
+                                          void playButtonSound();
+                                          setShowLeaderboard(true);
+                                          hide();
+                                          rotateGearIn();
+                                          showScores();
+                                      }} class={styles.button}>Rank
+                                      </button>
+                                  </div>
+                              </>
+                          } keyed>
+                        <div class={styles.slideIn}>
+                            <div class={styles.image_container}>
+                                <img src={ "src/assets/img/leaderboard4.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <div id={"leaderboard"}
+                                     class={styles.label_header + " " + rankModule.leaderboard}></div>
+                                <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>
+                                </div>
+                                <button class={styles.button_close + " " + rankModule.rank_button_close}
+                                        onClick={() => {
+                                            slideOut();
+                                            window.setTimeout(function () {
+                                                setShowLeaderboard(false);
+                                                unHide();
+                                            }, 1300);
+                                            rotateGearOut();
+                                        }}>
+                                    <label class={styles.label_header + " " + styles.label_close}>X</label>
+                                </button>
+                                <a class={rankModule.rank_label_board}>
+                                    <label class={styles.label_header + " " + rankModule.label_rank}>Leaderboard</label>
+                                </a>
+                            </div>
+                        </div>
+                    </Show>
+
+                    <div class={styles.buttonItem}>
+                        <button onClick={() => {
+                            setShowShop(true);
+                            void playButtonSound()
+                        }} class={styles.button}>Shop
+                        </button>
                     </div>
-                    <div class={styles.buttonitem}>
-                        <button class={styles.button}>Shop</button>
-                    </div>
+
+                    <Show when={showShop()}
+                          fallback={""} keyed>
+                        <div class={styles.modal + " " + shopModule.shop} use:clickOutside={() => setShowShop(false)}>
+                            <div class={shopModule.shop_h}>
+                                <h3>Shop</h3>
+                            </div>
+                            <div class={shopModule.spacer}>
+                                <p>Backgrounds</p>
+                            </div>
+                            <div class={shopModule.items_container}>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_cherry}>
+                                        <p class={shopModule.tag_p}>Cherry</p>
+                                    </div>
+                                    <div class={styles.buttonItem}>
+                                        <button class={shopModule.button_buy}>1500</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_mixed}>
+                                        <p class={shopModule.tag_p}>Mixed</p>
+                                    </div>
+                                    <div class={styles.buttonItem}>
+                                        <button class={shopModule.button_buy}>699</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_spruce}>
+                                        <p class={shopModule.tag_p}>Spruce</p>
+                                    </div>
+                                    <div class={styles.buttonItem}>
+                                        <button class={shopModule.button_buy}>1500</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_universe_dark}>
+                                        <p class={shopModule.tag_p}>Dark Star</p>
+                                    </div>
+                                    <div class={styles.buttonItem}>
+                                        <button class={shopModule.button_buy}>2690</button>
+                                    </div>
+                                </div>
+                                <div class={shopModule.item}>
+                                    <div class={shopModule.tags + " " + shopModule.tag_universe_light}>
+                                        <p class={shopModule.tag_p}>Light Star</p>
+                                    </div>
+                                    <div class={styles.buttonItem}>
+                                        <button class={shopModule.button_buy}>2690</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Show>
 
                     <Show when={showLoot()} keyed>
                         <div class={styles.modal} use:clickOutside={() => setShowLoot(false)}>
                             <label style="font-size:30px"> Success! </label>
                             <label style="font-size:20px"> Your Loot:</label>
-                            <div class={styles.grid_loot}>
-                                <div class={styles.grid_loot_icon}></div>
-                                <label class={styles.grid_loot_label}
+                            <div class={styles.grid_ore}>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_ore_icon}></div>
+                                <label class={styles.grid_ore_label}
                                        style="font-size:20px">{formatNumbers(loot())}</label>
                             </div>
                         </div>
@@ -938,12 +1248,12 @@ const App: Component = () => {
                             <label style="font-size:30px"> Welcome back!</label>
                             <label style="font-size:20px">Your Offline Loot:</label>
                             <div class={styles.grid_ore}>
-                                <div class={styles.grid_ore_icon}></div>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_ore_icon}></div>
                                 <label class={styles.grid_ore_label}
                                        style="font-size:20px">{formatNumbers(totalAmount())}</label>
                             </div>
                             <div class={styles.grid_depth}>
-                                <div class={styles.grid_depth_icon}></div>
+                                <div class={styles.offline_resource_icons + " " + styles.grid_depth_icon}></div>
                                 <label class={styles.grid_depth_label}
                                        style="font-size:20px">{formatNumbers(totalDepth())}</label>
                             </div>
@@ -952,8 +1262,7 @@ const App: Component = () => {
                 </div>
             </div>
         </div>
-    )
-        ;
+    );
 };
 
 export default App;

@@ -1,6 +1,8 @@
 use crate::{ClientMessages, ServerMessages};
 use serde::{Deserialize, Serialize};
 
+//// Player Stats and Event Calls
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GameState {
     pub ore: f64,
@@ -19,6 +21,8 @@ pub struct GameState {
 }
 
 impl GameState {
+
+    /// Updates the ore and depth and sends an event to the frontend
     pub fn tick(&mut self, ticks: i64) -> ServerMessages {
         if self.ore < 0.0 {
             self.ore = 0.0;
@@ -168,7 +172,7 @@ impl GameState {
                     automation_amount: self.auto_amount_level,
                     automation_depth: self.auto_depth_level,
                     shovel_amount: self.shovel_amount_level,
-                    shovel_depth: self.auto_depth_level,
+                    shovel_depth: self.shovel_depth_level,
                     automation_started: self.automation_started,
                     diamond: self.diamond
                 }
@@ -188,6 +192,7 @@ impl GameState {
         }
     }
 
+    /// Initialises a new game state instance
     pub fn new() -> Self {
         GameState {
             ore: 0.0,

@@ -2,6 +2,9 @@ use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier};
 use argon2::password_hash::SaltString;
 use rand_core::OsRng;
 
+//// Methods for Password hashing and verifying
+
+/// Hashes the given password
 pub fn hash_password(password: &[u8]) -> String {
     let argon2 = Argon2::default();
     let salt = SaltString::generate(OsRng);
@@ -11,12 +14,14 @@ pub fn hash_password(password: &[u8]) -> String {
     password_hash
 }
 
+/// Verifies if the given password is analog to the hashed
 pub fn verify_password(password_hash: String, password: &[u8]) -> bool {
     let parsed_hash = PasswordHash::new(&password_hash).unwrap();
     Argon2::default().verify_password(password, &parsed_hash).is_ok()
 }
 
 
+/// Tests
 #[cfg(test)]
 mod tests {
     use super::*;

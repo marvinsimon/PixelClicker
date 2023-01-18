@@ -3,17 +3,23 @@ use crate::sql_queries::fill_event_table;
 
 #[derive(sqlx::Type)]
 #[sqlx(type_name = "event_type", rename_all = "lowercase")]
+
+//// Event Struct and Creation
+
+/// The possible types of events
 pub enum EventType {
     Daily,
     Weekly,
     Seasonal,
 }
 
+/// Creates and refreshes daily events
 pub async fn daily_event(pool: &PgPool) {
     let daily_events = create_events(EventType::Daily);
     fill_event_table(daily_events, EventType::Daily, pool).await;
 }
 
+/// Creates events of the given event type
 fn create_events(event_type: EventType) -> Vec<&'static str> {
     let daily_event_vec = vec!["Mine {} ores.", "Collect {} number of diamonds.", "Dig {} deep into the ground"];
     let weekly_event_vec = vec!["Mine {} ores.", "Collect {} number of diamonds.", "Dig {} deep into the ground"];

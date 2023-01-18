@@ -7,6 +7,6 @@ RUN apt-get install postgresql-client -y
 WORKDIR /clicker_backend
 COPY . .
 
-RUN cargo run --bin typescript_gen
+RUN cargo run --bin typescript_gen --release
 
 ENTRYPOINT [ "bash", "docker-entrypoint.sh" ]

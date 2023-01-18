@@ -11,7 +11,6 @@ use regex::Regex;
 use rustrict::CensorStr;
 use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
-use tower_http::cors::CorsLayer;
 
 use crate::{calculate_combat, handle_game, PLAYER_AUTH, root, save_score, SECONDS_DAY};
 use crate::game_state::GameState;
@@ -38,7 +37,7 @@ pub async fn start_server(pool: &Pool<Postgres>, session_store: AxumSessionStore
 
     #[cfg(debug_assertions)]
     {
-        app = app.layer(CorsLayer::very_permissive().allow_credentials(true));
+        app = app.layer(tower_http::cors::CorsLayer::very_permissive().allow_credentials(true));
     }
 
 

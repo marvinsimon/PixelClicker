@@ -19,11 +19,14 @@ services:
       - clicker-db
     links:
       - clicker-db
-    ports:
-      - '3001:3001'
+    expose:
+      - 3001
     volumes:
       - sharedVolume:/clicker_backend/shared_volume
       - ./clicker_backend/src:/clicker_backend/src
+    environment:
+      - DATABASE_URL=postgresql://admin:clickerroyale@clicker_db:5432/royal-db
+      - POSTGRES_HOST=clicker_db
 
   clicker-frontend:
     container_name: clicker_frontend
@@ -31,6 +34,8 @@ services:
       context: ./clicker_frontend
     ports:
       - '3000:3000'
+    depends_on:
+      - clicker-backend
     volumes:
       - sharedVolume:/clicker_frontend/shared_volume
       - ./clicker_frontend/src:/clicker_frontend/src

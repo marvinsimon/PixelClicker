@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS Player;
+DROP TABLE IF EXISTS Player;
 CREATE TABLE Player
 (
     id              BIGSERIAL PRIMARY KEY,
@@ -15,7 +15,7 @@ CREATE TABLE Player
     offline_depth   BIGINT  NOT NULL DEFAULT 0
 );
 
--- DROP TABLE IF EXISTS PVP;
+DROP TABLE IF EXISTS PVP;
 CREATE TABLE PVP
 (
     id        BIGSERIAL PRIMARY KEY,
@@ -25,9 +25,11 @@ CREATE TABLE PVP
     timestamp BIGINT NOT NULL
 );
 
+
+DROP TYPE IF EXISTS event_type CASCADE;
 CREATE TYPE event_type AS ENUM ('daily', 'weekly', 'seasonal');
 
--- DROP TABLE IF EXISTS Event;
+DROP TABLE IF EXISTS Event;
 CREATE TABLE Event
 (
     id             BIGSERIAL PRIMARY KEY,
@@ -36,7 +38,7 @@ CREATE TABLE Event
 );
 
 
--- DROP TABLE IF EXISTS Player_Event;
+DROP TABLE IF EXISTS Player_Event;
 -- This table needs to be deleted in a daily cron job and reinitialized
 CREATE TABLE Player_Event
 (

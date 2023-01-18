@@ -1,5 +1,5 @@
 import type {Component} from "solid-js";
-import {createSignal, onCleanup, Show} from "solid-js";
+import {createSignal, onCleanup, onMount, Show} from "solid-js";
 import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
@@ -230,11 +230,10 @@ const App: Component = () => {
         }
     }
 
-    // @ts-ignore
-    window.onload = async () => {
+    onMount(async () => {
         await connectBackend();
         setupPhaserGame();
-    }
+    });
 
     /*
     * Sets up and configures the phaser contents of the game

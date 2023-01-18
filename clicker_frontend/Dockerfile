@@ -6,4 +6,4 @@ COPY . .
 
 RUN npm install
 
-ENTRYPOINT [ "npm", "run", "build"]
+RUN npm run build

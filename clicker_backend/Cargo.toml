@@ -18,6 +18,7 @@ axum = { version = "0.6.2", features = ["ws"] }
 axum-auth = "0.4.0"
 axum_database_sessions = { version = "5.0.0" }
 axum_sessions_auth = "5.0.1"
+axum-server = { version = "0.4.4", features = ["tls-rustls"] }
 dashmap = "5.4.0"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"

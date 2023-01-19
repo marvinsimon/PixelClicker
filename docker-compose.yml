@@ -50,6 +50,8 @@ services:
       context: ./clicker_proxy
     ports:
       - "443:443"
+    depends_on:
+      - clicker_backend
 
 volumes:
   sharedVolume:

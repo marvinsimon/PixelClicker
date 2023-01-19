@@ -51,7 +51,7 @@ services:
     ports:
       - "443:443"
     depends_on:
-      - clicker_backend
+      - clicker-backend
 
 volumes:
   sharedVolume:

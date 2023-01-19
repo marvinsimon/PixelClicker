@@ -10,7 +10,15 @@ services:
       - POSTGRES_PASSWORD=clickerroyale
       - POSTGRES_USER=admin
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready",
+          "-U",
+          "admin",
+          "-d",
+          "royal-db"
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -46,4 +54,5 @@ services:
 volumes:
   sharedVolume:
   staticAssets:
-  
+
+

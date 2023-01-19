@@ -5,6 +5,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # Copy Keyfiles for TLS.
-COPY xms-dev.com.key xms-dev.com.key
-COPY xms-dev.com.pem xms-dev.com.pem
+COPY xms-dev.com.key /etc/nginx/xms-dev.com.key
+COPY xms-dev.com.pem /etc/nginx/xms-dev.com.pem
 

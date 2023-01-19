@@ -75,7 +75,7 @@ const App: Component = () => {
     const connectBackend = async () => {
         if (socket != null)
             disconnectBackend();
-        socket = new WebSocket("ws://localhost:3001/game");
+        socket = new WebSocket("ws://0.0.0.0:3001/game");
 
         // Handle incoming messages
         socket.onmessage = (msg) => {

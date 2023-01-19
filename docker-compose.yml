@@ -5,6 +5,8 @@ services:
     container_name: clicker_db
     expose:
       - 5432
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_DB=royal-db
       - POSTGRES_PASSWORD=clickerroyale
@@ -25,10 +27,11 @@ services:
         condition: service_healthy
     expose:
       - 3001
+    ports:
+      - "3001:3001"
     volumes:
       - sharedVolume:/clicker_backend/shared_volume
       - staticAssets:/clicker_backend/dist
-      - staticCert:/clicker_backend/cert
     environment:
       - DATABASE_URL=postgresql://admin:clickerroyale@clicker_db:5432/royal-db
       - POSTGRES_HOST=clicker_db
@@ -51,12 +54,9 @@ services:
       - "443:443"
     depends_on:
       - clicker-backend
-    volumes:
-      - staticCert:/clicker_proxy
 
 volumes:
   sharedVolume:
   staticAssets:
-  staticCert:
 
 

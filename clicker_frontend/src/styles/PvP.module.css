@@ -79,7 +79,7 @@
 
 .pvp_attack {
     top: 72%;
-    background-image: url("src/assets/img/attack_button.png");
+    background-image: url("../assets/img/attack_button.png");
     height: 26%;
     width: 122%;
 }

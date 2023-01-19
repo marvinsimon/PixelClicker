@@ -2,8 +2,15 @@
 name = "clicker_backend"
 version = "0.1.0"
 edition = "2021"
+default-run = "clicker_backend"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "clicker_backend"
+path = "src/main.rs"
+[[bin]]
+name = "typescript_gen"
+path = "src/typescript_gen_bin.rs"
 
 [dependencies]
 anyhow = "1.0.68"
@@ -16,9 +23,12 @@ serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.91"
 sqlx = { version = "0.6.2", features = ["json", "chrono", "postgres"] }
 tokio = { version = "1.24.1", features = ["full"] }
-tower-http = { version = "0.3.5", features = ["cors"] }
+tower-http = { version = "0.3.5", features = ["cors", "fs", "trace"] }
 typescript-type-def = "0.5.5"
 argon2 = "0.4.1"
 rand_core = { version = "0.6.4", features = ["std"] }
 regex = "1.7.1"
 rustrict = "0.5.10"
+dotenv = "0.15.0"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

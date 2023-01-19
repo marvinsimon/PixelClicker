@@ -1,21 +1,26 @@
 import type {Component} from "solid-js";
-import {createSignal, onCleanup, Show} from "solid-js";
+import {createSignal, onCleanup, onMount, Show} from "solid-js";
 import styles from "./App.module.css";
 import pvpModule from "./styles/PvP.module.css";
 import mineModule from "./styles/Mining.module.css";
 import displayModule from "./styles/Display.module.css";
 import shopModule from "./styles/Shop.module.css";
 import rankModule from "./styles/Leaderboard.module.css";
-import {ClientMessages, ServerMessages} from "./game_messages";
+import {ClientMessages, ServerMessages} from "../shared_volume/game_messages";
 import ClickerRoyaleGame from "./ClickerRoyaleGame";
 import Phaser from "phaser";
 import Preload from "./scenes/preload";
 import Play from "./scenes/play";
+import ClickerRoyale_Wappen from "./assets/img/ClickerRoyale_Wappen.png";
+import board_with_icons from "./assets/img/board_with_icons.png";
+import Brett_Neu_test from "./assets/img/Brett_Neu_test.png";
+import board_new_small from "./assets/img/board_new_small.png";
+import leaderboard4 from "./assets/img/leaderboard4.png";
+import button_click from "./assets/audio/button_click.mp3";
 
 /**
  * This is the Frontend of Clicker Royale.
  */
-
 const App: Component = () => {
     /*
     * Variable and signal initialisations/declarations
@@ -87,7 +92,6 @@ const App: Component = () => {
                 switch (arr) {
                     case "NewState":
                         if ('NewState' in event) {
-                            console.log(event.NewState);
                             setOre(event.NewState.ore);
                             setDepth(event.NewState.depth);
                             game.depth = depth();
@@ -95,7 +99,6 @@ const App: Component = () => {
                         break;
                     case "ShovelDepthUpgraded":
                         if ("ShovelDepthUpgraded" in event) {
-                            console.log(event.ShovelDepthUpgraded);
                             setShovelDepth(event.ShovelDepthUpgraded.new_level);
                             if (event.ShovelDepthUpgraded.success) {
                                 subtractCost(formatNumbers(shovelDepthPrice()));
@@ -105,7 +108,6 @@ const App: Component = () => {
                         break;
                     case "ShovelAmountUpgraded":
                         if ("ShovelAmountUpgraded" in event) {
-                            console.log(event.ShovelAmountUpgraded);
                             setShovelAmount(event.ShovelAmountUpgraded.new_level);
                             if (event.ShovelAmountUpgraded.success) {
                                 subtractCost(formatNumbers(shovelAmountPrice()));
@@ -124,7 +126,6 @@ const App: Component = () => {
                         break;
                     case "AutomationDepthUpgraded":
                         if ("AutomationDepthUpgraded" in event) {
-                            console.log(event.AutomationDepthUpgraded);
                             setAutoDepth(event.AutomationDepthUpgraded.new_level);
                             if (event.AutomationDepthUpgraded.success) {
                                 subtractCost(formatNumbers(autoDepthPrice()));
@@ -134,7 +135,6 @@ const App: Component = () => {
                         break;
                     case "AutomationAmountUpgraded":
                         if ("AutomationAmountUpgraded" in event) {
-                            console.log(event.AutomationAmountUpgraded);
                             setAutoAmount(event.AutomationAmountUpgraded.new_level);
                             if (event.AutomationAmountUpgraded.success) {
                                 subtractCost(formatNumbers(autoAmountPrice()));
@@ -144,7 +144,6 @@ const App: Component = () => {
                         break;
                     case "AttackLevelUpgraded":
                         if ("AttackLevelUpgraded" in event) {
-                            console.log(event.AttackLevelUpgraded);
                             setAttackLevel(event.AttackLevelUpgraded.new_level);
                             if (event.AttackLevelUpgraded.success) {
                                 subtractCost(formatNumbers(attackPrice()));
@@ -154,7 +153,6 @@ const App: Component = () => {
                         break;
                     case "DefenceLevelUpgraded":
                         if ("DefenceLevelUpgraded" in event) {
-                            console.log(event.DefenceLevelUpgraded);
                             setDefenceLevel(event.DefenceLevelUpgraded.new_level);
                             if (event.DefenceLevelUpgraded.success) {
                                 subtractCost(formatNumbers(defencePrice()));
@@ -164,26 +162,22 @@ const App: Component = () => {
                         break;
                     case "CombatElapsed":
                         if ("CombatElapsed" in event) {
-                            console.log(event.CombatElapsed);
                             lootArrived(event.CombatElapsed);
                         }
                         break;
                     case "LoggedIn":
                         if ("LoggedIn" in event) {
-                            console.log("Still logged in");
                             setAuth(true);
                             setLoggedIn(true);
                         }
                         break;
                     case "LoginState":
                         if ("LoginState" in event) {
-                            console.log(event.LoginState);
                             setLoginStates(event.LoginState);
                         }
                         break;
                     case "MinedOffline":
                         if ("MinedOffline" in event) {
-                            console.log("Got offline resources");
                             setTotalDepth(event.MinedOffline.depth);
                             setTotalAmount(event.MinedOffline.ore);
                             setShowOfflineResources(true);
@@ -201,31 +195,26 @@ const App: Component = () => {
                         break;
                     case "TreasureFound":
                         if ("TreasureFound" in event) {
-                            console.log('Treasure found');
                             setOre(event.TreasureFound.ore);
                         }
                         break;
                     case "DiamondFound":
                         if ("DiamondFound" in event) {
-                            console.log('Diamond found');
                             setDiamond(event.DiamondFound.diamond);
                         }
                         break;
                     case "GameData":
                         if ("GameData" in event) {
-                            console.log('Load game data');
                             loadGameData(event.GameData.picked_first_diamond);
                         }
                         break;
                     case "SendLeaderboard":
                         if ("SendLeaderboard" in event) {
-                            console.log('Load Leaderboard');
                             players = event.SendLeaderboard.players;
                         }
                         break;
                     case "SendPvpScore":
                         if ("SendPvpScore" in event) {
-                            console.log('Load pvp score');
                             setPvpScore(event.SendPvpScore.pvp_score);
                         }
                         break;
@@ -241,11 +230,10 @@ const App: Component = () => {
         }
     }
 
-    // @ts-ignore
-    window.onload = async () => {
+    onMount(async () => {
         await connectBackend();
         setupPhaserGame();
-    }
+    });
 
     /*
     * Sets up and configures the phaser contents of the game
@@ -552,13 +540,11 @@ const App: Component = () => {
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         let username = username_field.value;
-        console.log(username);
         const response = await fetch("http://localhost:3001/sign_up", {
             method: "GET",
             credentials: "include",
             headers: {Authorization: `Basic ${auth}`, Username: username}
         });
-        console.log(`sign_up: ${response.statusText}`);
         switch (response.status) {
             case 200:   //OK
                 setLoggedIn(true);
@@ -568,7 +554,6 @@ const App: Component = () => {
                 break;
             case 400:   //Bad_Request
                 badStatusPopup();
-                console.log('Bad Request');
                 break;
             case 406:   //Not_Acceptable
                 //email did not follow form [abc]@[nop].[xyz] or username was inappropriate
@@ -585,7 +570,6 @@ const App: Component = () => {
                 credentials: "include",
                 headers: {Authorization: `Basic ${auth}`},
             });
-            console.log(`login: ${response.statusText}`);
             switch (response.status) {
                 case 200:
                     await connectBackend();
@@ -595,7 +579,6 @@ const App: Component = () => {
                 case 401:
                     //credentials did not match any existing user
                     badStatusPopup();
-                    console.log('Unauthorized');
                     break;
             }
         }
@@ -607,7 +590,6 @@ const App: Component = () => {
                 method: "GET",
                 credentials: "include",
             });
-            console.log(`sign_out: ${response.statusText}`);
             if (response.ok) {
                 disconnectBackend();
                 setLoggedIn(false);
@@ -619,7 +601,6 @@ const App: Component = () => {
                 await connectBackend();
             }
         } else {
-            console.log(`sign_out: failed`);
         }
     }
 
@@ -630,11 +611,9 @@ const App: Component = () => {
         });
         if (response.status == 200) { //200 == StatusCode OK
             setAttacked(true);
-            console.log("Start timer");
             //Start timer
             await startTimer();
         } else if (response.status == 204) { //204 == StatusCode NO_CONTENT
-            console.log("No match");
         }
     }
 
@@ -724,7 +703,7 @@ const App: Component = () => {
     /*
     * Functions for sounds on button click
     */
-    const buttonClick = new Audio("src/assets/audio/button_click.mp3");
+    const buttonClick = new Audio(button_click);
     buttonClick.preload = "none";
 
     const playButtonSound = async () => {
@@ -837,7 +816,7 @@ const App: Component = () => {
                     <div class={styles.heil_img}></div>
                 </div>
                 <div class={styles.header}>
-                    <img src={"src/assets/img/ClickerRoyale_Wappen.png"} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
+                    <img src={ClickerRoyale_Wappen} class={styles.header_logo} alt={"ClickerRoyale Logo"}/>
                     <label>{username()}</label>
                     <Show when={!loggedIn()}
                           fallback={
@@ -948,7 +927,7 @@ const App: Component = () => {
                 <div class={styles.board}>
                     <div class={styles.val_board}>
                         <div class={styles.board_img_container}>
-                            <img src={"src/assets/img/board_with_icons.png"} class={styles.board_img} alt={"Value board"}/>
+                            <img src={board_with_icons} class={styles.board_img} alt={"Value board"}/>
                             <div id={"cost"} class={styles.cost}>{costNumber()}</div>
                             <div class={styles.label_header + " " + displayModule.label_ore}>
                                 <label>{formatNumbers(ore())}</label>
@@ -983,7 +962,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={Brett_Neu_test} class={styles.board_img_right} alt={"Control board"}/>
                                 <button class={styles.button_close} onClick={() => {
                                     slideOut();
                                     window.setTimeout(function () {
@@ -1045,7 +1024,7 @@ const App: Component = () => {
                               </>
                           } keyed>
                         <div class={styles.slideIn}>
-                            <img src={"src/assets/img/Brett_Neu_test.png"} class={styles.board_img_right} alt={"Control board"}/>
+                            <img src={Brett_Neu_test} class={styles.board_img_right} alt={"Control board"}/>
                             <button class={styles.button_close} onClick={() => {
                                 if (automation_on()) {
                                     slideOutAutomate();
@@ -1097,7 +1076,7 @@ const App: Component = () => {
                                 <label class={styles.label_header + " " + mineModule.label_automate}>Automate On</label>
                                 <div class={styles.slideIn_automate}>
                                     <div class={styles.image_container_automate}>
-                                        <img src={"src/assets/img/board_new_small.png"} class={styles.board_img_automate}
+                                        <img src={board_new_small} class={styles.board_img_automate}
                                              alt={"Automate Board"}/>
                                         <a class={mineModule.auto_label_board}>
                                             <label
@@ -1146,7 +1125,7 @@ const App: Component = () => {
                           } keyed>
                         <div class={styles.slideIn}>
                             <div class={styles.image_container}>
-                                <img src={ "src/assets/img/leaderboard4.png"} class={styles.board_img_right} alt={"Control board"}/>
+                                <img src={ leaderboard4} class={styles.board_img_right} alt={"Control board"}/>
                                 <div id={"leaderboard"}
                                      class={styles.label_header + " " + rankModule.leaderboard}></div>
                                 <div id={"pvpScore"} class={styles.label_header + " " + rankModule.score}>

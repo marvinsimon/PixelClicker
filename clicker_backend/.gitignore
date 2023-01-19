@@ -1,2 +1,4 @@
 /target
 master-key
+dist
+game_messages.ts

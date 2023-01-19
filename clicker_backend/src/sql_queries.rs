@@ -2,8 +2,7 @@ use serde::Serialize;
 use serde_json::Value;
 use sqlx::{PgPool, Row, FromRow, Error};
 use sqlx::postgres::PgRow;
-use sqlx::types::chrono::Utc;
-
+use crate::Utc;
 use crate::events::EventType;
 use crate::game_state::GameState;
 

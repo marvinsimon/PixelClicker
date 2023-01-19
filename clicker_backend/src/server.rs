@@ -1,19 +1,21 @@
 use std::net::SocketAddr;
+use std::path::PathBuf;
 
+use tower_http::services::ServeDir;
 use axum::{Extension, Router};
 use axum::extract::WebSocketUpgrade;
 use axum::http::{HeaderMap, StatusCode};
 use axum::response::Response;
-use axum::routing::get;
+use axum::routing::{get, get_service};
 use axum_auth::AuthBasic;
 use axum_database_sessions::{AxumPgPool, AxumSession, AxumSessionConfig, AxumSessionLayer, AxumSessionStore, Key};
 use regex::Regex;
 use rustrict::CensorStr;
 use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
-use tower_http::cors::CorsLayer;
+use tower_http::trace::TraceLayer;
 
-use crate::{calculate_combat, handle_game, PLAYER_AUTH, root, save_score, SECONDS_DAY};
+use crate::{calculate_combat, handle_game, PLAYER_AUTH, save_score, SECONDS_DAY};
 use crate::game_state::GameState;
 use crate::password_management::{hash_password, verify_password};
 use crate::sql_queries::{insert_player_into_db, save_game_state_to_database, save_timestamp_to_database, search_for_enemy, set_player_as_offline, set_player_as_online, write_state_diff_to_database};
@@ -22,27 +24,38 @@ use crate::sql_queries::{insert_player_into_db, save_game_state_to_database, sav
 
 /// Starts the server and sets the routing
 pub async fn start_server(pool: &Pool<Postgres>, session_store: AxumSessionStore<AxumPgPool>) {
+
+
+    let assets_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("dist");
+
+    println!("AssetsDir: {:?}", assets_dir);
+    let static_file_service = get_service(ServeDir::new(assets_dir)
+        .append_index_html_on_directories(true))
+        .handle_error(|err: std::io::Error| async move {
+            println!("Error occured :) {}", err);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Invalid file access.")
+
+        });
     // Build our application with a route
     #[allow(unused_mut)]
         let mut app = Router::new()
-        // `GET /` goes to `root`
-        .route("/", get(root))
         .route("/game", get(connect_game))
         .route("/sign_up", get(sign_up))
         .route("/login", get(login))
         .route("/logout", get(logout))
         .route("/combat", get(attack))
         .route("/save_pfp", get(update_profile_picture))
+        .fallback_service(static_file_service)
+        .layer(TraceLayer::new_for_http())
         .layer(Extension(pool.clone()))
         .layer(AxumSessionLayer::new(session_store));
 
     #[cfg(debug_assertions)]
     {
-        app = app.layer(CorsLayer::very_permissive().allow_credentials(true));
+        app = app.layer(tower_http::cors::CorsLayer::very_permissive().allow_credentials(true));
     }
 
-
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3001));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3001));
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await

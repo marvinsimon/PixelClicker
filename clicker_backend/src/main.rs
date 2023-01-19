@@ -5,13 +5,15 @@ use axum_database_sessions::{AxumPgPool, AxumSession};
 use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
 use tokio::time::Instant;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 use crate::events::daily_event;
 use crate::game_messages::{ClientMessages, ServerMessages};
 use crate::game_state::GameState;
 use crate::server::{create_session_table, start_server};
-use crate::sql_queries::{get_top_players, get_profile_picture, get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_pvp_score, test_for_new_registry};
-use crate::startup::{check_for_players, create_game_message_file_type_script, create_session_key};
+use crate::sql_queries::{get_profile_picture, get_top_players, get_username, insert_pvp_data, load_game_state_from_database, pvp_resource_query, save_game_state_to_database, save_score_to_database, save_timestamp_to_database, search_pvp_score, test_for_new_registry};
+use crate::startup::{check_for_players, create_session_key};
 
 mod game_messages;
 mod game_state;
@@ -20,7 +22,7 @@ mod sql_queries;
 mod password_management;
 mod startup;
 mod server;
-
+mod typescript_gen;
 //// Main Method, Initialisations and Communication Routings
 
 const SECONDS_DAY: i64 = 84600;
@@ -29,9 +31,21 @@ const PLAYER_AUTH: &str = "player-auth";
 
 #[tokio::main]
 async fn main() {
-    let pool = connect_to_database().await.unwrap();
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::new(
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "logging=debug,tower_http=debug".into()),
+        ))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
 
-    create_game_message_file_type_script();
+
+    #[cfg(debug_assertions)]
+    {
+        dotenv::dotenv().ok();
+        typescript_gen::create_game_message_file_type_script();
+    }
+
+    let pool = connect_to_database().await.unwrap();
 
     // Initialize Events
     daily_event(&pool).await;
@@ -45,13 +59,13 @@ async fn main() {
 
 
 async fn connect_to_database() -> anyhow::Result<Pool<Postgres>> {
-    Ok(Pool::connect("postgresql://admin:clickerroyale@localhost:5432/royal-db").await?)
+    let url = format!("postgresql://admin:clickerroyale@{}:5432/royal-db", std::env::var("POSTGRES_HOST")?);
+
+    println!("Connecting to: {}", url);
+
+    Ok(Pool::connect(&url).await?)
 }
 
-/// Basic handler that responds with a static string
-async fn root() -> &'static str {
-    "Hello, World!"
-}
 
 /// Creates and maintains the game loop and handles the communication from within the game state and the frontend
 async fn handle_game(mut socket: WebSocket, session: AxumSession<AxumPgPool>, pool: PgPool) {

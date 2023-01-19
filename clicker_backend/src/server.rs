@@ -57,8 +57,8 @@ pub async fn start_server(pool: &Pool<Postgres>, session_store: AxumSessionStore
     }
 
     let config = RustlsConfig::from_pem_file(
-        "../clicker_proxy/xms-dev.com.pem",
-        "../clicker_proxy/xms-dev.com.key",
+        "./cert/xms-dev.com.pem",
+        "./cert/xms-dev.com.key",
     )
         .await
         .unwrap();

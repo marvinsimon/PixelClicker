@@ -47,6 +47,13 @@ services:
     volumes:
       - sharedVolume:/clicker_frontend/shared_volume
       - staticAssets:/clicker_frontend/dist
+
+
+  clicker-proxy:
+    container_name: clicker_proxy
+    build:
+      context: ./clicker_proxy
+    
 volumes:
   sharedVolume:
   staticAssets:

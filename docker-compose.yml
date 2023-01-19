@@ -10,11 +10,7 @@ services:
       - POSTGRES_PASSWORD=clickerroyale
       - POSTGRES_USER=admin
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U admin -d royal-db -q"
-        ]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d royal-db -q" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -48,12 +44,13 @@ services:
       - sharedVolume:/clicker_frontend/shared_volume
       - staticAssets:/clicker_frontend/dist
 
-
   clicker-proxy:
     container_name: clicker_proxy
     build:
       context: ./clicker_proxy
-    
+    ports:
+      - "443:443"
+
 volumes:
   sharedVolume:
   staticAssets:

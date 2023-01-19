@@ -13,12 +13,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready",
-          "-U",
-          "admin",
-          "-d",
-          "royal-db",
-          "-q"
+          "pg_isready -U admin -d royal-db -q"
         ]
       interval: 5s
       timeout: 5s

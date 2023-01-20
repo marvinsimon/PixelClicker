@@ -75,7 +75,7 @@ const App: Component = () => {
     const connectBackend = async () => {
         if (socket != null)
             disconnectBackend();
-        socket = new WebSocket("wss://localhost");
+        socket = new WebSocket("wss://clicker-royal.xms-dev.com/game");
 
         // Handle incoming messages
         socket.onmessage = (msg) => {

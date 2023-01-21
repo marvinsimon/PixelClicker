@@ -25,6 +25,8 @@ services:
         condition: service_healthy
     expose:
       - 3001
+    ports:
+      - "3001:3001"
     volumes:
       - sharedVolume:/clicker_backend/shared_volume
       - staticAssets:/clicker_backend/dist

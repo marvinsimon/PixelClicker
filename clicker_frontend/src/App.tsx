@@ -75,7 +75,7 @@ const App: Component = () => {
     const connectBackend = async () => {
         if (socket != null)
             disconnectBackend();
-        socket = new WebSocket("wss://clicker-royale.xms-dev.com/game:3001");
+        socket = new WebSocket("wss://clicker-royale.xms-dev.com/game");
 
         // Handle incoming messages
         socket.onmessage = (msg) => {
@@ -251,7 +251,7 @@ const App: Component = () => {
             //@ts-ignore
             parent: document.getElementById('main'),
             title: 'Clicker Royale',
-            url: 'http://localhost:3000',
+            url: 'https://clicker-royale.xms-dev.com',
             width: 1000,
             height: 830,
             physics: {
@@ -540,7 +540,7 @@ const App: Component = () => {
     const sign_up = async () => {
         let auth = btoa(`${email_field.value}:${password_field.value}`);
         let username = username_field.value;
-        const response = await fetch("http://localhost:3001/sign_up", {
+        const response = await fetch("https://clicker-royale.xms-dev.com/sign_up", {
             method: "GET",
             credentials: "include",
             headers: {Authorization: `Basic ${auth}`, Username: username}
@@ -565,7 +565,7 @@ const App: Component = () => {
         if (!auth()) {
             disconnectBackend();
             let auth = btoa(`${email_field.value}:${password_field.value}`);
-            const response = await fetch("http://localhost:3001/login", {
+            const response = await fetch("https://clicker-royale.xms-dev.com/login", {
                 method: "GET",
                 credentials: "include",
                 headers: {Authorization: `Basic ${auth}`},
@@ -586,7 +586,7 @@ const App: Component = () => {
 
     const sign_out = async () => {
         if (auth()) {
-            const response = await fetch("http://localhost:3001/logout", {
+            const response = await fetch("https://clicker-royale.xms-dev.com/logout", {
                 method: "GET",
                 credentials: "include",
             });
@@ -605,7 +605,7 @@ const App: Component = () => {
     }
 
     const attack = async () => {
-        const response = await fetch("http://localhost:3001/combat", {
+        const response = await fetch("https://clicker-royale.xms-dev.com/combat", {
             method: "GET",
             credentials: "include",
         });
@@ -770,7 +770,7 @@ const App: Component = () => {
     }
 
     const saveImg = async () => {
-        await fetch("http://localhost:3001/save_pfp", {
+        await fetch("https://clicker-royale.xms-dev.com//save_pfp", {
             method: "GET",
             credentials: "include",
             headers: {pfp: uploaded_image},

@@ -14,7 +14,6 @@ use rustrict::CensorStr;
 use sqlx::{PgPool, Pool, Postgres};
 use sqlx::types::chrono::Utc;
 use tower_http::trace::TraceLayer;
-use axum_server::tls_rustls::RustlsConfig;
 
 use crate::{calculate_combat, handle_game, PLAYER_AUTH, save_score, SECONDS_DAY};
 use crate::game_state::GameState;
@@ -56,15 +55,8 @@ pub async fn start_server(pool: &Pool<Postgres>, session_store: AxumSessionStore
         app = app.layer(tower_http::cors::CorsLayer::very_permissive().allow_credentials(true));
     }
 
-    let config = RustlsConfig::from_pem_file(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("./cert/xms-dev.com.pem"),
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("./cert/xms-dev.com.key"),
-    )
-        .await
-        .unwrap();
-
     let addr = SocketAddr::from(([0, 0, 0, 0], 3001));
-    axum_server::bind_rustls(addr, config)
+    axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
